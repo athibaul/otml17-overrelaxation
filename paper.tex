@@ -1,0 +1,223 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{nips14submit_e,times}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+
+%\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
+
+\usepackage{cite}
+
+% Math operators
+\newcommand{\scal}[2]{\left\langle #1 , #2 \right\rangle}
+\DeclareMathOperator{\IR}{\mathbb{R}}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator{\One}{\mathbbm{1}}
+\DeclareMathOperator{\Ccal}{\mathcal{C}}
+\DeclareMathOperator{\logsumexp}{logsumexp}
+\DeclareMathOperator{\diag}{diag}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\renewcommand{\epsilon}{\varepsilon}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\newtheorem{example}{Example}
+
+
+\title{Over-relaxed Sinkhorn's Algorithm for Regularized Optimal Transport}
+
+
+\author{
+Alexis THIBAULT\\
+\'Ecole Normale Sup\'erieure\\
+Paris, France\\
+\texttt{alexis.thibault@ens.fr}
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\nipsfinalcopy % Uncomment for camera-ready version
+
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+This article describes a method for quickly calculating the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn's algorithm). The idea is to over-relax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
+\end{abstract}
+
+\section{Iterative Bregman projections}
+
+\subsection{Regularized optimal transport}
+
+\[
+K^\epsilon(\gamma) = \scal{c}{\gamma}
++ \epsilon \sum_{i,j} \gamma_{i,j} (\log(\gamma_{i,j}) - 1)
+\]
+\begin{equation}\label{eq:reg_ot_pb}
+\gamma^* = \argmin_{\Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma^*)
+\end{equation}
+Constraint sets:
+\begin{align*}
+A_1 &: \begin{cases}
+\IR^{mn} \rightarrow \IR^m \\
+(A_1 x)_i = \sum_j x_{i,j}
+\end{cases} &
+A_2 &: \begin{cases}
+\IR^{mn} \rightarrow \IR^n\\
+(A_2 x)_j = \sum_i x_{i,j}
+\end{cases}
+\end{align*}
+\begin{align*}
+\Ccal_1 &= \left\{ \gamma\in\IR^{mn} \mid A_1 \gamma = \mu \right\} &
+\Ccal_2 &= \left\{ \gamma\in\IR^{mn} \mid A_2 \gamma = \nu \right\}
+\end{align*}
+Kullback-Leibler divergence:
+\[ 
+KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}
+\]
+Bregman projection onto $\Ccal$:
+\[
+P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} KL(\gamma,\xi)
+\]
+\[\argmin_{\gamma \in \Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma) = P_{\Ccal_1 \cap \Ccal_2} (e^{-c/\epsilon})\]
+Optimal transport plan: Bregman projection of $\gamma^0 = e^{-c/\epsilon}$ onto $\Ccal_1 \cap \Ccal_2$.
+
+\subsection{Sinkhorn's algorithm}
+
+\begin{align*}
+\gamma^0 &= e^{-c/\epsilon} &
+\gamma^{k+1} = P_{\Ccal_2}(P_{\Ccal_1}(\gamma^k))
+\end{align*}
+Bregman's result: iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}.
+
+Hence this algorithm is correct:
+\[\lim_{k\rightarrow +\infty} \gamma^k = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0) = \gamma^*\]
+
+
+\subsection{Numerical version}
+
+Projections actually correspond to diagonal scalings.
+\begin{align*}
+P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &
+a &=  \frac{\mu}{A_1 \gamma} \\
+P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &
+b &= \frac{\nu}{A_2 \gamma}
+\end{align*}
+(pointwise division).
+
+In practice, simply store $(a^k, b^k)$:
+\[
+\gamma^k = \diag(a^k) \gamma^0 \diag{b^k}
+\]
+\begin{align*}
+a^{k+1} &= \frac{\mu}{\gamma^0 b^k} &
+b^{k+1} &= \frac{\nu}{^t \gamma^0 a^{k+1}} 
+\end{align*}
+
+Efficient implementation: matrix operations on GPU.
+
+
+\section{Over-relaxed Sinkhorn's algorithm}
+
+\subsection{Over-relaxed projections}
+
+Let us define the $\omega$-over-relaxed projection operator by:
+\begin{equation}\label{eq:def_or_proj}
+\log P^\omega_{\Ccal_k}(\gamma) = (1-\omega) \log \gamma + \omega \log P_{\Ccal_k}(\gamma),
+\end{equation}
+where the logarithm is taken coordinate-wise.
+Note that $P^0 = Id$, $P^1 = P$, and $P^2$ is an involution (this is non-trivial, and uses the fact that $\Ccal_k$ is an affine subspace).
+
+\subsection{Lyapunov function}
+Let $\gamma^*$ denote the solution of the regularized OT problem.
+The function $F$ is defined as:
+\begin{equation}\label{eq:lyapunov_function}
+F(\gamma) = KL(\gamma^*, \gamma)
+\end{equation}
+We shall use it as a Lyapunov function, so that $F(\gamma^{k+1}) < F(\gamma^k)$ as long as the process has not converged.
+
+Note that it is not necessary to know $\gamma^*$ in order to calculate the difference $F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma))$, as shown by the following lemma.
+\begin{lemma}\label{lemma:lyapunov_decrease}
+	Take $\gamma$ in $\IR^{mn}_{+*}$. The decrease in value of the Lyapunov function can be calculated with the following formula:
+	\begin{equation} \label{eq:kl_diff_scal}
+	F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma)) = 
+	\scal{\mu}{\varphi_\omega \left(\frac{A_1 \gamma}{\mu}\right)},
+	\end{equation}
+	where
+	\begin{equation}
+	\varphi_\omega(x) = x(1-x^{-\omega}) - \omega e^x
+	\end{equation}
+	is a real function, applied coordinate-wise.
+\end{lemma}
+Thus, calculating the decrease in value of the function $F$ is relatively cheap and straightforward.
+
+\subsection{New algorithm}
+
+\begin{theorem}
+	Let $\theta$ and $\omega$ be such that $1\le \theta < \omega < 2$. Let $U$ be the open set defined by:
+	\begin{equation}\label{eq:open_set_U}
+	U = \left\{
+	\gamma \in \IR_{+*}^{nm} \mid
+	F(P^\omega_{\Ccal_1}(\gamma)) < F(\gamma)
+	\text{ and }
+	F(P^\omega_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma))) < F(P^\theta_{\Ccal_1}(\gamma))
+	\right\}.
+	\end{equation}
+	Set the initial value $\gamma^0 = e^{-c/\epsilon}$, and iterate:
+	\begin{align*}
+	\gamma^{k+1} =
+	\begin{cases}
+	P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^k)) & \text{if } \gamma \in U \\
+	P_{\Ccal_2}(P_{\Ccal_1})(\gamma^k) & \text{otherwise.}
+	\end{cases}
+	\end{align*}
+	Then the iterates $(\gamma^k)$ converge to $\gamma^*$.
+\end{theorem}
+{\color{red} $\longrightarrow$ Has to calculate 3 projections sometimes. This result is weaker than the one from my report, but easier to prove. Maybe we could avoid having $U$, and rather perform the test independently on each variable ? (Or we could find a cheaper test).}
+\begin{remark}
+	Given lemma \ref{lemma:lyapunov_decrease}, we can see that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
+\end{remark}
+
+\begin{proof}
+	(New proof, using the Lyapunov function. Much shorter and cleaner than the one from my report.)
+\end{proof}
+
+
+\section{Local rate of convergence ?}
+
+\section{Experimental results}
+{\color{red} TODO}
+
+
+\section*{Acknowledgments}
+
+
+%\subsubsection*{References}
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}
