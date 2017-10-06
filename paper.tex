@@ -76,23 +76,23 @@ This article describes a method for quickly calculating the solution to the regu
 K^\epsilon(\gamma) = \scal{c}{\gamma}
 + \epsilon \sum_{i,j} \gamma_{i,j} (\log(\gamma_{i,j}) - 1)
 \]
+Two discrete probability measures $\mu^k \in \IR_{+*}^{n_k}$.
 \begin{equation}\label{eq:reg_ot_pb}
 \gamma^* = \argmin_{\Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma^*)
 \end{equation}
 Constraint sets:
 \begin{align*}
 A_1 &: \begin{cases}
-\IR^{mn} \rightarrow \IR^m \\
+\IR^{n_1 n_2} \rightarrow \IR^{n_1} \\
 (A_1 x)_i = \sum_j x_{i,j}
 \end{cases} &
 A_2 &: \begin{cases}
-\IR^{mn} \rightarrow \IR^n\\
+\IR^{n_1 n_2} \rightarrow \IR^{n_2}\\
 (A_2 x)_j = \sum_i x_{i,j}
 \end{cases}
 \end{align*}
 \begin{align*}
-\Ccal_1 &= \left\{ \gamma\in\IR^{mn} \mid A_1 \gamma = \mu \right\} &
-\Ccal_2 &= \left\{ \gamma\in\IR^{mn} \mid A_2 \gamma = \nu \right\}
+\Ccal_k &= \left\{ \gamma\in\IR^{n_1 n_2} \mid A_k \gamma = \mu^k \right\}
 \end{align*}
 Kullback-Leibler divergence:
 \[ 
@@ -109,12 +109,12 @@ Optimal transport plan: Bregman projection of $\gamma^0 = e^{-c/\epsilon}$ onto 
 
 \begin{align*}
 \gamma^0 &= e^{-c/\epsilon} &
-\gamma^{k+1} = P_{\Ccal_2}(P_{\Ccal_1}(\gamma^k))
+\gamma^{l+1} = P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))
 \end{align*}
 Bregman's result: iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}.
 
 Hence this algorithm is correct:
-\[\lim_{k\rightarrow +\infty} \gamma^k = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0) = \gamma^*\]
+\[\lim_{l\rightarrow +\infty} \gamma^l = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0) = \gamma^*\]
 
 
 \subsection{Numerical version}
@@ -122,19 +122,19 @@ Hence this algorithm is correct:
 Projections actually correspond to diagonal scalings.
 \begin{align*}
 P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &
-a &=  \frac{\mu}{A_1 \gamma} \\
+a &=  \frac{\mu^1}{A_1 \gamma} \\
 P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &
-b &= \frac{\nu}{A_2 \gamma}
+b &= \frac{\mu^2}{A_2 \gamma}
 \end{align*}
 (pointwise division).
 
-In practice, simply store $(a^k, b^k)$:
+In practice, simply store $(a^l, b^l)$:
 \[
-\gamma^k = \diag(a^k) \gamma^0 \diag{b^k}
+\gamma^l = \diag(a^l) \gamma^0 \diag{b^l}
 \]
 \begin{align*}
-a^{k+1} &= \frac{\mu}{\gamma^0 b^k} &
-b^{k+1} &= \frac{\nu}{^t \gamma^0 a^{k+1}} 
+a^{l+1} &= \frac{\mu^1}{\gamma^0 b^l} &
+b^{l+1} &= \frac{\mu^2}{^t \gamma^0 a^{l+1}} 
 \end{align*}
 
 Efficient implementation: matrix operations on GPU.
@@ -157,7 +157,16 @@ The function $F$ is defined as:
 \begin{equation}\label{eq:lyapunov_function}
 F(\gamma) = KL(\gamma^*, \gamma)
 \end{equation}
-We shall use it as a Lyapunov function, so that $F(\gamma^{k+1}) < F(\gamma^k)$ as long as the process has not converged.
+It shall be used as a Lyapunov function, so that $F(\gamma^{k+1}) < F(\gamma^k)$ as long as the process has not converged.
+
+
+\begin{lemma} \label{lemma:KL_compact}
+	For any $M \in \IR_+^*$, the sublevel set $\left\{ \gamma \mid F(\gamma) \le M \right\}$ is compact.
+\end{lemma}
+\begin{proof}
+	{\color{red} TODO}
+\end{proof}
+
 
 Note that it is not necessary to know $\gamma^*$ in order to calculate the difference $F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma))$, as shown by the following lemma.
 \begin{lemma}\label{lemma:lyapunov_decrease}
@@ -168,7 +177,7 @@ Note that it is not necessary to know $\gamma^*$ in order to calculate the diffe
 	\end{equation}
 	where
 	\begin{equation}
-	\varphi_\omega(x) = x(1-x^{-\omega}) - \omega e^x
+	\varphi_\omega(x) = x(1-x^{-\omega}) - \omega \log x
 	\end{equation}
 	is a real function, applied coordinate-wise.
 \end{lemma}
@@ -188,21 +197,116 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 	\end{equation}
 	Set the initial value $\gamma^0 = e^{-c/\epsilon}$, and iterate:
 	\begin{align*}
-	\gamma^{k+1} =
+	\gamma^{l+1} =
 	\begin{cases}
-	P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^k)) & \text{if } \gamma \in U \\
+	P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l)) & \text{if } \gamma \in U \\
 	P_{\Ccal_2}(P_{\Ccal_1})(\gamma^k) & \text{otherwise.}
 	\end{cases}
 	\end{align*}
-	Then the iterates $(\gamma^k)$ converge to $\gamma^*$.
+	Then the iterates $(\gamma^l)$ converge to $\gamma^*$.
 \end{theorem}
 {\color{red} $\longrightarrow$ Has to calculate 3 projections sometimes. This result is weaker than the one from my report, but easier to prove. Maybe we could avoid having $U$, and rather perform the test independently on each variable ? (Or we could find a cheaper test).}
 \begin{remark}
-	Given lemma \ref{lemma:lyapunov_decrease}, we can see that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
+	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
 \end{remark}
 
+\begin{lemma}
+	\label{lemma:trivial_intersection}
+	Let us take $\gamma^0$ in $\IR_{+*}^{n_1 n_2}$,
+	and denote
+	\[
+	S = \left\{
+	\diag(a) \gamma^0 \diag(b),\quad
+	(a,b) \in \IR_{+*}^{n_1 + n_2}
+	\right\}
+	\]
+	the set of matrices that are diagonally similar to $\gamma^0$.
+	Then the set $S \cap \Ccal_1 \cap \Ccal_2$ contains exactly one element $\gamma^* = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0)$.
+\end{lemma}
+
+\begin{lemma}\label{lemma:F_P_theta}
+	Let $1\le \theta < \omega$. Then, for any $\gamma \in \IR_{+*}^{nm}$, one has
+	\begin{equation}\label{eq:F_P_theta}
+	F(P^\theta_{\Ccal_k}(\gamma)) \le F(P^\omega_{\Ccal_k}(\gamma)).
+	\end{equation}
+	Moreover, equality occurs if and only if $\gamma \in \Ccal_k$.
+\end{lemma}
 \begin{proof}
+	Thanks to lemma \ref{lemma:lyapunov_decrease}, one knows that
+	\[
+	F(P^\theta_{\Ccal_k}(\gamma)) - F(P^\omega_{\Ccal_k}(\gamma))
+	= \scal{\mu}{(\varphi_\omega - \varphi_\theta) \left( \frac{A_k \gamma}{\mu} \right) } .
+	\]
+	Moreover, $t \in [1,\infty) \mapsto \varphi_t(x)$ is nonincreasing:
+	\[
+	\frac{d}{dt} \varphi_t(x) = \log x (x^{1-t} - 1).
+	\]
+	For $x\neq 1$, it is even strictly decreasing.
+	Thus the inequality (\ref{eq:F_P_theta}) is valid, with equality \emph{iff} $A_1 \gamma = \mu$.
+\end{proof}
+
+\begin{proof}[Proof of the theorem]
 	(New proof, using the Lyapunov function. Much shorter and cleaner than the one from my report.)
+	First of all, notice that the operators $P_{\Ccal_k}^\theta$ apply a scaling to lines or columns of matrices. All $(\gamma^l)$ are thus diagonally similar to $\gamma^0$:
+	\[
+	\forall l\ge0,\quad \gamma^l \in S
+	\]
+	
+	The set $U$ is constructed in such a way that, by applying lemma \ref{lemma:F_P_theta} several times, one ensures that the sequence $(F(\gamma^l))$ is nonincreasing. Moreover, it is strictly decreasing as long as $\gamma^l \not \in \Ccal_1 \cap \Ccal_2$.
+	Hence, 
+	\[
+	F(\gamma^l) \le F(\gamma^0).
+	\]
+	By lemma \ref{lemma:KL_compact}, the sequence $(\gamma^l)$ is thus precompact. Let us show that any accumulation point $\zeta$ belongs to $\Ccal_1 \cap \Ccal_2$. Since $S$ is closed in $\IR_{+*}^{n_1 n_2}$, by lemma \ref{lemma:trivial_intersection} this would mean that $\zeta = \gamma^*$, and would be sufficient to prove the convergence.
+	
+	Let $(\gamma^{k_l})$ be a subsequence of $(\gamma^l)$ that converges to $\zeta$.
+	Let us denote, for convenience, $T_1 = P_{\Ccal_2}^\theta \circ P_{\Ccal_1}^\theta$ and $T_2 = P_{\Ccal_2} \circ P_{\Ccal_1}$ the two operators used in the iteration, and $T$ the compound operator, so that $T_{|U} \equiv T_{1|U}$ and $T_{|U^c} \equiv T_{2|U^c}$.
+	\begin{itemize}
+		\item If $\zeta \in U$, then since $U$ is open, all $(\gamma^{k_l})$ are eventually in $U$ as well.
+		Thus, for any large enough $l$, $ T(\gamma^{k_l}) = T_1(\gamma^{k_l}) $. By continuity of $T_1$ on $U$, since $(\gamma^{k_l})$ converges to $\zeta$, 
+		\[T(\zeta) = \lim_{l\rightarrow \infty} T(\gamma^{k_l}).\] Thus
+		 \[F(T(\zeta)) = \lim_{l \rightarrow \infty} F(T(\gamma^{k_l})) \ge \lim_{l\rightarrow \infty} F(\gamma^{k_{l+1}}) .\]
+		 \[
+		 F(T(\zeta)) \ge F(\zeta)
+		 \] Since $\zeta$ is inside the set $U$, which ensures strict decrease of the Lyapunov function, this is absurd.
+		 \item If $\zeta \in U^c$ and an infinite number of $(\gamma^{k_l})$ are in $U^c$, then the same argument of continuity applied to $T_2$ yields
+		 \[
+		 F(T(\zeta)) = F(\zeta).
+		 \]
+		 The function $\varphi_1$ from lemma \ref{lemma:lyapunov_decrease} is strictly positive except at $x=1$. Since the case of equality occurs for both projections, this ensures that $\zeta \in \Ccal_1 \cap \Ccal_2$.
+		 
+		 \item If $\zeta \in U^c$ and all but finitely many $\gamma^{k_l}$ are in $U$, then $\zeta$ is on the border $\partial U$. In particular it belongs to $\bar{U}$, and therefore
+		 \[
+		 F(P^\omega_{\Ccal_1}(\zeta)) \le F(\zeta) \quad
+		 \text{ and } \quad
+		 F(P^\omega_{\Ccal_2}(P^\theta_{\Ccal_1}(\zeta))) \le F(P^\theta_{\Ccal_1}(\zeta)).
+		 \]
+		 By lemma \ref{lemma:F_P_theta}, the inequality \begin{equation} \label{eq:ineq1}
+		 F(P_{\Ccal_1}^\theta(\zeta)) \le F(P_{\Ccal_1}^\omega(\zeta)) \end{equation}
+		 is valid; it is strict unless $\zeta \in \Ccal_1$.
+		 The same lemma yields
+		 \begin{equation} \label{eq:ineq2}
+		 F(P_{\Ccal_2}^\theta(P_{\Ccal_1}^\theta(\zeta)) \le F(P_{\Ccal_2}^\omega(P_{\Ccal_1}^\theta(\zeta)), \end{equation}
+		 with a strict inequality unless $P_{\Ccal_1}^\theta(\zeta) \in \Ccal_2$.
+		 To sum up, we have the series of inequalities:
+		 \[
+		 F(\zeta) 
+		 \overset{\zeta \in \bar{U}}{\ge}
+		 F(P^\omega_{\Ccal_1}(\zeta))
+		 \overset{\text{(\ref{eq:ineq1})}}{\ge}
+		 F(P^\theta_{\Ccal_1}(\zeta))
+		 \overset{\zeta \in U}{\ge}
+		 F(P_{\Ccal_2}^\omega(P_{\Ccal_1}^\theta(\zeta)))
+		 \overset{\text{(\ref{eq:ineq2})}}{\ge}
+		 F(P_{\Ccal_2}^\theta(P_{\Ccal_1}^\theta(\zeta)))
+		 \]
+		 
+		 Yet, by continuity of $T_1 = P_{\Ccal_2}^\theta \circ P_{\Ccal_1}^\theta $ on $\bar{U}$, we have
+		 \[
+		 F(T_1(\zeta)) = F(\zeta).
+		 \]
+		 Thus both (\ref{eq:ineq1}) and (\ref{eq:ineq2}) fall in the case of equality, which means $\zeta \in \Ccal_1$ and $P^\theta_{\Ccal_1}(\zeta) = \zeta \in \Ccal_2$.
+	\end{itemize}
 \end{proof}
 
 
