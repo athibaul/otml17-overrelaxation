@@ -143,7 +143,7 @@ Efficient parallel computations can be considered \cite{cuturi13} and one can ev
 For small values of the parameter $\epsilon$, numerical issues can arise and a stabilization of the algorithm is necessary \cite{2016arXiv160705816C}.
 The convergence of the process can nevertheless be very slow  in the setting $\epsilon\to 0$ .
 \subsection{Contributions}
-In this paper, we consider an over relaxation scheme  designed to accelerate  the Sinkhorn's algorithm. We first present and show the convergence of our algorithm in section 2. In section 3, we analyze the local convergence rate of the algorithm to justify the acceleration.
+In this paper, we consider an over-relaxation scheme  designed to accelerate  the Sinkhorn's algorithm. We first present and show the convergence of our algorithm in section 2. In section 3, we analyze the local convergence rate of the algorithm to justify the acceleration.
 We finally demonstrate numerically  in Section 4 the good behavior of our method, where larger accelerations are observed for decreasing values of $\epsilon$.
 
 
@@ -157,7 +157,7 @@ Let us define the $\omega$-over-relaxed projection operator by:
 \log P^\omega_{\Ccal_k}(\gamma) = (1-\omega) \log \gamma + \omega \log P_{\Ccal_k}(\gamma),
 \end{equation}
 where the logarithm is taken coordinate-wise.
-Note that $P^0 = Id$, $P^1 = P$, and $P^2$ is an involution (this is non-trivial, and uses the fact that $\Ccal_k$ is an affine subspace).
+Note that $P_{\Ccal_k}^0 = Id$, $P_{\Ccal_k}^1 = P_{\Ccal_k}$, and $P_{\Ccal_k}^2$ is an involution (this is non-trivial, and uses the fact that $\Ccal_k$ is an affine subspace).
 
 \subsection{Lyapunov function}
 Let $\gamma^*$ denote the solution of the regularized OT problem.
