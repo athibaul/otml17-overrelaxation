@@ -68,19 +68,12 @@ Paris, France\\
 This article describes a method for quickly calculating the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn's algorithm). The idea is to over-relax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
 \end{abstract}
 
-\section{Iterative Bregman projections}
+\section{Introduction}
+BLABLA to write
 
-\subsection{Regularized optimal transport}
 
-\[
-K^\epsilon(\gamma) = \scal{c}{\gamma}
-+ \epsilon \sum_{i,j} \gamma_{i,j} (\log(\gamma_{i,j}) - 1)
-\]
-Two discrete probability measures $\mu^k \in \IR_{+*}^{n_k}$.
-\begin{equation}\label{eq:reg_ot_pb}
-\gamma^* = \argmin_{\Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma^*)
-\end{equation}
-Constraint sets:
+We consider two discrete probability measures $\mu^k \in \IR_{+*}^{n_k}$.
+Let us define the two following linear operators
 \begin{align*}
 A_1 &: \begin{cases}
 \IR^{n_1 n_2} \rightarrow \IR^{n_1} \\
@@ -88,56 +81,71 @@ A_1 &: \begin{cases}
 \end{cases} &
 A_2 &: \begin{cases}
 \IR^{n_1 n_2} \rightarrow \IR^{n_2}\\
-(A_2 x)_j = \sum_i x_{i,j}
+(A_2 x)_j = \sum_i x_{i,j},
 \end{cases}
 \end{align*}
+as well as the convex constraint sets
 \begin{align*}
-\Ccal_k &= \left\{ \gamma\in\IR^{n_1 n_2} \mid A_k \gamma = \mu^k \right\}
+\Ccal_k &= \left\{ \gamma\in\IR^{n_1 n_2} \mid A_k \gamma = \mu^k \right\}.
 \end{align*}
-Kullback-Leibler divergence:
+Given a cost matrix $c$ where $c_{ij}$ represents the cost of moving mass from $\mu^1_i$ to $\mu^2_j$,  the optimal transport problem corresponds to the following minimization problem:
+$$\min_{\gamma\in\Ccal_1\cap \Ccal_2\cap \IR^{n_1 n_2}_+} \langle c,\gamma\rangle:=\sum_{i,j}c_{i,j}\gamma_{i,j}.$$
+This is a linear programing problem whose resolution is intractable for large scale problems. 
+
+\subsection{Regularized optimal transport}
+
+In \cite{cuturi13}, it has been proposed to regularize this problem by adding a strictly convex entropy regularization:
+\begin{equation}\label{ROT}
+\min_{\gamma\in\Ccal_1\cap \Ccal_2\cap \IR^{n_1 n_2}_{+*}}K^\epsilon(\gamma) := \scal{c}{\gamma} 
++ \epsilon \sum_{i,j} \gamma_{i,j} (\log(\gamma_{i,j}) - 1)
+,\end{equation}
+with $\epsilon>0$. Considering, the Kullback-Leibler divergence:
 \[ 
-KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}
+KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j},
 \]
-Bregman projection onto $\Ccal$:
+it was shown in \cite{benamou15}  that the unique minimizer of problem \eqref{ROT} writes
+\begin{equation}\label{eq:reg_ot_pb}
+\gamma^* = \argmin_{\Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma^)= P_{\Ccal_1 \cap \Ccal_2} (e^{-c/\epsilon}),
+\end{equation}
+where $P_{\Ccal}$ is the  Bregman projection onto $\Ccal$ defined as:
 \[
-P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} KL(\gamma,\xi)
+P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} KL(\gamma,\xi).
 \]
-\[\argmin_{\gamma \in \Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma) = P_{\Ccal_1 \cap \Ccal_2} (e^{-c/\epsilon})\]
-Optimal transport plan: Bregman projection of $\gamma^0 = e^{-c/\epsilon}$ onto $\Ccal_1 \cap \Ccal_2$.
+The regularized  optimal transport plan $\gamma^*$ is thus the Bregman projection of $\gamma^0 = e^{-c/\epsilon}$ onto $\Ccal_1 \cap \Ccal_2$.
+
 
 \subsection{Sinkhorn's algorithm}
-
+Iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}. Hence, the so-called Sinkhorn algorithm \cite{sinkhorn64} can be considered to compute the regularized  plan:
 \begin{align*}
 \gamma^0 &= e^{-c/\epsilon} &
-\gamma^{l+1} = P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))
+\gamma^{l+1} = P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l)),
 \end{align*}
-Bregman's result: iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}.
+which checks 
+$\lim_{l\rightarrow +\infty} \gamma^l = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0) = \gamma^*.$
 
-Hence this algorithm is correct:
-\[\lim_{l\rightarrow +\infty} \gamma^l = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0) = \gamma^*\]
-
-
-\subsection{Numerical version}
-
-Projections actually correspond to diagonal scalings.
+In the discrete setting,  projections actually correspond to diagonal scalings.
 \begin{align*}
 P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &
 a &=  \frac{\mu^1}{A_1 \gamma} \\
 P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &
 b &= \frac{\mu^2}{A_2 \gamma}
 \end{align*}
-(pointwise division).
+where the division is considered pointwise. 
+To compute numerically the solution  one simply has to store $(a^l, b^l)\in\IR^{n_1+n2}$ and realize
 
-In practice, simply store $(a^l, b^l)$:
-\[
-\gamma^l = \diag(a^l) \gamma^0 \diag{b^l}
-\]
 \begin{align*}
 a^{l+1} &= \frac{\mu^1}{\gamma^0 b^l} &
 b^{l+1} &= \frac{\mu^2}{^t \gamma^0 a^{l+1}} 
 \end{align*}
+where the transport matrix can be recovered as :
+$\gamma^l = \diag(a^l) \gamma^0 \diag(b^l).$ 
+Efficient parallel computations can be considered \cite{cuturi13} and one can even reach real time computation for large scale problem for certain class of cost matrices $c$ \cite{Solomon2015}. 
+For small values of the parameter $\epsilon$, numerical issues can arise and a stabilization of the algorithm is necessary \cite{2016arXiv160705816C}.
+The convergence of the process can nevertheless be very slow  in the setting $\epsilon\to 0$ .
+\subsection{Contributions}
+In this paper, we consider an over relaxation scheme  designed to accelerate  the Sinkhorn's algorithm. We first present and show the convergence of our algorithm in section 2. In section 3, we analyze the local convergence rate of the algorithm to justify the acceleration.
+We finally demonstrate numerically  in Section 4 the good behavior of our method, where larger accelerations are observed for decreasing values of $\epsilon$.
 
-Efficient implementation: matrix operations on GPU.
 
 
 \section{Over-relaxed Sinkhorn's algorithm}
@@ -173,7 +181,7 @@ Note that it is not necessary to know $\gamma^*$ in order to calculate the diffe
 	Take $\gamma$ in $\IR^{mn}_{+*}$. The decrease in value of the Lyapunov function can be calculated with the following formula:
 	\begin{equation} \label{eq:kl_diff_scal}
 	F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma)) = 
-	\scal{\mu}{\varphi_\omega \left(\frac{A_1 \gamma}{\mu}\right)},
+	\scal{\mu^k}{\varphi_\omega \left(\frac{A_k \gamma}{\mu^k}\right)},
 	\end{equation}
 	where
 	\begin{equation}
@@ -205,7 +213,10 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 	\end{align*}
 	Then the iterates $(\gamma^l)$ converge to $\gamma^*$.
 \end{theorem}
-{\color{red} $\longrightarrow$ Has to calculate 3 projections sometimes. This result is weaker than the one from my report, but easier to prove. Maybe we could avoid having $U$, and rather perform the test independently on each variable ? (Or we could find a cheaper test).}
+{\color{red} 
+	In practice the test would be: check whether the $\omega$-relaxed projection of $\zeta$ on $\Ccal_1$ decreases the value of
+	$F$; if so, calculate $P_{\Ccal_1}^\theta(\zeta)$ (don't update $\zeta$ yet) and check that its $\omega$-relaxed projection on $\Ccal_2$ decreases the value of $F$ again. \\
+	$\longrightarrow$ Has to calculate 3 projections sometimes. This result is weaker than the one from my report, but easier to prove. Maybe we could avoid having $U$, and rather perform the test independently on each variable ? (Or we could find a cheaper test).}
 \begin{remark}
 	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
 \end{remark}
@@ -235,7 +246,7 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 	Thanks to lemma \ref{lemma:lyapunov_decrease}, one knows that
 	\[
 	F(P^\theta_{\Ccal_k}(\gamma)) - F(P^\omega_{\Ccal_k}(\gamma))
-	= \scal{\mu}{(\varphi_\omega - \varphi_\theta) \left( \frac{A_k \gamma}{\mu} \right) } .
+	= \scal{\mu^k}{(\varphi_\omega - \varphi_\theta) \left( \frac{A_k \gamma}{\mu^k} \right) } .
 	\]
 	Moreover, $t \in [1,\infty) \mapsto \varphi_t(x)$ is nonincreasing:
 	\[
@@ -303,7 +314,7 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 		 
 		 Yet, by continuity of $T_1 = P_{\Ccal_2}^\theta \circ P_{\Ccal_1}^\theta $ on $\bar{U}$, we have
 		 \[
-		 F(T_1(\zeta)) = F(\zeta).
+		 F(P_{\Ccal_2}^\theta(P_{\Ccal_1}^\theta(\zeta))) = F(\zeta).
 		 \]
 		 Thus both (\ref{eq:ineq1}) and (\ref{eq:ineq2}) fall in the case of equality, which means $\zeta \in \Ccal_1$ and $P^\theta_{\Ccal_1}(\zeta) = \zeta \in \Ccal_2$.
 	\end{itemize}
