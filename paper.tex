@@ -88,7 +88,7 @@ as well as thenlinear  constraint sets
 \begin{align*}
 \Ccal_k &= \left\{ \gamma\in\IR^{n_1 n_2} \mid A_k \gamma = \mu^k \right\}.
 \end{align*}
-Given a cost matrix $c$ where $c_{ij}$ represents the cost of moving mass $\mu^1_i$ to $\mu^2_j$,  the optimal transport problem corresponds to the following minimization problem:
+Given a cost matrix $c$, where $c_{ij}$ represents the cost of moving mass $\mu^1_i$ to $\mu^2_j$,  the optimal transport problem corresponds to the following minimization problem:
 $$\min_{\gamma\in\Ccal_1\cap \Ccal_2\cap \IR^{n_1 n_2}_+} \langle c,\gamma\rangle:=\sum_{i,j}c_{i,j}\gamma_{i,j}.$$
 This is a linear programing problem whose resolution is intractable for large scale problems. 
 
@@ -97,15 +97,15 @@ This is a linear programing problem whose resolution is intractable for large sc
 In \cite{cuturi13}, it has been proposed to regularize this problem by adding a strictly convex entropy regularization:
 \begin{equation}\label{ROT}
 \min_{\gamma\in\Ccal_1\cap \Ccal_2\cap \IR^{n_1 n_2}_{+*}}K^\epsilon(\gamma) := \scal{c}{\gamma} 
-+ \epsilon \sum_{i,j} \gamma_{i,j} (\log(\gamma_{i,j}) - 1)
++ \epsilon KL(\gamma,\mathbf{1})
 ,\end{equation}
-with $\epsilon>0$. Considering, the Kullback-Leibler divergence:
+with $\epsilon>0$, $\mathbf{1}$ is the matrix of size $n_1\times n_2$ full of ones and the Kullback-Leibler divergence is:
 \[ 
-KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j},
+KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
 \]
-it was shown in \cite{benamou15}  that the unique minimizer of problem \eqref{ROT} writes
+It was shown in \cite{benamou15}  that the unique minimizer of problem \eqref{ROT} writes
 \begin{equation}\label{eq:reg_ot_pb}
-\gamma^* = \argmin_{\Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma^)= P_{\Ccal_1 \cap \Ccal_2} (e^{-c/\epsilon}),
+\gamma^* = \argmin_{\Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma)= P_{\Ccal_1 \cap \Ccal_2} (e^{-c/\epsilon}),
 \end{equation}
 where $P_{\Ccal}$ is the  Bregman projection onto $\Ccal$ defined as:
 \[
@@ -131,7 +131,7 @@ P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &
 b &= \frac{\mu^2}{A_2 \gamma}
 \end{align*}
 where the division is considered pointwise. 
-To compute numerically the solution  one simply has to store $(a^l, b^l)\in\IR^{n_1+n2}$ and realize
+To compute numerically the solution  one simply has to store $(a^l, b^l)\in\IR^{n_1+n_2}$ and realize
 
 \begin{align*}
 a^{l+1} &= \frac{\mu^1}{\gamma^0 b^l} &
