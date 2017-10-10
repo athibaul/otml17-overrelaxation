@@ -100,9 +100,9 @@ In \cite{cuturi13}, it has been proposed to regularize this problem by adding a 
 + \epsilon KL(\gamma,\mathbf{1})
 ,\end{equation}
 with $\epsilon>0$, $\mathbf{1}$ is the matrix of size $n_1\times n_2$ full of ones and the Kullback-Leibler divergence is:
-\[ 
+\begin{equation}\label{KL}
 KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
-\]
+\end{equation}
 It was shown in \cite{benamou15}  that the unique minimizer of problem \eqref{ROT} writes
 \begin{equation}\label{eq:reg_ot_pb}
 \gamma^* = \argmin_{\Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma)= P_{\Ccal_1 \cap \Ccal_2} (e^{-c/\epsilon}),
@@ -124,12 +124,12 @@ which checks
 $\lim_{l\rightarrow +\infty} \gamma^l = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0) = \gamma^*.$
 
 In the discrete setting,  projections actually correspond to diagonal scalings.
-\begin{align*}
+\begin{align}\label{scaling}
 P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &
 a &=  \frac{\mu^1}{A_1 \gamma} \\
 P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &
-b &= \frac{\mu^2}{A_2 \gamma}
-\end{align*}
+b &= \frac{\mu^2}{A_2 \gamma}\nonumber
+\end{align}
 where the division is considered pointwise. 
 To compute numerically the solution  one simply has to store $(a^l, b^l)\in\IR^{n_1+n_2}$ and realize
 
@@ -157,7 +157,7 @@ Let us define the $\omega$-over-relaxed projection operator by:
 \log P^\omega_{\Ccal_k}(\gamma) = (1-\omega) \log \gamma + \omega \log P_{\Ccal_k}(\gamma),
 \end{equation}
 where the logarithm is taken coordinate-wise.
-Note that $P_{\Ccal_k}^0 = Id$, $P_{\Ccal_k}^1 = P_{\Ccal_k}$, and $P_{\Ccal_k}^2$ is an involution (this is non-trivial, and uses the fact that $\Ccal_k$ is an affine subspace).
+Note that $P_{\Ccal_k}^0 = Id$, $P_{\Ccal_k}^1 = P_{\Ccal_k}$ gives the Sinkhorn algorithm, and $P_{\Ccal_k}^2$ is an involution (this is non-trivial, and uses the fact that $\Ccal_k$ is an affine subspace).
 
 \subsection{Lyapunov function}
 Let $\gamma^*$ denote the solution of the regularized OT problem.
@@ -189,8 +189,16 @@ Note that it is not necessary to know $\gamma^*$ in order to calculate the diffe
 	\end{equation}
 	is a real function, applied coordinate-wise.
 \end{lemma}
-Thus, calculating the decrease in value of the function $F$ is relatively cheap and straightforward.
-
+\begin{proof}
+From \eqref{KL}, we have $F(\gamma^1)-F(\gamma^2)= \sum_{i,j}\left(\gamma^*_{i,j}\log(\gamma^2_{i,j}/\gamma^1_{i,j})+\gamma^1_{i,j}-\gamma^2_{i,j}\right)$. The result can then be deduced from relations \eqref{eq:def_or_proj} and \eqref{scaling}.
+\end{proof}
+Thus, calculating the decrease in value of the function $F$ is relatively cheap and straightforward. In Figure \ref{phi_omega}, we illustrate the functions  $\varphi_\omega$ for several values of $\omega$. Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always non negative.
+\begin{figure}[ht!]
+\begin{center}
+\includegraphics[width=11cm]{phi_omega.png}
+\caption{\label{phi_omega} Plot of functions $\varphi_\omega(x)$ for different values $1\leq \omega\leq 2$ and   $x\in[10^{-2}, 10^1]$.}
+\end{center}
+\end{figure}
 \subsection{New algorithm}
 
 \begin{theorem}
