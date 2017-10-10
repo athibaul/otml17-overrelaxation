@@ -110,7 +110,7 @@ as well as the linear  constraint sets
 \begin{align*}
 \Ccal_k &= \left\{ \gamma\in\IR^{n_1 n_2} \mid A_k \gamma = \mu^k \right\}.
 \end{align*}
-Given a cost matrix $c$, where $c_{ij}$ represents the cost of moving mass $\mu^1_i$ to $\mu^2_j$,  the optimal transport problem corresponds to the following minimization problem:
+Given a cost matrix $c$, where $c_{ij}$ represents the cost of moving mass $\mu^1_i$ to $\mu^2_j$,  the optimal transport problem corresponds to the estimation of an optimal transport matrix $\gamma$ solution of:
 $$\min_{\gamma\in\Ccal_1\cap \Ccal_2\cap \IR^{n_1 n_2}_+} \langle c,\gamma\rangle:=\sum_{i,j}c_{i,j}\gamma_{i,j}.$$
 This is a linear programing problem whose resolution is intractable for large scale problems. 
 
@@ -137,7 +137,7 @@ The regularized  optimal transport plan $\gamma^*$ is thus the Bregman projectio
 
 
 \subsection{Sinkhorn's algorithm}
-Iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}. Hence, the so-called Sinkhorn algorithm \cite{sinkhorn64} can be considered to compute the regularized  plan:
+Iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}. Hence, the so-called Sinkhorn algorithm \cite{sinkhorn64} can be considered to compute the regularized  transport matrix:
 \begin{align*}
 \gamma^0 &= e^{-c/\epsilon} &
 \gamma^{l+1} = P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l)),
