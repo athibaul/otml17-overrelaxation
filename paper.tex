@@ -69,9 +69,16 @@ This article describes a method for quickly calculating the solution to the regu
 \end{abstract}
 
 \section{Introduction}
-BLABLA to write
+Optimal Transport is an efficient and flexible tool to compare two probability distributions which has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn's algorithm \cite{sinkhorn64}   scaling with high dimensional data. 
+Regularized optimal transport have thus been intensively used  in  Machine Learning with applications such as   Geodesic PCA \cite{seguy2015principal}, domain adaptation \cite{2015arXiv150700504C}, data fitting \cite{2015arXiv150605439F},  training of Boltzmann Machine \cite{NIPS2016_6248}  or dictionary learning \cite{Rolet2016,2017arXiv170801955S}.
 
+The computation of optimal transport between two data relies on the estimation of an optimal transport matrix which entries represent the quantity of mass transported between  data locations. 
+Regularization of optimal transport with strictly convex regularizers \cite{cuturi13, dessein2016}  nevertheless involves a spreading of the mass. Hence, for particular purposes such as color interpolation \cite{Rabin2015} or gradient flow \cite{2016arXiv160705816C}, it is  necessary  to consider very small regularization of the problem.
+In this setting,  the regularized transport problem can be ill-conditioned. This is the issue  we want to tackle here.
+Before going into further details, we now briefly introduce the main notations and concepts used all along this article.
 
+ 
+\subsection{Discrete Optimal Transport}
 We consider two discrete probability measures $\mu^k \in \IR_{+*}^{n_k}$.
 Let us define the two following linear operators
 \begin{align*}
@@ -84,7 +91,7 @@ A_2 &: \begin{cases}
 (A_2 x)_j = \sum_i x_{i,j},
 \end{cases}
 \end{align*}
-as well as thenlinear  constraint sets
+as well as the linear  constraint sets
 \begin{align*}
 \Ccal_k &= \left\{ \gamma\in\IR^{n_1 n_2} \mid A_k \gamma = \mu^k \right\}.
 \end{align*}
@@ -141,9 +148,12 @@ where the transport matrix can be recovered as :
 $\gamma^l = \diag(a^l) \gamma^0 \diag(b^l).$ 
 Efficient parallel computations can be considered \cite{cuturi13} and one can even reach real time computation for large scale problem for certain class of cost matrices $c$ \cite{Solomon2015}. 
 For small values of the parameter $\epsilon$, numerical issues can arise and a stabilization of the algorithm is necessary \cite{2016arXiv160705816C}.
-The convergence of the process can nevertheless be very slow  in the setting $\epsilon\to 0$ .
-\subsection{Contributions}
-In this paper, we consider an over-relaxation scheme  designed to accelerate  the Sinkhorn's algorithm. We first present and show the convergence of our algorithm in section 2. In section 3, we analyze the local convergence rate of the algorithm to justify the acceleration.
+The convergence of the process can nevertheless be very slow  in the setting $\epsilon\to 0$.
+\subsection{Related works }
+The introduction of relaxation variables through heavy ball approaches \cite{POLYAK19641} has recently gained in popularity  to speed up the convergence of algorithms optimizing convex \cite{2014arXiv1412.7457G} or non convex \cite{Zavriev1993,2016arXiv160609070O} problems. Such schemes have also been empirically considered to accelerate Sinkhorn's algorithm  in \cite{peyre2016quantum,2017arXiv170801955S}. The convergence of these algorithms is nevertheless not studied yet in the context of regularized optimal transport.
+
+\subsection{Overview and contributions}
+In this paper, we consider an over-relaxation scheme designed to accelerate   Sinkhorn's algorithm. We first present and show the convergence of our algorithm in section 2. In section 3, we analyze the local convergence rate of the algorithm to justify the acceleration.
 We finally demonstrate numerically  in Section 4 the good behavior of our method, where larger accelerations are observed for decreasing values of $\epsilon$.
 
 
