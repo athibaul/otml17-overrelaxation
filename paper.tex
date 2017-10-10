@@ -150,6 +150,19 @@ We finally demonstrate numerically  in Section 4 the good behavior of our method
 
 \section{Over-relaxed Sinkhorn's algorithm}
 
+As illustrated in Figure \ref{alternate_projections} (a-b), the Sinkhorn algorithm, that  realizes alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developped in this paper is to realize over-relaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c) 
+
+\begin{figure}[ht!]
+\begin{center}
+\begin{tabular}{ccc}
+%\includegraphics[width=3cm]{}&\includegraphics[width=3cm]{}&\includegraphics[width=3cm]{}\\
+&TODO: mettre les figures du beamer\\
+&en remplacant les $x$ par des $\gamma$\\
+(a)&(b)&(c)
+\end{tabular}
+\caption{\label{alternate_projections} The trajectory of $\gamma^l$ given by the Sinkhorn algorithm is illustrated for decreasing values of $\epsilon$ in (a) and (b). In order to accelerate the convergence rate, over-relaxed projections are here considered (c).}
+\end{center}
+\end{figure}
 \subsection{Over-relaxed projections}
 
 Let us define the $\omega$-over-relaxed projection operator by:
@@ -229,7 +242,7 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
 \end{remark}
 
-\begin{lemma}
+\begin{lemma}[{\color{red} Mettre la ref d'un papier de Marco}]
 	\label{lemma:trivial_intersection}
 	Let us take $\gamma^0$ in $\IR_{+*}^{n_1 n_2}$,
 	and denote
