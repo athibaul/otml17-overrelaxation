@@ -372,20 +372,56 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 
 
 \section{Local rate of convergence ?}
+Some material for adapting Lenaic results:
 
+
+The Sinkhorn algorithm can be interpreted as an alternate maximisation algorithm on the dual of the regularized optimal transport problem.
+The dual problem of \eqref{ROT} is:
+\begin{equation}\label{DROT}\max_{\alpha,\beta}\langle \alpha,\mu^1\rangle+\langle \beta,\mu^2\rangle-\epsilon\sum_{i,j}e^{(\alpha_i+\beta_j-c_{i,j})/\epsilon}\end{equation}
+It is concave and continuously differentiable for all $(a,b)\in\IR^{n_1+n_2}$. Alternate maximization then converges and we recover, for $a_i=e^{\alpha_i/\epsilon}$, $b_j=e^{\beta_j/\epsilon}$ and $\gamma^0_{i,j}=e^{-c_{i,j}/\epsilon}$:
+\begin{align*}
+a^{l+1} &= \frac{\mu^1}{\gamma^0 b^l} &
+b^{l+1} &= \frac{\mu^2}{^t \gamma^0 a^{l+1}} 
+\end{align*}
+
+If $(\alpha^*,\beta^*)$ is a solution of \eqref{DROT}, then all the 
+other optimum can be written as $(\alpha^*+\kappa,\beta^*-\kappa)$, which means that the problem admits a unique solution, up to a translation with constant $\kappa\in\IR$.
+
+
+The Hessian matrix of the functional in \eqref{DROT} at point $(\alpha,\beta)$ reads, for $a_i=e^{\alpha_i/\epsilon}>0$ and $b_j=e^{\beta_j/\epsilon}>0$:
+
+
+$$H(a,b)=\frac1\epsilon\begin{bmatrix}
+\diag(a)\diag(\gamma^0 b)&\diag(a)\gamma^0 \diag(b)\\
+\diag(b){^t\gamma^0} \diag(a)&\diag(^t\gamma^0a)\diag(b)
+\end{bmatrix}.$$
+Notice that 
+
+$$H(a^*,b^*)=\frac1\epsilon\begin{bmatrix}
+\diag(\mu^1)&\gamma^*\\
+^t\gamma^*&\diag(\mu^2)
+\end{bmatrix}.$$
+
+
+The matrices $H(a,b)$  are positive semi-definite. They have only one $0$ eigenvalue associated to the eigenvetor $^t[\mathbf{1},-\mathbf{1}]$. 
+Using Schur complement properties, one can then show that any matrix $T(a,b)=(\diag(a)\diag(\gamma^0 b))^{-1}\gamma^0(diag(^t\gamma^*))^{-1} {^t\gamma^0}$ is positive semi definite. Moreover, we can show that $T$ has a unique largest eigenvalue that is $1$ and is associated to the eigenvector $\mathbf{1}$. All the other eigenvalues belongs to the set $[0;1[$.
+
+
+From experiments, it seems possible to design a good guess for $\omega$ from $c$ and $\epsilon$ only. 
+    Denoting as $\lambda$ the second larger eigenvalue of $T(1,1)$, one can set 
+    $\omega=\frac{2}{\lambda}(1-\sqrt{1-\lambda})$.
+    
+    
+    
 \section{Experimental results}
 {\color{red} TODO}
+
 
 \section{Conclusion}
 
 Cheaper test, how chosing $\omega$. 
 
-{\color{blue}
-From experiments, it seems possible to design a good guess for $\omega$ from $c$ and $\epsilon$ only. For $K=e^{-c/\epsilon}$, let us  define:
-    $T=(diag(K\mathbf{1}))^{-1}K(diag(K^T\mathbf{1}))^{-1}K^T$. The matrix $T$ is positive semidefinite and checks
-$\rho(T)=1$. Moreover  $T$ has  only one  eigenvalue $1$ associated to the eigenvector $\mathbf{1}$.
-    Denoting as $\lambda$ the second larger eigenvalue of $T$, one can set 
-    $\omega=\frac{2}{\lambda}(1-\sqrt{1-\lambda})$.}
+
 
 
 
