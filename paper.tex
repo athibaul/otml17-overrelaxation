@@ -59,7 +59,7 @@ Toulouse,  France\\
 Nicolas PAPADAKIS\\
 CNRS, Institut de Math\'ematiques de Bordeaux\\
 Talence, France\\
-\texttt{alexis.thibault@ens.fr}
+\texttt{nicolas.papadakis@math.u-bordeaux.fr}
 } 
 % The \author macro works with any number of authors. There are two commands
 % used to separate the names and addresses of multiple authors: \And and \AND.
@@ -125,7 +125,7 @@ with $\epsilon>0$, $\mathbf{1}$ is the matrix of size $n_1\times n_2$ full of on
 \begin{equation}\label{KL}
 KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
 \end{equation}
-It was shown in \cite{benamou15}  that the unique minimizer of problem \eqref{ROT} writes
+It was shown in \cite{benamou15}  that the regularized optimal transport matrix $\gamma^*$, which is the unique minimizer of problem \eqref{ROT},  is the Bregman projection of $\gamma^0 = e^{-c/\epsilon}$ onto $\Ccal_1 \cap \Ccal_2$:
 \begin{equation}\label{eq:reg_ot_pb}
 \gamma^* = \argmin_{\Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma)= P_{\Ccal_1 \cap \Ccal_2} (e^{-c/\epsilon}),
 \end{equation}
@@ -133,16 +133,16 @@ where $P_{\Ccal}$ is the  Bregman projection onto $\Ccal$ defined as:
 \[
 P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} KL(\gamma,\xi).
 \]
-The regularized  optimal transport plan $\gamma^*$ is thus the Bregman projection of $\gamma^0 = e^{-c/\epsilon}$ onto $\Ccal_1 \cap \Ccal_2$.
+
 
 
 \subsection{Sinkhorn's algorithm}
-Iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}. Hence, the so-called Sinkhorn algorithm \cite{sinkhorn64} can be considered to compute the regularized  transport matrix:
+Iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}. Hence, the so-called Sinkhorn algorithm \cite{sinkhorn64} that realizes alternate Bregman projections, can be considered to compute the regularized  transport matrix:
 \begin{align*}
 \gamma^0 &= e^{-c/\epsilon} &
 \gamma^{l+1} = P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l)),
 \end{align*}
-which checks 
+and we have 
 $\lim_{l\rightarrow +\infty} \gamma^l = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0) = \gamma^*.$
 
 In the discrete setting,  projections actually correspond to diagonal scalings.
@@ -153,8 +153,7 @@ P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &
 b &= \frac{\mu^2}{A_2 \gamma}\nonumber
 \end{align}
 where the division is considered pointwise. 
-To compute numerically the solution  one simply has to store $(a^l, b^l)\in\IR^{n_1+n_2}$ and realize
-
+To compute numerically the solution  one simply has to store $(a^l, b^l)\in\IR^{n_1+n_2}$ and iterates
 \begin{align*}
 a^{l+1} &= \frac{\mu^1}{\gamma^0 b^l} &
 b^{l+1} &= \frac{\mu^2}{^t \gamma^0 a^{l+1}} 
@@ -267,7 +266,7 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
 \end{remark}
 
-\begin{lemma}[{\color{red} Mettre la ref d'un papier de Marco}]
+\begin{lemma}[\cite{cuturi13}]
 	\label{lemma:trivial_intersection}
 	Let us take $\gamma^0$ in $\IR_{+*}^{n_1 n_2}$,
 	and denote
