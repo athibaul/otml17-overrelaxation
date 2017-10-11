@@ -196,6 +196,9 @@ Let us define the $\omega$-over-relaxed projection operator by:
 where the logarithm is taken coordinate-wise.
 Note that $P_{\Ccal_k}^0 = Id$, $P_{\Ccal_k}^1 = P_{\Ccal_k}$ gives the Sinkhorn algorithm, and $P_{\Ccal_k}^2$ is an involution (this is non-trivial, and uses the fact that $\Ccal_k$ is an affine subspace).
 
+{\color{red} \begin{proposition} 
+State here that the fixed points of   $\gamma^{l+1} =P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l))$ are the same than $\gamma^{l+1} =P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))$?
+\end{proposition}}
 \subsection{Lyapunov function}
 Let $\gamma^*$ denote the solution of the regularized OT problem.
 The function $F$ is defined as:
@@ -236,7 +239,8 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 \caption{\label{phi_omega} Plot of functions $\varphi_\omega(x)$ for different values $1\leq \omega\leq 2$ and   $x\in[10^{-2}, 10^1]$.}
 \end{center}
 \end{figure}
-\subsection{New algorithm}
+\subsection{Proposed algorithm}
+
 
 \begin{theorem}
 	Let $\theta$ and $\omega$ be such that $1\le \theta < \omega < 2$. Let $U$ be the open set defined by:
@@ -253,7 +257,7 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 	\gamma^{l+1} =
 	\begin{cases}
 	P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l)) & \text{if } \gamma \in U \\
-	P_{\Ccal_2}(P_{\Ccal_1})(\gamma^k) & \text{otherwise.}
+	P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l)) & \text{otherwise.}
 	\end{cases}
 	\end{align*}
 	Then the iterates $(\gamma^l)$ converge to $\gamma^*$.
@@ -265,6 +269,8 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 \begin{remark}
 	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
 \end{remark}
+{\color{blue} It could be good to show on typical experiments how many times the test fails. If the test never fails after a few iterations, we could justify that doing a few Sinkhorn iteration and then always the over-relaxed algorithm is fine in practice.} 
+
 
 \begin{lemma}[\cite{cuturi13}]
 	\label{lemma:trivial_intersection}
@@ -372,7 +378,7 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 
 
 \section*{Acknowledgments}
-
+This study has been carried out with financial support from the French State, managed by the French National Research Agency (ANR) in the frame of the  GOTMI project (ANR-16-CE33-0010-01).
 
 %\subsubsection*{References}
 
