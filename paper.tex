@@ -5,7 +5,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
-\usepackage{mathtools}
+\usepackage{mathtools,enumitem}
 
 %\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
 
@@ -322,21 +322,21 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 	
 	Let $(\gamma^{k_l})$ be a subsequence of $(\gamma^l)$ that converges to $\zeta$.
 	Let us denote, for convenience, $T_1 = P_{\Ccal_2}^\theta \circ P_{\Ccal_1}^\theta$ and $T_2 = P_{\Ccal_2} \circ P_{\Ccal_1}$ the two operators used in the iteration, and $T$ the compound operator, so that $T_{|U} \equiv T_{1|U}$ and $T_{|U^c} \equiv T_{2|U^c}$.
-	\begin{itemize}
-		\item If $\zeta \in U$, then since $U$ is open, all $(\gamma^{k_l})$ are eventually in $U$ as well.
+	\begin{enumerate}[align=right,labelsep=10pt,leftmargin=0.5cm]
+		\item[$\bullet$] If $\zeta \in U$, then since $U$ is open, all $(\gamma^{k_l})$ are eventually in $U$ as well.
 		Thus, for any large enough $l$, $ T(\gamma^{k_l}) = T_1(\gamma^{k_l}) $. By continuity of $T_1$ on $U$, since $(\gamma^{k_l})$ converges to $\zeta$, 
 		\[T(\zeta) = \lim_{l\rightarrow \infty} T(\gamma^{k_l}).\] Thus
 		 \[F(T(\zeta)) = \lim_{l \rightarrow \infty} F(T(\gamma^{k_l})) \ge \lim_{l\rightarrow \infty} F(\gamma^{k_{l+1}}) .\]
 		 \[
 		 F(T(\zeta)) \ge F(\zeta)
 		 \] Since $\zeta$ is inside the set $U$, which ensures strict decrease of the Lyapunov function, this is absurd.
-		 \item If $\zeta \in U^c$ and an infinite number of $(\gamma^{k_l})$ are in $U^c$, then the same argument of continuity applied to $T_2$ yields
+		\item[$\bullet$] If $\zeta \in U^c$ and an infinite number of $(\gamma^{k_l})$ are in $U^c$, then the same argument of continuity applied to $T_2$ yields
 		 \[
 		 F(T(\zeta)) = F(\zeta).
 		 \]
 		 The function $\varphi_1$ from lemma \ref{lemma:lyapunov_decrease} is strictly positive except at $x=1$. Since the case of equality occurs for both projections, this ensures that $\zeta \in \Ccal_1 \cap \Ccal_2$.
 		 
-		 \item If $\zeta \in U^c$ and all but finitely many $\gamma^{k_l}$ are in $U$, then $\zeta$ is on the border $\partial U$. In particular it belongs to $\bar{U}$, and therefore
+		 \item[$\bullet$] If $\zeta \in U^c$ and all but finitely many $\gamma^{k_l}$ are in $U$, then $\zeta$ is on the border $\partial U$. In particular it belongs to $\bar{U}$, and therefore
 		 \[
 		 F(P^\omega_{\Ccal_1}(\zeta)) \le F(\zeta) \quad
 		 \text{ and } \quad
@@ -367,7 +367,7 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 		 F(P_{\Ccal_2}^\theta(P_{\Ccal_1}^\theta(\zeta))) = F(\zeta).
 		 \]
 		 Thus both (\ref{eq:ineq1}) and (\ref{eq:ineq2}) fall in the case of equality, which means $\zeta \in \Ccal_1$ and $P^\theta_{\Ccal_1}(\zeta) = \zeta \in \Ccal_2$.
-	\end{itemize}
+	\end{enumerate}
 \end{proof}
 
 
