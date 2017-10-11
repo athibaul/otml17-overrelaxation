@@ -196,7 +196,7 @@ Let us define the $\omega$-over-relaxed projection operator by:
 where the logarithm is taken coordinate-wise.
 Note that $P_{\Ccal_k}^0 = Id$, $P_{\Ccal_k}^1 = P_{\Ccal_k}$ gives the Sinkhorn algorithm, and $P_{\Ccal_k}^2$ is an involution (this is non-trivial, and uses the fact that $\Ccal_k$ is an affine subspace).
 
-{\color{red} \begin{proposition} 
+{\color{blue} \begin{proposition} 
 State here that the fixed points of   $\gamma^{l+1} =P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l))$ are the same than $\gamma^{l+1} =P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))$?
 \end{proposition}}
 \subsection{Lyapunov function}
@@ -375,6 +375,18 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 
 \section{Experimental results}
 {\color{red} TODO}
+
+\section{Conclusion}
+
+Cheaper test, how chosing $\omega$. 
+
+{\color{blue}
+From experiments, it seems possible to design a good guess for $\omega$ from $c$ and $\epsilon$ only. For $K=e^{-c/\epsilon}$, let us  define:
+    $T=(diag(K\mathbf{1}))^{-1}K(diag(K^T\mathbf{1}))^{-1}K^T$. The matrix $T$ is positive semidefinite and checks
+$\rho(T)=1$. Moreover  $T$ has  only one  eigenvalue $1$ associated to the eigenvector $\mathbf{1}$.
+    Denoting as $\lambda$ the second larger eigenvalue of $T$, one can set 
+    $\omega=\frac{2}{\lambda}(1-\sqrt{1-\lambda})$.}
+
 
 
 \section*{Acknowledgments}
