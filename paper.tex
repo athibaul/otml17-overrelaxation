@@ -38,7 +38,7 @@
 
 \title{Over-relaxed Sinkhorn's Algorithm for Regularized Optimal Transport}
 
-
+%
 \author{
 Alexis THIBAULT\\
 \'Ecole Normale Sup\'erieure\\
@@ -268,8 +268,10 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 	$\longrightarrow$ Has to calculate 3 projections sometimes. This result is weaker than the one from my report, but easier to prove. Maybe we could avoid having $U$, and rather perform the test independently on each variable ? (Or we could find a cheaper test).}
 \begin{remark}
 	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
+	
+	
 \end{remark}
-{\color{blue} It could be good to show on typical experiments how many times the test fails. If the test never fails after a few iterations, we could justify that doing a few Sinkhorn iteration and then always the over-relaxed algorithm is fine in practice.} 
+{\color{blue} As the inequality is strict in U, $\gamma^*\notin U$.} 
 
 
 \begin{lemma}[\cite{cuturi13}]
@@ -417,7 +419,8 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
 {\color{red} TODO}
 
 
-\section{Conclusion}
+\section{Conclusion and perspectives}
+
 
 Cheaper test, how chosing $\omega$. 
 
