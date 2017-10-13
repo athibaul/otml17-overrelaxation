@@ -6,7 +6,8 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{mathtools,enumitem}
-
+\usepackage{algorithm}
+\usepackage{algorithmic}
 %\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
 
 \usepackage{cite}
@@ -148,15 +149,15 @@ $\lim_{l\rightarrow +\infty} \gamma^l = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0) = \ga
 In the discrete setting,  projections actually correspond to diagonal scalings.
 \begin{align}\label{scaling}
 P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &
-a &=  \frac{\mu^1}{A_1 \gamma} \\
+a &=  {\mu^1}\oslash{A_1 \gamma} \\
 P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &
-b &= \frac{\mu^2}{A_2 \gamma}\nonumber
+b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
 \end{align}
-where the division is considered pointwise. 
+where $\oslash$ is the pointwise division. 
 To compute numerically the solution  one simply has to store $(a^l, b^l)\in\IR^{n_1+n_2}$ and iterates
 \begin{align*}
-a^{l+1} &= \frac{\mu^1}{\gamma^0 b^l} &
-b^{l+1} &= \frac{\mu^2}{^t \gamma^0 a^{l+1}} 
+a^{l+1} &= {\mu^1}\oslash{\gamma^0 b^l} &
+b^{l+1} &= {\mu^2}\oslash{^t \gamma^0 a^{l+1}} 
 \end{align*}
 where the transport matrix can be recovered as :
 $\gamma^l = \diag(a^l) \gamma^0 \diag(b^l).$ 
@@ -242,7 +243,7 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 \subsection{Proposed algorithm}
 
 
-\begin{theorem}
+\begin{theorem}\label{thm:algo}
 	Let $\theta$ and $\omega$ be such that $1\le \theta < \omega < 2$. Let $U$ be the open set defined by:
 	\begin{equation}\label{eq:open_set_U}
 	U = \left\{
@@ -382,8 +383,8 @@ The dual problem of \eqref{ROT} is:
 \begin{equation}\label{DROT}\max_{\alpha,\beta}\langle \alpha,\mu^1\rangle+\langle \beta,\mu^2\rangle-\epsilon\sum_{i,j}e^{(\alpha_i+\beta_j-c_{i,j})/\epsilon}\end{equation}
 It is concave and continuously differentiable for all $(a,b)\in\IR^{n_1+n_2}$. Alternate maximization then converges and we recover, for $a_i=e^{\alpha_i/\epsilon}$, $b_j=e^{\beta_j/\epsilon}$ and $\gamma^0_{i,j}=e^{-c_{i,j}/\epsilon}$:
 \begin{align*}
-a^{l+1} &= \frac{\mu^1}{\gamma^0 b^l} &
-b^{l+1} &= \frac{\mu^2}{^t \gamma^0 a^{l+1}} 
+a^{l+1} &= {\mu^1}\oslash{\gamma^0 b^l} &
+b^{l+1} &= {\mu^2}\oslash{^t \gamma^0 a^{l+1}} 
 \end{align*}
 
 If $(\alpha^*,\beta^*)$ is a solution of \eqref{DROT}, then all the 
@@ -416,13 +417,47 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
     
     
 \section{Experimental results}
+
+
+In practice, we observed that the algorithm introduced in Theorem \ref{thm:algo} can be simplified and it is sufficient to check $F(P^\omega_{\Ccal_2}(P^\omega{\Ccal_1}(\gamma^l)))-F(\gamma^l)>0$ for realizing the over-relaxed iterations with parameter $\omega$.
+The cost of this test is linear with respect to the data dimension (i.e. $o(n_1+n_2)$).
+
+\renewcommand{\algorithmiccomment}[1]{(#1)}
+\begin{algorithm}
+\caption{Over-relaxed Sinkhorn algorithm}
+\label{SOR}
+\begin{algorithmic}
+\REQUIRE $\mu^1\in \IR^{n_1}$, $\mu^2\in \IR^{n_2}$, $c\in \IR^{n_1\times n_2}_+$
+\STATE Set $a=\mathbf{1}_{n_1}$, $b=\mathbf{1}_{n_2}$, $\gamma^0=e^{-c/\epsilon}$, $\omega\in[1;2[$ and $\eta>0$
+\WHILE {$||a\otimes \gamma^0b-  \mu_1||>\eta$}
+\STATE $\tilde a=\mu_1\oslash (\gamma^0 b)$, 
+\STATE $\bar a=a^{1-\omega}\otimes \tilde a^\omega$
+\STATE $\tilde b=\mu_2\oslash (^t\gamma^0 \bar a)$
+\IF{ $\langle \mu^1,\phi_\omega(a\oslash\tilde a) \rangle +\langle \mu^2,\phi_\omega(b\oslash\tilde b)\rangle>0$}
+\STATE  $a=\bar a$ and $b=b^{1-\omega}\otimes \tilde b^\omega$
+\COMMENT{Over-relaxed Sinkhorn iteration}
+\ELSE
+\STATE $a=\mu_1\oslash (\gamma^0 b)$ and $b=\mu_2\oslash (^t\gamma^0 a)$  
+\COMMENT{Sinkhorn iteration}
+\ENDIF
+\ENDWHILE
+ \RETURN $\gamma=\diag(a)\gamma^0\diag(b)$
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
 {\color{red} TODO}
 
 
 \section{Conclusion and perspectives}
+Contributions: 
+cheap test, preliminary work for convergence results. Huge acceleration in practice.
 
 
-Cheaper test, how chosing $\omega$. 
+Perspectives:
+global convergence, how chosing $\omega$?, intensive numerical study with respect to other accelerarions methods\cite{}.
 
 
 
