@@ -270,7 +270,7 @@ Thus, calculating the decrease in value of the function $F$ is relatively cheap 
 	
 	
 \end{remark}
-{\color{blue} As the inequality is strict in U, $\gamma^*\notin U$.} 
+{\color{blue} Comment: As the inequality is strict in U, $\gamma^*\notin U$.} 
 
 
 \begin{lemma}[\cite{cuturi13}]
@@ -417,10 +417,10 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
 \section{Experimental results}
 
 
-In practice, we observed that the algorithm introduced in Theorem \ref{thm:algo} can be simplified and it is sufficient to check $F(P^\omega_{\Ccal_2}(P^\omega{\Ccal_1}(\gamma^l)))-F(\gamma^l)>0$ for realizing the over-relaxed iterations with parameter $\omega$.
+In practice, we observed that the algorithm introduced in Theorem \ref{thm:algo} can be simplified and it is sufficient to check $F(P^\omega_{\Ccal_2}(P^\omega_{\Ccal_1}(\gamma^l)))-F(\gamma^l)>0$ for realizing the over-relaxed iterations with parameter $\omega$.
 The cost of this test is linear with respect to the data dimension (i.e. $o(n_1+n_2)$).
 
-\renewcommand{\algorithmiccomment}[1]{(#1)}
+\renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
 \begin{algorithm}
 \caption{Over-relaxed Sinkhorn algorithm}
 \label{SOR}
@@ -428,15 +428,12 @@ The cost of this test is linear with respect to the data dimension (i.e. $o(n_1+
 \REQUIRE $\mu^1\in \IR^{n_1}$, $\mu^2\in \IR^{n_2}$, $c\in \IR^{n_1\times n_2}_+$
 \STATE Set $a=\mathbf{1}_{n_1}$, $b=\mathbf{1}_{n_2}$, $\gamma^0=e^{-c/\epsilon}$, $\omega\in[1;2[$ and $\eta>0$
 \WHILE {$||a\otimes \gamma^0b-  \mu_1||>\eta$}
-\STATE $\tilde a=\mu_1\oslash (\gamma^0 b)$, 
-\STATE $\bar a=a^{1-\omega}\otimes \tilde a^\omega$
-\STATE $\tilde b=\mu_2\oslash (^t\gamma^0 \bar a)$
-\IF{ $\langle \mu^1,\phi_\omega(a\oslash\tilde a) \rangle +\langle \mu^2,\phi_\omega(b\oslash\tilde b)\rangle>0$}
-\STATE  $a=\bar a$ and $b=b^{1-\omega}\otimes \tilde b^\omega$
-\COMMENT{Over-relaxed Sinkhorn iteration}
+\STATE $\tilde a=\mu_1\oslash (\gamma^0 b)$,  $a_\omega=a^{1-\omega}\otimes \tilde a^\omega$
+\STATE $\tilde b=\mu_2\oslash (^t\gamma^0  a_\omega)$
+\IF{ $\langle \mu^1,\varphi_\omega(a\oslash\tilde a) \rangle +\langle \mu^2,\varphi_\omega(b\oslash\tilde b)\rangle>0$}
+\STATE  $a=a_\omega$, $b=b^{1-\omega}\otimes \tilde b^\omega$\COMMENT{Over-relaxed Sinkhorn iteration}
 \ELSE
-\STATE $a=\mu_1\oslash (\gamma^0 b)$ and $b=\mu_2\oslash (^t\gamma^0 a)$  
-\COMMENT{Sinkhorn iteration}
+\STATE $a=\tilde a$, $b=\mu_2\oslash (^t\gamma^0 a)$  \COMMENT{Sinkhorn iteration}
 \ENDIF
 \ENDWHILE
  \RETURN $\gamma=\diag(a)\gamma^0\diag(b)$
