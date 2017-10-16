@@ -10,6 +10,7 @@
 \usepackage{algorithmic}
 %\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
 
+\usepackage{tikz}
 \usepackage{cite}
 
 % Math operators
@@ -88,7 +89,7 @@ This article describes a method for quickly calculating the solution to the regu
 Optimal Transport is an efficient and flexible tool to compare two probability distributions which has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn's algorithm \cite{sinkhorn64}   scaling with high dimensional data. 
 Regularized optimal transport have thus been intensively used  in  Machine Learning with applications such as   Geodesic PCA \cite{seguy2015principal}, domain adaptation \cite{2015arXiv150700504C}, data fitting \cite{2015arXiv150605439F},  training of Boltzmann Machine \cite{NIPS2016_6248}  or dictionary learning \cite{Rolet2016,2017arXiv170801955S}.
 
-The computation of optimal transport between two data relies on the estimation of an optimal transport matrix which entries represent the quantity of mass transported between  data locations. 
+The computation of optimal transport between two data relies on the estimation of an optimal transport matrix, the entries of which represent the quantity of mass transported between  data locations. 
 Regularization of optimal transport with strictly convex regularizers \cite{cuturi13, dessein2016}  nevertheless involves a spreading of the mass. Hence, for particular purposes such as color interpolation \cite{Rabin2014} or gradient flow \cite{2016arXiv160705816C}, it is  necessary  to consider very small regularization of the problem.
 In this setting,  the regularized transport problem can be ill-conditioned. This is the issue  we want to tackle here.
 Before going into further details, we now briefly introduce the main notations and concepts used all along this article.
@@ -113,7 +114,7 @@ as well as the linear  constraint sets
 \end{align*}
 Given a cost matrix $c$, where $c_{ij}$ represents the cost of moving mass $\mu^1_i$ to $\mu^2_j$,  the optimal transport problem corresponds to the estimation of an optimal transport matrix $\gamma$ solution of:
 $$\min_{\gamma\in\Ccal_1\cap \Ccal_2\cap \IR^{n_1 n_2}_+} \langle c,\gamma\rangle:=\sum_{i,j}c_{i,j}\gamma_{i,j}.$$
-This is a linear programing problem whose resolution is intractable for large scale problems. 
+This is a linear programing problem whose resolution is unmanageable for large scale problems. 
 
 \subsection{Regularized optimal transport}
 
@@ -161,7 +162,7 @@ b^{l+1} &= {\mu^2}\oslash{^t \gamma^0 a^{l+1}}
 \end{align*}
 where the transport matrix can be recovered as :
 $\gamma^l = \diag(a^l) \gamma^0 \diag(b^l).$ 
-Efficient parallel computations can be considered \cite{cuturi13} and one can even reach real time computation for large scale problem for certain class of cost matrices $c$ \cite{Solomon2015}. 
+Efficient parallel computations can be considered \cite{cuturi13} and one can even reach real-time computation for large scale problem for certain class of cost matrices $c$ \cite{Solomon2015}. 
 For small values of the parameter $\epsilon$, numerical issues can arise and a stabilization of the algorithm is necessary \cite{2016arXiv160705816C}.
 The convergence of the process can nevertheless be very slow  in the setting $\epsilon\to 0$.
 \subsection{Related works }
@@ -180,7 +181,9 @@ As illustrated in Figure \ref{alternate_projections} (a-b), the Sinkhorn algorit
 \begin{figure}[ht!]
 \begin{center}
 \begin{tabular}{ccc}
-\includegraphics[height=4cm]{schema_a.png}&\includegraphics[height=4cm]{schema_b.png}&\includegraphics[height=4cm]{schema_c.png}\\
+\input{schema_a.tex}&
+\input{schema_b.tex}&
+\input{schema_c.tex}\\
 (a)&(b)&(c)
 \end{tabular}
 \caption{\label{alternate_projections} The trajectory of $\gamma^l$ given by the Sinkhorn algorithm is illustrated for decreasing values of $\epsilon$ in (a) and (b). In order to accelerate the convergence rate, over-relaxed projections are here considered (c).}
@@ -206,6 +209,10 @@ F(\gamma) = KL(\gamma^*, \gamma)
 \end{equation}
 It shall be used as a Lyapunov function, so that $F(\gamma^{k+1}) < F(\gamma^k)$ as long as the process has not converged.
 
+We argue that it makes sense to consider this Lyapunov function.
+Obviously, it is closely related to the notion of Bregman projection that is used throughout the algorithm.
+But it is also easy to calculate its decrease, as shown in lemma \ref{lemma:lyapunov_decrease}.
+Moreover, in practice it allows the use of a wide range of over-relaxation parameters.
 
 \begin{lemma} \label{lemma:KL_compact}
 	For any $M \in \IR_+^*$, the sublevel set $K := \left\{ \gamma \mid F(\gamma) \le M \right\}$ is compact.
