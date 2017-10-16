@@ -208,14 +208,37 @@ It shall be used as a Lyapunov function, so that $F(\gamma^{k+1}) < F(\gamma^k)$
 
 
 \begin{lemma} \label{lemma:KL_compact}
-	For any $M \in \IR_+^*$, the sublevel set $\left\{ \gamma \mid F(\gamma) \le M \right\}$ is compact.
+	For any $M \in \IR_+^*$, the sublevel set $K := \left\{ \gamma \mid F(\gamma) \le M \right\}$ is compact.
 \end{lemma}
 \begin{proof}
-	{\color{red} TODO}
+	First note that K is closed in $\IR_{+*}^{n_1 n_2}$, by continuity of $F$.
+	For $\gamma \in K$, one has:
+	\begin{align*}
+	F(\gamma) &= \scal{\gamma^*}{\log \gamma^* - 1} + \scal{\gamma}{1} - \scal{\gamma^*}{\log \gamma}\\
+	\sum_{i,j} \gamma_{i,j} - \gamma^*_{i,j} \log \gamma_{i,j} &\le M - \scal{\gamma^*}{\log \gamma^* - 1} .
+	\end{align*}
+	By concavity, the logarithm admits a simple upper bound: $\log \gamma_{i,j} \le \frac{\gamma_{i,j}}{e}$. Moreover, since $\gamma^*$ is a solution of the problem, each of its coordinates is at most 1.
+	\begin{align*}
+	\sum_{i,j} \gamma_{i,j} &\le \frac{M - \scal{\gamma^*}{\log \gamma^*-1}}{1-\frac{1}{e}} =: M'.
+	\end{align*}
+	Therefore each coordinate $\gamma_{i,j}$ is bounded above by $M'$.
+	
+	Let us show that the coordinates are bounded below by a strictly positive number; from which it can be deduced that $K$ is bounded and closed in $\IR^{n_1 n_2}$, and therefore compact.
+	\begin{align*}
+	F(\gamma)
+	&\ge \scal{\gamma^*}{\log \gamma^*} - \sum_{i,j} \gamma^*_{i,j} \log(\gamma_{i,j}) - 1\\
+	&\ge \scal{\gamma^*}{\log \gamma^*} - \gamma^*_{i_0,j_0} \log(\gamma_{i_0,j_0}) - 1 - \log M',
+	\end{align*}
+	where the last equation derives from $\log(y_{i,j}) \le \log M'$, and $\sum_{(i,j)\neq(i_0,j_0)} \gamma^*_{i,j} \le 1$.
+	Finally:
+	\[
+	\log(\gamma_{i_0,j_0}) \ge \frac{\scal{\gamma^*}{\log \gamma^*} - M - \log M' - 1}{\gamma^*_{i_0,j_0}},
+	\]
+	and $K$ is thus compact.
 \end{proof}
 
 
-Note that it is not necessary to know $\gamma^*$ in order to calculate the difference $F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma))$, as shown by the following lemma.
+Note that the difference $F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma))$ may be calculated without knowing $\gamma^*$, as shown by the following lemma.
 \begin{lemma}\label{lemma:lyapunov_decrease}
 	Take $\gamma$ in $\IR^{mn}_{+*}$. The decrease in value of the Lyapunov function can be calculated with the following formula:
 	\begin{equation} \label{eq:kl_diff_scal}
@@ -231,7 +254,8 @@ Note that it is not necessary to know $\gamma^*$ in order to calculate the diffe
 \begin{proof}
 From \eqref{KL}, we have $F(\gamma^1)-F(\gamma^2)= \sum_{i,j}\left(\gamma^*_{i,j}\log(\gamma^2_{i,j}/\gamma^1_{i,j})+\gamma^1_{i,j}-\gamma^2_{i,j}\right)$. The result can then be deduced from relations \eqref{eq:def_or_proj} and \eqref{scaling}.
 \end{proof}
-Thus, calculating the decrease in value of the function $F$ is relatively cheap and straightforward. In Figure \ref{phi_omega}, we illustrate the functions  $\varphi_\omega$ for several values of $\omega$. Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always non negative.
+Thus, calculating the decrease in value of the function $F$ is relatively cheap and straightforward. In Figure \ref{phi_omega}, we illustrate the functions  $\varphi_\omega$ for several values of $\omega$.
+Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always nonnegative. For other values $1\le\omega<2$, it is nonnegative for arguments close to 1.
 \begin{figure}[ht!]
 \begin{center}
 \includegraphics[width=11cm]{phi_omega.png}
@@ -417,7 +441,7 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
 \section{Experimental results}
 
 
-In practice, we observed that the algorithm introduced in Theorem \ref{thm:algo} can be simplified and it is sufficient to check $F(P^\omega_{\Ccal_2}(P^\omega_{\Ccal_1}(\gamma^l)))-F(\gamma^l)>0$ for realizing the over-relaxed iterations with parameter $\omega$.
+In practice, we observed that the algorithm introduced in Theorem \ref{thm:algo} can be simplified and it is sufficient to check $F(P^\omega_{\Ccal_2}(P^\omega_{\Ccal_1}(\gamma^l)))-F(\gamma^l)>0$ for performing the over-relaxed iterations with parameter $\omega$.
 The cost of this test is linear with respect to the data dimension (i.e. $o(n_1+n_2)$).
 
 \renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
