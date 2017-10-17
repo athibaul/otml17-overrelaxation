@@ -289,12 +289,6 @@ Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the fun
 \end{theorem}
 {\color{red} 
 TODO Construire les bonnes fonctions $\theta_k(\gamma)$.}
-\begin{remark}
-	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
-	
-	
-\end{remark}
-{\color{blue} Comment: As the inequality is strict in U, $\gamma^*\notin U$.} 
 
 
 \begin{lemma}[\cite{cuturi13}]
@@ -310,6 +304,29 @@ TODO Construire les bonnes fonctions $\theta_k(\gamma)$.}
 	the set of matrices that are diagonally similar to $\gamma^0$.
 	Then the set $S \cap \Ccal_1 \cap \Ccal_2$ contains exactly one element $\gamma^* = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0)$.
 \end{lemma}
+
+
+\begin{proof}[Proof of the theorem]
+	First of all, notice that the operators $P_{\Ccal_k}^\theta$ apply a scaling to lines or columns of matrices. All $(\gamma^l)$ are thus diagonally similar to $\gamma^0$:
+	\[
+	\forall l\ge0,\quad \gamma^l \in S
+	\]
+	
+	By construction of the functions $\theta_k$, the sequence of values of the Lyapunov function $(F(\gamma^l))$ is non-increasing. Hence $(\gamma^l)$ is precompact.
+	
+	If $\xi$ is a cluster point of $(\gamma^l)$, let us define
+	\begin{align*}
+	\tilde{\xi} &= P_{\Ccal_1}^{\theta_1(\xi)}(\xi) \\
+	\xi' &= P_{\Ccal_2}^{\theta_2(\tilde{\xi})}(\tilde{\xi}).
+	\end{align*}
+	Then by continuity of all the applications, $F(\xi) = F(\tilde{\xi}) = F(\xi')$.
+	From the hypothesis made on $\theta_1$ and $\theta_2$ can be deduced that $\xi$ is in $\Ccal_1$ and that $\tilde{\xi}$ is in $\Ccal_2$. Therefore $\xi' = \tilde{\xi} = \xi$ is in the intersection $\Ccal_1 \cap \Ccal_2$.
+	By lemma \ref{lemma:trivial_intersection}, $\xi = \gamma^*$, and the whole sequence $(\gamma^l)$ converges to the solution.
+\end{proof}
+
+
+
+To construct the functions $\theta_k$ needed by the theorem, we 
 
 \begin{lemma}\label{lemma:F_P_theta}
 	Let $1\le \theta < \omega$. Then, for any $\gamma \in \IR_{+*}^{nm}$, one has
@@ -330,24 +347,6 @@ TODO Construire les bonnes fonctions $\theta_k(\gamma)$.}
 	\]
 	For $x\neq 1$, it is even strictly decreasing.
 	Thus the inequality (\ref{eq:F_P_theta}) is valid, with equality \emph{iff} $A_1 \gamma = \mu$.
-\end{proof}
-
-\begin{proof}[Proof of the theorem]
-	First of all, notice that the operators $P_{\Ccal_k}^\theta$ apply a scaling to lines or columns of matrices. All $(\gamma^l)$ are thus diagonally similar to $\gamma^0$:
-	\[
-	\forall l\ge0,\quad \gamma^l \in S
-	\]
-	
-	By construction of the functions $\theta_k$, the sequence of values of the Lyapunov function $(F(\gamma^l))$ is non-increasing. Hence $(\gamma^l)$ is precompact.
-	
-	If $\xi$ is a cluster point of $(\gamma^l)$, let us define
-	\begin{align*}
-	\tilde{\xi} &= P_{\Ccal_1}^{\theta_1(\xi)}(\xi) \\
-	\xi' &= P_{\Ccal_2}^{\theta_2(\tilde{\xi})}(\tilde{\xi}).
-	\end{align*}
-	Then by continuity of all the applications, $F(\xi) = F(\tilde{\xi}) = F(\xi')$.
-	From the hypothesis made on $\theta_1$ and $\theta_2$ can be deduced that $\xi$ is in $\Ccal_1$ and that $\tilde{\xi}$ is in $\Ccal_2$. Therefore $\xi' = \tilde{\xi} = \xi$ is in the intersection $\Ccal_1 \cap \Ccal_2$.
-	By lemma \ref{lemma:trivial_intersection}, $\xi = \gamma^*$, and the whole sequence $(\gamma^l)$ converges to the solution.
 \end{proof}
 
 
