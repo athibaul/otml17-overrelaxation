@@ -436,7 +436,7 @@ $$H(a^*,b^*)=\frac1\epsilon\begin{bmatrix}
 
 
 The matrices $H(a,b)$  are positive semi-definite. They have only one $0$ eigenvalue associated to the eigenvetor $^t[\mathbf{1},-\mathbf{1}]$. 
-Using Schur complement properties, one can then show that any matrix $T(a,b)=(\diag(a)\diag(\gamma^0 b))^{-1}\gamma^0(diag(^t\gamma^*))^{-1} {^t\gamma^0}$ is positive semi definite. Moreover, we can show that $T$ has a unique largest eigenvalue that is $1$ and is associated to the eigenvector $\mathbf{1}$. All the other eigenvalues belongs to the set $[0;1[$.
+Using Schur complement properties, one can then show that any matrix $T(a,b)=(\diag(a)\diag(\gamma^0 b))^{-1}\diag(a)\gamma^0\diag(b)(\diag(^t\gamma^0a)\diag(b))^{-1} \diag(b){^t\gamma^0}\diag(a)=(\diag(\gamma^0 b))^{-1}\gamma^0(\diag(^t\gamma^0a))^{-1} \diag(b){^t\gamma^0}\diag(a)$ is positive semi definite. Moreover, we can show that $T$ has a unique largest eigenvalue that is $1$ and is associated to the eigenvector $\mathbf{1}$. All the other eigenvalues belongs to the set $[0;1[$.
 
 
 From experiments, it seems possible to design a good guess for $\omega$ from $c$ and $\epsilon$ only. 
