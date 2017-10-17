@@ -297,11 +297,8 @@ Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the fun
 	$F$; if so, calculate $P_{\Ccal_1}^\theta(\zeta)$ (don't update $\zeta$ yet) and check that its $\omega$-relaxed projection on $\Ccal_2$ decreases the value of $F$ again. \\
 	$\longrightarrow$ Has to calculate 3 projections sometimes. This result is weaker than the one from my report, but easier to prove. Maybe we could avoid having $U$, and rather perform the test independently on each variable ? (Or we could find a cheaper test).}
 \begin{remark}
-	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
-	
-	
+	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that a neighborhood of $\gamma^*$ is in $U$. Therefore, iterations eventually all use the over-relaxed operators.
 \end{remark}
-{\color{blue} Comment: As the inequality is strict in U, $\gamma^*\notin U$.} 
 
 
 \begin{lemma}[\cite{cuturi13}]
