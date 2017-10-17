@@ -273,29 +273,22 @@ Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the fun
 
 
 \begin{theorem}\label{thm:algo}
-	Let $\theta$ and $\omega$ be such that $1\le \theta < \omega < 2$. Let $U$ be the open set defined by:
-	\begin{equation}\label{eq:open_set_U}
-	U = \left\{
-	\gamma \in \IR_{+*}^{nm} \mid
-	F(P^\omega_{\Ccal_1}(\gamma)) < F(\gamma)
-	\text{ and }
-	F(P^\omega_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma))) < F(P^\theta_{\Ccal_1}(\gamma))
-	\right\}.
-	\end{equation}
-	Set the initial value $\gamma^0 = e^{-c/\epsilon}$, and iterate:
+	Take two continuous functions $\theta_1,\theta_2$ such that
+	\[
+	\forall \gamma \in \IR_{+*}^{n_1 n_2},\quad
+	F(P_{\Ccal_k}^{\theta_k(\gamma)}(\gamma)) \le F(\gamma) ,
+	\]
+	where the inequality is strict whenever $\gamma \notin \Ccal_k$.
+	Consider the sequence defined by:
 	\begin{align*}
-	\gamma^{l+1} =
-	\begin{cases}
-	P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l)) & \text{if } \gamma \in U \\
-	P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l)) & \text{otherwise.}
-	\end{cases}
+	\gamma^0 &= e^{-c/\epsilon} \\
+	\tilde{\gamma}^{l+1} &= P_{\Ccal_1}^{\theta_1(\gamma^l)}(\gamma^l) \\
+	\gamma^{l+1} &= P_{\Ccal_2}^{\theta_2(\tilde{\gamma}^{l+1})}(\tilde{\gamma}^{l+1}).
 	\end{align*}
-	Then the iterates $(\gamma^l)$ converge to $\gamma^*$.
+	Then the sequence $(\gamma^l)$ converges to $\gamma^*$.
 \end{theorem}
 {\color{red} 
-	In practice the test would be: check whether the $\omega$-relaxed projection of $\zeta$ on $\Ccal_1$ decreases the value of
-	$F$; if so, calculate $P_{\Ccal_1}^\theta(\zeta)$ (don't update $\zeta$ yet) and check that its $\omega$-relaxed projection on $\Ccal_2$ decreases the value of $F$ again. \\
-	$\longrightarrow$ Has to calculate 3 projections sometimes. This result is weaker than the one from my report, but easier to prove. Maybe we could avoid having $U$, and rather perform the test independently on each variable ? (Or we could find a cheaper test).}
+TODO Construire les bonnes fonctions $\theta_k(\gamma)$.}
 \begin{remark}
 	Given lemma \ref{lemma:lyapunov_decrease}, it can be seen that $\gamma^* \in U$. Therefore, iterations eventually all use the over-relaxed operators.
 	
@@ -345,61 +338,16 @@ Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the fun
 	\forall l\ge0,\quad \gamma^l \in S
 	\]
 	
-	The set $U$ is constructed in such a way that, by applying lemma \ref{lemma:F_P_theta} several times, one ensures that the sequence $(F(\gamma^l))$ is nonincreasing. Moreover, it is strictly decreasing as long as $\gamma^l \not \in \Ccal_1 \cap \Ccal_2$.
-	Hence, 
-	\[
-	F(\gamma^l) \le F(\gamma^0).
-	\]
-	By lemma \ref{lemma:KL_compact}, the sequence $(\gamma^l)$ is thus precompact. Let us show that any accumulation point $\zeta$ belongs to $\Ccal_1 \cap \Ccal_2$. Since $S$ is closed in $\IR_{+*}^{n_1 n_2}$, by lemma \ref{lemma:trivial_intersection} this would mean that $\zeta = \gamma^*$, and would be sufficient to prove the convergence.
+	By construction of the functions $\theta_k$, the sequence of values of the Lyapunov function $(F(\gamma^l))$ is non-increasing. Hence $(\gamma^l)$ is precompact.
 	
-	Let $(\gamma^{k_l})$ be a subsequence of $(\gamma^l)$ that converges to $\zeta$.
-	Let us denote, for convenience, $T_1 = P_{\Ccal_2}^\theta \circ P_{\Ccal_1}^\theta$ and $T_2 = P_{\Ccal_2} \circ P_{\Ccal_1}$ the two operators used in the iteration, and $T$ the compound operator, so that $T_{|U} \equiv T_{1|U}$ and $T_{|U^c} \equiv T_{2|U^c}$.
-	\begin{enumerate}[align=right,labelsep=10pt,leftmargin=0.5cm]
-		\item[$\bullet$] If $\zeta \in U$, then since $U$ is open, all $(\gamma^{k_l})$ are eventually in $U$ as well.
-		Thus, for any large enough $l$, $ T(\gamma^{k_l}) = T_1(\gamma^{k_l}) $. By continuity of $T_1$ on $U$, since $(\gamma^{k_l})$ converges to $\zeta$, 
-		\[T(\zeta) = \lim_{l\rightarrow \infty} T(\gamma^{k_l}).\] Thus
-		 \[F(T(\zeta)) = \lim_{l \rightarrow \infty} F(T(\gamma^{k_l})) \ge \lim_{l\rightarrow \infty} F(\gamma^{k_{l+1}}) .\]
-		 \[
-		 F(T(\zeta)) \ge F(\zeta)
-		 \] Since $\zeta$ is inside the set $U$, which ensures strict decrease of the Lyapunov function, this is absurd.
-		\item[$\bullet$] If $\zeta \in U^c$ and an infinite number of $(\gamma^{k_l})$ are in $U^c$, then the same argument of continuity applied to $T_2$ yields
-		 \[
-		 F(T(\zeta)) = F(\zeta).
-		 \]
-		 The function $\varphi_1$ from lemma \ref{lemma:lyapunov_decrease} is strictly positive except at $x=1$. Since the case of equality occurs for both projections, this ensures that $\zeta \in \Ccal_1 \cap \Ccal_2$.
-		 
-		 \item[$\bullet$] If $\zeta \in U^c$ and all but finitely many $\gamma^{k_l}$ are in $U$, then $\zeta$ is on the border $\partial U$. In particular it belongs to $\bar{U}$, and therefore
-		 \[
-		 F(P^\omega_{\Ccal_1}(\zeta)) \le F(\zeta) \quad
-		 \text{ and } \quad
-		 F(P^\omega_{\Ccal_2}(P^\theta_{\Ccal_1}(\zeta))) \le F(P^\theta_{\Ccal_1}(\zeta)).
-		 \]
-		 By lemma \ref{lemma:F_P_theta}, the inequality \begin{equation} \label{eq:ineq1}
-		 F(P_{\Ccal_1}^\theta(\zeta)) \le F(P_{\Ccal_1}^\omega(\zeta)) \end{equation}
-		 is valid; it is strict unless $\zeta \in \Ccal_1$.
-		 The same lemma yields
-		 \begin{equation} \label{eq:ineq2}
-		 F(P_{\Ccal_2}^\theta(P_{\Ccal_1}^\theta(\zeta)) \le F(P_{\Ccal_2}^\omega(P_{\Ccal_1}^\theta(\zeta)), \end{equation}
-		 with a strict inequality unless $P_{\Ccal_1}^\theta(\zeta) \in \Ccal_2$.
-		 To sum up, we have the series of inequalities:
-		 \[
-		 F(\zeta) 
-		 \overset{\zeta \in \bar{U}}{\ge}
-		 F(P^\omega_{\Ccal_1}(\zeta))
-		 \overset{\text{(\ref{eq:ineq1})}}{\ge}
-		 F(P^\theta_{\Ccal_1}(\zeta))
-		 \overset{\zeta \in U}{\ge}
-		 F(P_{\Ccal_2}^\omega(P_{\Ccal_1}^\theta(\zeta)))
-		 \overset{\text{(\ref{eq:ineq2})}}{\ge}
-		 F(P_{\Ccal_2}^\theta(P_{\Ccal_1}^\theta(\zeta)))
-		 \]
-		 
-		 Yet, by continuity of $T_1 = P_{\Ccal_2}^\theta \circ P_{\Ccal_1}^\theta $ on $\bar{U}$, we have
-		 \[
-		 F(P_{\Ccal_2}^\theta(P_{\Ccal_1}^\theta(\zeta))) = F(\zeta).
-		 \]
-		 Thus both (\ref{eq:ineq1}) and (\ref{eq:ineq2}) fall in the case of equality, which means $\zeta \in \Ccal_1$ and $P^\theta_{\Ccal_1}(\zeta) = \zeta \in \Ccal_2$.
-	\end{enumerate}
+	If $\xi$ is a cluster point of $(\gamma^l)$, let us define
+	\begin{align*}
+	\tilde{\xi} &= P_{\Ccal_1}^{\theta_1(\xi)}(\xi) \\
+	\xi' &= P_{\Ccal_2}^{\theta_2(\tilde{\xi})}(\tilde{\xi}).
+	\end{align*}
+	Then by continuity of all the applications, $F(\xi) = F(\tilde{\xi}) = F(\xi')$.
+	From the hypothesis made on $\theta_1$ and $\theta_2$ can be deduced that $\xi$ is in $\Ccal_1$ and that $\tilde{\xi}$ is in $\Ccal_2$. Therefore $\xi' = \tilde{\xi} = \xi$ is in the intersection $\Ccal_1 \cap \Ccal_2$.
+	By lemma \ref{lemma:trivial_intersection}, $\xi = \gamma^*$, and the whole sequence $(\gamma^l)$ converges to the solution.
 \end{proof}
 
 
