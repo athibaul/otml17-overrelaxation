@@ -82,7 +82,11 @@ Talence, France\\
 \maketitle
 
 \begin{abstract}
-This article describes a method for quickly calculating the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn's algorithm). The idea is to over-relax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
+This article describes a method for quickly calculating the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn's algorithm). 
+The idea is to over-relax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
+In this paper, we propose a simple method for establishing the global convergence of the over-relaxed Sinkhorn's algorithm, by ensuring the decrease of a Lyapunov function at each step.
+An inexpensive adaptive choice of over-relaxation parameter based on the Lyapunov function is constructed.
+We also suggest a heuristic to choose a suitable asymptotic over-relaxation parameter.
 \end{abstract}
 
 \section{Introduction}
@@ -155,7 +159,7 @@ P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &
 b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
 \end{align}
 where $\oslash$ is the pointwise division. 
-To compute numerically the solution  one simply has to store $(a^l, b^l)\in\IR^{n_1+n_2}$ and iterates
+To compute numerically the solution  one simply has to store $(a^l, b^l)\in\IR^{n_1+n_2}$ and to iterate
 \begin{align*}
 a^{l+1} &= {\mu^1}\oslash{\gamma^0 b^l} &
 b^{l+1} &= {\mu^2}\oslash{^t \gamma^0 a^{l+1}} 
