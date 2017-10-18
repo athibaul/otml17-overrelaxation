@@ -349,14 +349,17 @@ To construct the functions $\theta_k$ needed by the theorem, we need the followi
 
 \begin{proposition}
 	We argue that a good choice for the functions $\theta_k$ may be constructed as follows. Pick a target parameter $\theta_0 \in [1;2)$, and a small $\delta>0$.
-	Define the function $\theta_k^*$ as:
-	\begin{equation}
-	\theta_k^*(\gamma) = \sup \left\{\omega \in [1;2]  \mid \varphi_\omega\left(\min \frac{A_k \gamma}{\mu^k}\right) \ge 0 \right\} .
-	\end{equation}
+	Define the functions $\Theta^*$ and $\Theta$ as:
+	\begin{align}
+	\Theta^*(u) &= \sup \left\{\omega \in [1;2]  \mid \varphi_\omega\left(\min u\right) \ge 0 \right\} ,\\
+	\label{eq:Theta}
+	\Theta(u) &= \min(\max(1,\Theta^*(u)-\delta),\theta_0),
+	\end{align}
+	where $\min u$ denotes the smallest coordinate of the vector $u$.
 	Then the function
 	\begin{equation}
 	\label{eq:theta_k}
-	\theta_k(\gamma) = \min(\max(1,\theta_k^*(\gamma)-\delta),\theta_0)
+	\theta_k(\gamma) =\Theta\left (\frac{A_k \gamma}{\mu^k}\right)
 	\end{equation}
 	is continuous, and verifies condition (\ref{eq:cond_theta_k}).
 \end{proposition}
@@ -365,10 +368,10 @@ One is that it allows to choose arbitrarily the parameter $\theta_0$ that will b
 But it is also an easy approach to having an adaptive method, as the approximation of $\theta_k^*$ has a negligible cost (it only require to solve a one dimensional problem that depends on the smallest value of $\frac{A_k \gamma}{\mu^k}$, and the corresponding function to invert is decreasing and concave).
 We will show later on that this is often an excellent choice in practice.
 \begin{proof}
-	Since the partial derivative of $\frac{\partial\varphi_\omega(x)}{\partial\omega}$ is nonzero for any $x<1$, the implicit function theorem proves the continuity of $\theta_k^*$.
-	The function $\theta_k^*(\gamma)$ is constructed so that every term in relation (\ref{eq:kl_diff_scal}) is non-negative.
-	Therefore, by lemma \ref{lemma:F_P_theta}, using parameter $\theta_k^*(\gamma)-\delta$ ensures the strong decrease (\ref{eq:cond_theta_k}) of the Lyapunov function.
-	It is no problem to constrain it to $[1,\theta_0]$, as using 1 always validates the inequality (\ref{eq:cond_theta_k}), and using $\theta_0$ when it is smaller than $\theta_k^*(\gamma)$ does as well.
+	Since the partial derivative of $\frac{\partial\varphi_\omega(x)}{\partial\omega}$ is nonzero for any $x<1$, the implicit function theorem proves the continuity of $\Theta^*$.
+	The function $\Theta^*\left(\frac{A_k \gamma}{\mu^k}\right)$ is such that every term in relation (\ref{eq:kl_diff_scal}) is non-negative.
+	Therefore, by lemma \ref{lemma:F_P_theta}, using this parameter minus $\delta$ ensures the strong decrease (\ref{eq:cond_theta_k}) of the Lyapunov function.
+	It is no problem to constrain it to $[1,\theta_0]$, as using 1 always verifies the inequality (\ref{eq:cond_theta_k}), and using $\theta_0$ when it is smaller than $\Theta^*\left(\frac{A_k \gamma}{\mu^k}\right)$ does as well.
 \end{proof}
 
 \section{Local rate of convergence ?}
@@ -439,8 +442,9 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
 % \RETURN $\gamma=\diag(a)\gamma^0\diag(b)$
 %\end{algorithmic}
 %\end{algorithm}
-In order to summarize the whole algorithm, we first reformulate the functions $\theta_k(\gamma)$ defined in \eqref{eq:theta_k} as $\theta_k(\gamma)=\Theta(\frac{A_k \gamma}{\mu^k})$ where 
-$ \Theta(u) = \min(\max(1,\Theta^*(u)-\delta),\theta_0)$ and  $\Theta^*(u)=\sup \left\{\omega \in [1;2]  \mid \varphi_\omega\left(\min u \right) \ge 0 \right\}$.
+
+
+This algorithm uses the function $\Theta$ defined in (\ref{eq:Theta}).
 
 \begin{algorithm}
 \caption{Over-relaxed Sinkhorn algorithm }
