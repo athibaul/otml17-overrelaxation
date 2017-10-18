@@ -362,7 +362,7 @@ To construct the functions $\theta_k$ needed by the theorem, we need the followi
 \end{proposition}
 This construction has several advantages.
 One is that it allows to choose arbitrarily the parameter $\theta_0$ that will be used asymptotically. A heuristic for this choice is proposed in section \ref{section:local}.
-But it is also an easy approach to having an adaptive method, as the approximation of $\theta_k^*$ has a negligible cost (it only depends on the smallest value of $\frac{A_k \gamma}{\mu^k}$, and the function to invert is decreasing and concave).
+But it is also an easy approach to having an adaptive method, as the approximation of $\theta_k^*$ has a negligible cost (it only require to solve a one dimensional problem that depends on the smallest value of $\frac{A_k \gamma}{\mu^k}$, and the corresponding function to invert is decreasing and concave).
 We will show later on that this is often an excellent choice in practice.
 \begin{proof}
 	Since the partial derivative of $\frac{\partial\varphi_\omega(x)}{\partial\omega}$ is nonzero for any $x<1$, the implicit function theorem proves the continuity of $\theta_k^*$.
