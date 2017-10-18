@@ -176,7 +176,7 @@ We finally demonstrate numerically  in Section 4 the good behavior of our method
 
 \section{Over-relaxed Sinkhorn's algorithm}
 
-As illustrated in Figure \ref{alternate_projections} (a-b), the Sinkhorn algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developped in this paper is to perform over-relaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c) 
+As illustrated in Figure \ref{alternate_projections} (a-b), the Sinkhorn algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developped in this paper is to perform over-relaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c).
 
 \begin{figure}[ht!]
 \begin{center}
@@ -274,10 +274,10 @@ Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the fun
 
 \begin{theorem}\label{thm:algo}
 	Take two continuous functions $\theta_1,\theta_2$ such that
-	\[
+	\begin{equation}\label{eq:cond_theta_k}
 	\forall \gamma \in \IR_{+*}^{n_1 n_2},\quad
 	F(P_{\Ccal_k}^{\theta_k(\gamma)}(\gamma)) \le F(\gamma) ,
-	\]
+	\end{equation}
 	where the inequality is strict whenever $\gamma \notin \Ccal_k$.
 	Consider the sequence defined by:
 	\begin{align*}
@@ -287,8 +287,6 @@ Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the fun
 	\end{align*}
 	Then the sequence $(\gamma^l)$ converges to $\gamma^*$.
 \end{theorem}
-{\color{red} 
-TODO Construire les bonnes fonctions $\theta_k(\gamma)$.}
 
 
 \begin{lemma}[\cite{cuturi13}]
@@ -320,13 +318,15 @@ TODO Construire les bonnes fonctions $\theta_k(\gamma)$.}
 	\xi' &= P_{\Ccal_2}^{\theta_2(\tilde{\xi})}(\tilde{\xi}).
 	\end{align*}
 	Then by continuity of all the applications, $F(\xi) = F(\tilde{\xi}) = F(\xi')$.
-	From the hypothesis made on $\theta_1$ and $\theta_2$ can be deduced that $\xi$ is in $\Ccal_1$ and that $\tilde{\xi}$ is in $\Ccal_2$. Therefore $\xi' = \tilde{\xi} = \xi$ is in the intersection $\Ccal_1 \cap \Ccal_2$.
+	From the hypothesis made on $\theta_1$ and $\theta_2$, can be deduced that $\xi$ is in $\Ccal_1$ and that $\tilde{\xi}$ is in $\Ccal_2$. Therefore $\xi' = \tilde{\xi} = \xi$ is in the intersection $\Ccal_1 \cap \Ccal_2$.
 	By lemma \ref{lemma:trivial_intersection}, $\xi = \gamma^*$, and the whole sequence $(\gamma^l)$ converges to the solution.
 \end{proof}
 
 
 
-To construct the functions $\theta_k$ needed by the theorem, we 
+{\color{red} 
+	TODO Construire les bonnes fonctions $\theta_k(\gamma)$.}
+To construct the functions $\theta_k$ needed by the theorem, we need the following lemma.
 
 \begin{lemma}\label{lemma:F_P_theta}
 	Let $1\le \theta < \omega$. Then, for any $\gamma \in \IR_{+*}^{nm}$, one has
@@ -341,16 +341,38 @@ To construct the functions $\theta_k$ needed by the theorem, we
 	F(P^\theta_{\Ccal_k}(\gamma)) - F(P^\omega_{\Ccal_k}(\gamma))
 	= \scal{\mu^k}{(\varphi_\omega - \varphi_\theta) \left( \frac{A_k \gamma}{\mu^k} \right) } .
 	\]
-	Moreover, $t \in [1,\infty) \mapsto \varphi_t(x)$ is nonincreasing:
-	\[
-	\frac{d}{dt} \varphi_t(x) = \log x (x^{1-t} - 1).
-	\]
+	Moreover, the function that maps $t \in [1,\infty)$ to $\varphi_t(x)$ is non-increasing:
+	$\frac{d}{dt} \varphi_t(x) = \log x (x^{1-t} - 1).$
 	For $x\neq 1$, it is even strictly decreasing.
-	Thus the inequality (\ref{eq:F_P_theta}) is valid, with equality \emph{iff} $A_1 \gamma = \mu$.
+	Thus the inequality (\ref{eq:F_P_theta}) is valid, with equality \emph{iff} $A_k \gamma = \mu$.
 \end{proof}
 
+\begin{proposition}
+	We argue that a good choice for the functions $\theta_k$ may be constructed as follows. Pick a target parameter $\theta_0 \in [1;2)$, and a small $\delta>0$.
+	Define the function $\theta_k^*$ as:
+	\begin{equation}
+	\theta_k^*(\gamma) = \sup \left\{\omega \in [1;2]  \mid \varphi_\omega\left(\min \frac{A_k \gamma}{\mu^k}\right) \ge 0 \right\} .
+	\end{equation}
+	Then the function
+	\begin{equation}
+	\label{eq:theta_k}
+	\theta_k(\gamma) = \min(\max(1,\theta_k^*(\gamma)-\delta),\theta_0)
+	\end{equation}
+	is continuous, and verifies condition (\ref{eq:cond_theta_k}).
+\end{proposition}
+This construction has several advantages.
+One is that it allows to choose arbitrarily the parameter $\theta_0$ that will be used asymptotically. A heuristic for this choice is proposed in section \ref{section:local}.
+But it is also an easy approach to having an adaptive method, as the approximation of $\theta_k^*$ has a negligible cost (it only depends on the smallest value of $\frac{A_k \gamma}{\mu^k}$, and the function to invert is decreasing and concave).
+We will show later on that this is often an excellent choice in practice.
+\begin{proof}
+	Since the partial derivative of $\frac{\partial\varphi_\omega(x)}{\partial\omega}$ is nonzero for any $x<1$, the implicit function theorem proves the continuity of $\theta_k^*$.
+	The function $\theta_k^*(\gamma)$ is constructed so that every term in relation (\ref{eq:kl_diff_scal}) is non-negative.
+	Therefore, by lemma \ref{lemma:F_P_theta}, using parameter $\theta_k^*(\gamma)-\delta$ ensures the strong decrease (\ref{eq:cond_theta_k}) of the Lyapunov function.
+	It is no problem to constrain it to $[1,\theta_0]$, as using 1 always validates the inequality (\ref{eq:cond_theta_k}), and using $\theta_0$ when it is smaller than $\theta_k^*(\gamma)$ does as well.
+\end{proof}
 
 \section{Local rate of convergence ?}
+\label{section:local}
 Some material to adapt Lenaic results:
 
 
