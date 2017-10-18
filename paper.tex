@@ -38,7 +38,7 @@
 \newtheorem{example}{Example}
 
 
-\title{Over-relaxed Sinkhorn's Algorithm for Regularized Optimal Transport}
+\title{Over-relaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
 
 %
 \author{
@@ -82,15 +82,15 @@ Talence, France\\
 \maketitle
 
 \begin{abstract}
-This article describes a method for quickly calculating the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn's algorithm). 
+This article describes a method for quickly calculating the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn--Knopp algorithm). 
 The idea is to over-relax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
-In this paper, we propose a simple method for establishing the global convergence of the over-relaxed Sinkhorn's algorithm, by ensuring the decrease of a Lyapunov function at each step.
+In this paper, we propose a simple method for establishing the global convergence of the over-relaxed Sinkhorn--Knopp algorithm, by ensuring the decrease of a Lyapunov function at each step.
 An inexpensive adaptive choice of over-relaxation parameter based on the Lyapunov function is constructed.
 We also suggest a heuristic to choose a suitable asymptotic over-relaxation parameter.
 \end{abstract}
 
 \section{Introduction}
-Optimal Transport is an efficient and flexible tool to compare two probability distributions which has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn's algorithm \cite{sinkhorn64}   scaling with high dimensional data. 
+Optimal Transport is an efficient and flexible tool to compare two probability distributions which has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn--Knopp algorithm \cite{sinkhorn64}   scaling with high dimensional data. 
 Regularized optimal transport have thus been intensively used  in  Machine Learning with applications such as   Geodesic PCA \cite{seguy2015principal}, domain adaptation \cite{2015arXiv150700504C}, data fitting \cite{2015arXiv150605439F},  training of Boltzmann Machine \cite{NIPS2016_6248}  or dictionary learning \cite{Rolet2016,2017arXiv170801955S}.
 
 The computation of optimal transport between two data relies on the estimation of an optimal transport matrix, the entries of which represent the quantity of mass transported between  data locations. 
@@ -142,8 +142,8 @@ P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} KL(\gamma,\xi).
 
 
 
-\subsection{Sinkhorn's algorithm}
-Iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}. Hence, the so-called Sinkhorn algorithm \cite{sinkhorn64} that performs alternate Bregman projections, can be considered to compute the regularized  transport matrix:
+\subsection{The Sinkhorn--Knopp algorithm}
+Iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point in the intersection $\Ccal_1 \cap \Ccal_2$ \cite{bregman67}. Hence, the so-called Sinkhorn--Knopp algorithm \cite{sinkhorn64} that performs alternate Bregman projections, can be considered to compute the regularized  transport matrix:
 \begin{align*}
 \gamma^0 &= e^{-c/\epsilon} &
 \gamma^{l+1} = P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l)),
@@ -170,17 +170,17 @@ Efficient parallel computations can be considered \cite{cuturi13} and one can ev
 For small values of the parameter $\epsilon$, numerical issues can arise and a stabilization of the algorithm is necessary \cite{2016arXiv160705816C}.
 The convergence of the process can nevertheless be very slow  in the setting $\epsilon\to 0$.
 \subsection{Related works }
-The introduction of relaxation variables through heavy ball approaches \cite{POLYAK19641} has recently gained in popularity  to speed up the convergence of algorithms optimizing convex \cite{2014arXiv1412.7457G} or non convex \cite{Zavriev1993,2016arXiv160609070O} problems. Such schemes have also been empirically considered to accelerate Sinkhorn's algorithm  in \cite{peyre2016quantum,2017arXiv170801955S}. The convergence of these algorithms is nevertheless not studied yet in the context of regularized optimal transport.
+The introduction of relaxation variables through heavy ball approaches \cite{POLYAK19641} has recently gained in popularity  to speed up the convergence of algorithms optimizing convex \cite{2014arXiv1412.7457G} or non convex \cite{Zavriev1993,2016arXiv160609070O} problems. Such schemes have also been empirically considered to accelerate the SK algorithm  in \cite{peyre2016quantum,2017arXiv170801955S}. The convergence of these algorithms is nevertheless not studied yet in the context of regularized optimal transport.
 
 \subsection{Overview and contributions}
-In this paper, we consider an over-relaxation scheme designed to accelerate   Sinkhorn's algorithm. We first present and show the convergence of our algorithm in section 2. In section 3, we analyze the local convergence rate of the algorithm to justify the acceleration.
+In this paper, we consider an over-relaxation scheme designed to accelerate the Sinkhorn--Knopp algorithm. We first present and show the convergence of our algorithm in section 2. In section 3, we analyze the local convergence rate of the algorithm to justify the acceleration.
 We finally demonstrate numerically  in Section 4 the good behavior of our method, where larger accelerations are observed for decreasing values of $\epsilon$.
 
 
 
-\section{Over-relaxed Sinkhorn's algorithm}
+\section{Over-relaxed Sinkhorn--Knopp algorithm}
 
-As illustrated in Figure \ref{alternate_projections} (a-b), the Sinkhorn algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developped in this paper is to perform over-relaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c).
+As illustrated in Figure \ref{alternate_projections} (a-b), the SK algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developped in this paper is to perform over-relaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c).
 
 \begin{figure}[ht!]
 \begin{center}
@@ -190,7 +190,7 @@ As illustrated in Figure \ref{alternate_projections} (a-b), the Sinkhorn algorit
 \input{schema_c.tex}\\
 (a)&(b)&(c)
 \end{tabular}
-\caption{\label{alternate_projections} The trajectory of $\gamma^l$ given by the Sinkhorn algorithm is illustrated for decreasing values of $\epsilon$ in (a) and (b). In order to accelerate the convergence rate, over-relaxed projections are here considered (c).}
+\caption{\label{alternate_projections} The trajectory of $\gamma^l$ given by the SK algorithm is illustrated for decreasing values of $\epsilon$ in (a) and (b). In order to accelerate the convergence rate, over-relaxed projections are here considered (c).}
 \end{center}
 \end{figure}
 \subsection{Over-relaxed projections}
@@ -200,7 +200,7 @@ Let us define the $\omega$-over-relaxed projection operator by:
 \log P^\omega_{\Ccal_k}(\gamma) = (1-\omega) \log \gamma + \omega \log P_{\Ccal_k}(\gamma),
 \end{equation}
 where the logarithm is taken coordinate-wise.
-Note that $P_{\Ccal_k}^0 = Id$, $P_{\Ccal_k}^1 = P_{\Ccal_k}$ gives the Sinkhorn algorithm, and $P_{\Ccal_k}^2$ is an involution (this is non-trivial, and uses the fact that $\Ccal_k$ is an affine subspace).
+Note that $P_{\Ccal_k}^0$ is the identity, $P_{\Ccal_k}^1 = P_{\Ccal_k}$ is the standard Bregman projection, and $P_{\Ccal_k}^2$ is an involution (this uses the fact that $\Ccal_k$ is an affine subspace).
 
 {\color{blue} \begin{proposition} 
 State here that the fixed points of   $\gamma^{l+1} =P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l))$ are the same than $\gamma^{l+1} =P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))$?
@@ -266,7 +266,7 @@ Note that the difference $F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma))$ may be calc
 From \eqref{KL}, we have $F(\gamma^1)-F(\gamma^2)= \sum_{i,j}\left(\gamma^*_{i,j}\log(\gamma^2_{i,j}/\gamma^1_{i,j})+\gamma^1_{i,j}-\gamma^2_{i,j}\right)$. The result can then be deduced from relations \eqref{eq:def_or_proj} and \eqref{scaling}.
 \end{proof}
 Thus,  the decrease in value of the function $F$ for a over-relaxed projection associated to $\Ccal_k$ is cheap to estimate, since its computational cost is  linear with respect to the dimension of data $\mu^k$. In Figure \ref{phi_omega}, we illustrate the functions  $\varphi_\omega$ for several values of $\omega$.
-Notice that for the Sinkhorn algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always nonnegative. For other values $1\le\omega<2$, it is nonnegative for arguments close to 1.
+Notice that for the SK algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always nonnegative. For other values $1\le\omega<2$, it is nonnegative for arguments close to 1.
 \begin{figure}[ht!]
 \begin{center}
 \includegraphics[width=11cm]{phi_omega.png}
@@ -383,7 +383,7 @@ We will show later on that this is often an excellent choice in practice.
 Some material to adapt Lenaic results:
 
 
-The Sinkhorn algorithm can be interpreted as an alternate maximisation algorithm on the dual of the regularized optimal transport problem.
+The SK algorithm can be interpreted as an alternate maximisation algorithm on the dual of the regularized optimal transport problem.
 The dual problem of \eqref{ROT} is:
 \begin{equation}\label{DROT}\max_{\alpha,\beta}\langle \alpha,\mu^1\rangle+\langle \beta,\mu^2\rangle-\epsilon\sum_{i,j}e^{(\alpha_i+\beta_j-c_{i,j})/\epsilon}\end{equation}
 It is concave and continuously differentiable for all $(a,b)\in\IR^{n_1+n_2}$. Alternate maximization then converges and we recover, for $a_i=e^{\alpha_i/\epsilon}$, $b_j=e^{\beta_j/\epsilon}$ and $\gamma^0_{i,j}=e^{-c_{i,j}/\epsilon}$:
@@ -429,7 +429,7 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
 
 \renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
 %\begin{algorithm}
-%\caption{Over-relaxed Sinkhorn algorithm}
+%\caption{Over-relaxed SK algorithm}
 %\label{SOR}
 %\begin{algorithmic}
 %\REQUIRE $\mu^1\in \IR^{n_1}$, $\mu^2\in \IR^{n_2}$, $c\in \IR^{n_1\times n_2}_+$
@@ -438,7 +438,7 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
 %\STATE $\tilde a=\mu_1\oslash (\gamma^0 b)$,  $a_\omega=a^{1-\omega}\otimes \tilde a^\omega$
 %\STATE $\tilde b=\mu_2\oslash (^t\gamma^0  a_\omega)$
 %\IF{ $\langle \mu^1,\varphi_\omega(a\oslash\tilde a) \rangle +\langle \mu^2,\varphi_\omega(b\oslash\tilde b)\rangle>0$}
-%\STATE  $a=a_\omega$, $b=b^{1-\omega}\otimes \tilde b^\omega$\COMMENT{Over-relaxed Sinkhorn iteration}
+%\STATE  $a=a_\omega$, $b=b^{1-\omega}\otimes \tilde b^\omega$\COMMENT{Over-relaxed SK iteration}
 %\ELSE
 %\STATE $a=\tilde a$, $b=\mu_2\oslash (^t\gamma^0 a)$  \COMMENT{Sinkhorn iteration}
 %\ENDIF
@@ -451,7 +451,7 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
 This algorithm uses the function $\Theta$ defined in (\ref{eq:Theta}).
 
 \begin{algorithm}
-\caption{Over-relaxed Sinkhorn algorithm }
+\caption{Over-relaxed SK algorithm }
 \label{SOR}
 \begin{algorithmic}
 \REQUIRE $\mu^1\in \IR^{n_1}$, $\mu^2\in \IR^{n_2}$, $c\in \IR^{n_1\times n_2}_+$
@@ -460,16 +460,16 @@ This algorithm uses the function $\Theta$ defined in (\ref{eq:Theta}).
 \STATE $\tilde a=\mu_1\oslash (\gamma^0 b)$, 
 \STATE $\omega=\Theta(a\oslash\tilde a)$
 %\IF{ $\langle \mu^1,\varphi_\omega(a\oslash\tilde a) \rangle>0$}
-\STATE  $a=a^{1-\omega}\otimes \tilde a^\omega$%\COMMENT{Over-relaxed Sinkhorn iteration}
+\STATE  $a=a^{1-\omega}\otimes \tilde a^\omega$%\COMMENT{Over-relaxed SK iteration}
 %\ELSE
-%\STATE $a=\tilde a$,\COMMENT{Sinkhorn iteration}
+%\STATE $a=\tilde a$,\COMMENT{SK iteration}
 %\ENDIF
 \STATE $\tilde b=\mu_2\oslash (^t\gamma^0  a)$
 \STATE $\omega=\Theta(b\oslash\tilde b)$
 %\IF{ $\langle \mu^2,\varphi_\omega(b\oslash\tilde b) \rangle>0$}
-\STATE  $b=b^{1-\omega}\otimes \tilde b^\omega$%\COMMENT{Over-relaxed Sinkhorn iteration}
+\STATE  $b=b^{1-\omega}\otimes \tilde b^\omega$%\COMMENT{Over-relaxed SK iteration}
 %\ELSE
-%\STATE $b=\tilde b$,\COMMENT{Sinkhorn iteration}
+%\STATE $b=\tilde b$,\COMMENT{SK iteration}
 %\ENDIF
 \ENDWHILE
  \RETURN $\gamma=\diag(a)\gamma^0\diag(b)$
