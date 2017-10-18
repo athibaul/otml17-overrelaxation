@@ -355,6 +355,7 @@ To construct the functions $\theta_k$ needed by the theorem, we need the followi
 	We argue that a good choice for the functions $\theta_k$ may be constructed as follows. Pick a target parameter $\theta_0 \in [1;2)$, and a small $\delta>0$.
 	Define the functions $\Theta^*$ and $\Theta$ as:
 	\begin{align}
+	\label{eq:Theta_opt}
 	\Theta^*(u) &= \sup \left\{\omega \in [1;2]  \mid \varphi_\omega\left(\min u\right) \ge 0 \right\} ,\\
 	\label{eq:Theta}
 	\Theta(u) &= \min(\max(1,\Theta^*(u)-\delta),\theta_0),
@@ -446,7 +447,7 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
 % \RETURN $\gamma=\diag(a)\gamma^0\diag(b)$
 %\end{algorithmic}
 %\end{algorithm}
-
+Add algorithm to solve \eqref{eq:Theta_opt}?
 
 This algorithm uses the function $\Theta$ defined in (\ref{eq:Theta}).
 
@@ -488,6 +489,8 @@ cheap test, preliminary work for convergence results. Huge acceleration in pract
 
 Perspectives:
 global convergence, how chosing $\omega$?, intensive numerical study with respect to other accelerarions methods\cite{2016arXiv160604133S,2017arXiv170509634A}.
+
+Links with monotone Fista? (that choose Fista if energy decreased and forward backward otherwise...)
 
 
 
