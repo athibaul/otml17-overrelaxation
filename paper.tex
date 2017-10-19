@@ -95,7 +95,7 @@ Regularized optimal transport have thus been intensively used  in  Machine Learn
 
 The computation of optimal transport between two data relies on the estimation of an optimal transport matrix, the entries of which represent the quantity of mass transported between  data locations. 
 Regularization of optimal transport with strictly convex regularizers \cite{cuturi13, dessein2016}  nevertheless involves a spreading of the mass. Hence, for particular purposes such as color interpolation \cite{Rabin2014} or gradient flow \cite{2016arXiv160705816C}, it is  necessary  to consider very small regularization of the problem.
-In this setting,  the regularized transport problem can be ill-conditioned. This is the issue  we want to tackle here.
+In this setting,  the regularized transport problem can be ill-conditioned, rendering the Sinkhorn--Knopp algorithm significantly slower. This is the issue  we want to tackle here.
 Before going into further details, we now briefly introduce the main notations and concepts used all along this article.
 
  
@@ -136,9 +136,9 @@ It was shown in \cite{benamou15}  that the regularized optimal transport matrix 
 \gamma^* = \argmin_{\Ccal_1 \cap \Ccal_2} K^\epsilon(\gamma)= P_{\Ccal_1 \cap \Ccal_2} (e^{-c/\epsilon}),
 \end{equation}
 where $P_{\Ccal}$ is the  Bregman projection onto $\Ccal$ defined as:
-\[
+\begin{equation}\label{eq:P_C}
 P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} KL(\gamma,\xi).
-\]
+\end{equation}
 
 
 
@@ -151,7 +151,7 @@ Iterative Bregman projections onto $\Ccal_1$ and $\Ccal_2$ converge to a point i
 and we have 
 $\lim_{l\rightarrow +\infty} \gamma^l = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0) = \gamma^*.$
 
-In the discrete setting,  projections actually correspond to diagonal scalings.
+In the discrete setting,  projections actually correspond to diagonal scalings. This can be seen by writing the minimality conditions for the projection, given equations (\ref{KL}) and (\ref{eq:P_C}).
 \begin{align}\label{scaling}
 P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &
 a &=  {\mu^1}\oslash{A_1 \gamma} \\
@@ -180,7 +180,7 @@ We finally demonstrate numerically  in Section 4 the good behavior of our method
 
 \section{Over-relaxed Sinkhorn--Knopp algorithm}
 
-As illustrated in Figure \ref{alternate_projections} (a-b), the SK algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developped in this paper is to perform over-relaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c).
+As illustrated in Figure \ref{alternate_projections} (a-b), the SK algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$, as the problem becomes ill-conditioned. The idea developped in this paper is to perform over-relaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c).
 
 \begin{figure}[ht!]
 \begin{center}
@@ -200,7 +200,7 @@ Let us define the $\omega$-over-relaxed projection operator by:
 \log P^\omega_{\Ccal_k}(\gamma) = (1-\omega) \log \gamma + \omega \log P_{\Ccal_k}(\gamma),
 \end{equation}
 where the logarithm is taken coordinate-wise.
-Note that $P_{\Ccal_k}^0$ is the identity, $P_{\Ccal_k}^1 = P_{\Ccal_k}$ is the standard Bregman projection, and $P_{\Ccal_k}^2$ is an involution (this uses the fact that $\Ccal_k$ is an affine subspace).
+Note that $P_{\Ccal_k}^0$ is the identity, $P_{\Ccal_k}^1 = P_{\Ccal_k}$ is the standard Bregman projection, and $P_{\Ccal_k}^2$ is an involution (recall that $\Ccal_k$ is an affine subspace).
 
 {\color{blue} \begin{proposition} 
 State here that the fixed points of   $\gamma^{l+1} =P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l))$ are the same than $\gamma^{l+1} =P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))$?
@@ -216,7 +216,7 @@ It shall be used as a Lyapunov function, so that $F(\gamma^{k+1}) < F(\gamma^k)$
 We argue that it makes sense to consider this Lyapunov function.
 Obviously, it is closely related to the notion of Bregman projection that is used throughout the algorithm.
 But it is also easy to calculate its decrease, as shown in lemma \ref{lemma:lyapunov_decrease}.
-Moreover, in practice it allows the use of a wide range of over-relaxation parameters.
+Moreover, as we will see later, it allows the use of a wide range of over-relaxation parameters in practice.
 
 \begin{lemma} \label{lemma:KL_compact}
 	For any $M \in \IR_+^*$, the sublevel set $K := \left\{ \gamma \mid F(\gamma) \le M \right\}$ is compact.
@@ -233,14 +233,13 @@ Moreover, in practice it allows the use of a wide range of over-relaxation param
 	\sum_{i,j} \gamma_{i,j} &\le \frac{M - \scal{\gamma^*}{\log \gamma^*-1}}{1-\frac{1}{e}} =: M'.
 	\end{align*}
 	Therefore each coordinate $\gamma_{i,j}$ is bounded above by $M'$.
-	
-	Let us show that the coordinates are bounded below by a strictly positive number; from which it can be deduced that $K$ is bounded and closed in $\IR^{n_1 n_2}$, and therefore compact.
+	Let us show that the coordinates are bounded below by a strictly positive number; from which can be deduced that $K$ is bounded and closed in $\IR^{n_1 n_2}$, and therefore compact.
 	\begin{align*}
 	F(\gamma)
 	&\ge \scal{\gamma^*}{\log \gamma^*} - \sum_{i,j} \gamma^*_{i,j} \log(\gamma_{i,j}) - 1\\
 	&\ge \scal{\gamma^*}{\log \gamma^*} - \gamma^*_{i_0,j_0} \log(\gamma_{i_0,j_0}) - 1 - \log M',
 	\end{align*}
-	where the last equation derives from $\log(y_{i,j}) \le \log M'$, and $\sum_{(i,j)\neq(i_0,j_0)} \gamma^*_{i,j} \le 1$.
+	where the last equation derives from $\log(\gamma_{i,j}) \le \log M'$, and $\sum_{(i,j)\neq(i_0,j_0)} \gamma^*_{i,j} \le 1$.
 	Finally:
 	\[
 	\log(\gamma_{i_0,j_0}) \ge \frac{\scal{\gamma^*}{\log \gamma^*} - M - \log M' - 1}{\gamma^*_{i_0,j_0}},
@@ -251,7 +250,7 @@ Moreover, in practice it allows the use of a wide range of over-relaxation param
 
 Note that the difference $F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma))$ may be calculated without knowing $\gamma^*$, as shown by the following lemma.
 \begin{lemma}\label{lemma:lyapunov_decrease}
-	Take $\gamma$ in $\IR^{mn}_{+*}$. The decrease in value of the Lyapunov function can be calculated with the following formula:
+	Take $\gamma$ in $\IR^{mn}_{+*}$. The decrease of the Lyapunov function when applying an over-relaxed projection can be calculated with the following formula:
 	\begin{equation} \label{eq:kl_diff_scal}
 	F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma)) = 
 	\scal{\mu^k}{\varphi_\omega \left(\frac{A_k \gamma}{\mu^k}\right)},
@@ -265,8 +264,8 @@ Note that the difference $F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma))$ may be calc
 \begin{proof}
 From \eqref{KL}, we have $F(\gamma^1)-F(\gamma^2)= \sum_{i,j}\left(\gamma^*_{i,j}\log(\gamma^2_{i,j}/\gamma^1_{i,j})+\gamma^1_{i,j}-\gamma^2_{i,j}\right)$. The result can then be deduced from relations \eqref{eq:def_or_proj} and \eqref{scaling}.
 \end{proof}
-Thus,  the decrease in value of the function $F$ for a over-relaxed projection associated to $\Ccal_k$ is cheap to estimate, since its computational cost is  linear with respect to the dimension of data $\mu^k$. In Figure \ref{phi_omega}, we illustrate the functions  $\varphi_\omega$ for several values of $\omega$.
-Notice that for the SK algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always nonnegative. For other values $1\le\omega<2$, it is nonnegative for arguments close to 1.
+Thus, the decrease of the Lyapunov function $F$ for an over-relaxed projection associated to $\Ccal_k$ is cheap to estimate, since its computational cost is  linear with respect to the dimension of data $\mu^k$. In Figure \ref{phi_omega}, we illustrate the functions  $\varphi_\omega$ for several values of $\omega$.
+Notice that for the SK algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always non-negative. For other values $1\le\omega<2$, it is non-negative for arguments close to 1.
 \begin{figure}[ht!]
 \begin{center}
 \includegraphics[width=11cm]{phi_omega.png}
@@ -292,8 +291,7 @@ Notice that for the SK algorithm, which corresponds to $\omega=1$, the function 
 	Then the sequence $(\gamma^l)$ converges to $\gamma^*$.
 \end{theorem}
 
-
-\begin{lemma}[\cite{cuturi13}]
+\begin{lemma}[]
 	\label{lemma:trivial_intersection}
 	Let us take $\gamma^0$ in $\IR_{+*}^{n_1 n_2}$,
 	and denote
@@ -306,6 +304,7 @@ Notice that for the SK algorithm, which corresponds to $\omega=1$, the function 
 	the set of matrices that are diagonally similar to $\gamma^0$.
 	Then the set $S \cap \Ccal_1 \cap \Ccal_2$ contains exactly one element $\gamma^* = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0)$.
 \end{lemma}
+We refer to \cite{cuturi13} for the proof of this well-known result, which is used in the proof of the theorem.
 
 
 \begin{proof}[Proof of the theorem]
@@ -348,7 +347,7 @@ To construct the functions $\theta_k$ needed by the theorem, we need the followi
 	Moreover, the function that maps $t \in [1,\infty)$ to $\varphi_t(x)$ is non-increasing:
 	$\frac{d}{dt} \varphi_t(x) = \log x (x^{1-t} - 1).$
 	For $x\neq 1$, it is even strictly decreasing.
-	Thus the inequality (\ref{eq:F_P_theta}) is valid, with equality \emph{iff} $A_k \gamma = \mu$.
+	Thus the inequality (\ref{eq:F_P_theta}) is valid, with equality \emph{iff} $A_k \gamma = \mu^k$.
 \end{proof}
 
 \begin{proposition}
@@ -483,6 +482,12 @@ This algorithm uses the function $\Theta$ defined in (\ref{eq:Theta}).
 
 
 \section{Conclusion and perspectives}
+
+We have presented a generalization of the Sinkhorn--Knopp algorithm based on over-relaxed projections, with a criterion for global convergence based on a Lyapunov function.
+The proposed Lyapunov function allows for an adaptive choice of over-relaxation parameter at a low computational price.
+In practice, this algorithm converges way faster than Sinkhorn--Knopp; moreover, the acceleration rate is especially impressive for small regularization $\epsilon$.
+
+
 Contributions: 
 cheap test, preliminary work for convergence results. Huge acceleration in practice.
 
