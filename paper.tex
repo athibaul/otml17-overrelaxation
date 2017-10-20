@@ -40,7 +40,7 @@
 \newtheorem{example}{Example}
 
 
-\title{Overrelaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
+\title{Over-relaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
 
 %
 \author{
@@ -85,9 +85,9 @@ Talence, France\\
 
 \begin{abstract}
 This article describes a method for quickly computing the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn--Knopp algorithm). 
-The idea is to overrelax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
+The idea is to over-relax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
 We propose a simple method for establishing global convergence by ensuring the decrease of a Lyapunov function at each step.
-An adaptive choice of overrelaxation parameter based on the Lyapunov function is constructed.
+An adaptive choice of over-relaxation parameter based on the Lyapunov function is constructed.
 We also suggest a heuristic to choose a suitable asymptotic over-relaxation parameter, based on a local convergence analysis. Our numerical experiments show a gain in convergence speed by an order of magnitude in certain regimes.
 \end{abstract}
 
@@ -194,7 +194,7 @@ The introduction of relaxation variables through heavy ball approaches \cite{POL
 
 \section{Overrelaxed Sinkhorn--Knopp algorithm}
 
-As illustrated in Figure \ref{alternate_projections} (a-b), the SK algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developped in this paper is to perform overrelaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c).
+As illustrated in Figure \ref{alternate_projections} (a-b), the SK algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developed in this paper is to perform overrelaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c).
 
 \begin{figure}[ht!]
 \centering
@@ -225,7 +225,7 @@ As illustrated in Figure \ref{alternate_projections} (a-b), the SK algorithm, th
 \input{schema_c.tex}\\
 (a)&(b)&(c)
 \end{tabular}
-\caption{\label{alternate_projections} The trajectory of $\gamma^l$ given by the SK algorithm is illustrated for decreasing values of $\epsilon$ in (a) and (b). In order to accelerate the convergence rate, over-relaxed projections are here considered (c).}
+\caption{\label{alternate_projections} The trajectory of $\gamma^l$ given by the SK algorithm is illustrated for decreasing values of $\epsilon$ in (a) and (b). In order to accelerate the convergence rate, overrelaxed projections are here considered (c).}
 \end{center}
 \end{figure}
 \fi
@@ -237,17 +237,17 @@ We define the $\omega$-overrelaxed projection operator $P^\omega_{\Ccal_k}$ as
 \begin{equation}\label{eq:def_or_proj}
 \log P^\omega_{\Ccal_k}(\gamma) = (1-\omega) \log \gamma + \omega \log P_{\Ccal_k}(\gamma),
 \end{equation}
-where the logarithm is taken coordinate-wise. Note that $P_{\Ccal_k}^0$ is the identity, $P_{\Ccal_k}^1 = P_{\Ccal_k}$ is the standard Bregman projection and $P_{\Ccal_k}^2$ is an involution (in particular because $\Ccal_k$ is an affine subspace). A naive algorithm would then consist in iteratively applying $P^\omega_{\Ccal_2}\circ P^\omega_{\Ccal_1}$ for some choice of $\omega$. This algorithm, while it may behave well in practice, has no convergence guarantee---it sometimes does not convergence even for reasonable values of $\omega$. Our goal in this section is to modify this algorithm to make it robust and garantee convergence.
+where the logarithm is taken coordinate-wise. Note that $P_{\Ccal_k}^0$ is the identity, $P_{\Ccal_k}^1 = P_{\Ccal_k}$ is the standard Bregman projection and $P_{\Ccal_k}^2$ is an involution (in particular because $\Ccal_k$ is an affine subspace). A naive algorithm would then consist in iteratively applying $P^\omega_{\Ccal_2}\circ P^\omega_{\Ccal_1}$ for some choice of $\omega$. This algorithm, while it may behave well in practice, has no convergence guarantee---it sometimes does not convergence even for reasonable values of $\omega$. Our goal   is to modify this algorithm to make it robust and guarantee convergence.
 
-Duality gives another point of view on the iterative overrelaxed Bregman projections. They indeed correspond to a successive overelaxation (SOR) algorithm on the dual objective $E$. This can be seen by using the relationships gievn after equation~\eqref{DROT}:
+Duality gives another point of view on the iterative overrelaxed Bregman projections. They indeed correspond to a successive overelaxation (SOR) algorithm on the dual objective $E$. This can be seen by using the relationships given after equation~\eqref{DROT}:
 \begin{align}\label{SORdual}
 \alpha^{\ell+1} &= (1-\omega)\alpha^{\ell} + \omega \arg \max_\alpha E(\alpha,\beta^{\ell})\\
 \beta^{\ell + 1}&=(1-\omega) \beta^{\ell} + \omega \arg \max_\beta E(\alpha^{\ell+1},\beta).
 \end{align} 
 
-{\color{blue} \begin{proposition} 
-State here that the fixed points of   $\gamma^{l+1} =P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l))$ are the same than $\gamma^{l+1} =P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))$? lenaic: what is exactly needed? I can think of it tomorow.
-\end{proposition}}
+%{\color{blue} \begin{proposition} 
+%State here that the fixed points of   $\gamma^{l+1} =P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l))$ are the same than $\gamma^{l+1} =P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))$? lenaic: what is exactly needed? I can think of it tomorow.
+%\end{proposition}}
 \subsection{Lyapunov function}
 Convergence of the successive overrelaxed projection cannot be guaranteed in general. In order to derive a robust algorithm with provable convergence, we introduce the Lyapunov function 
 \begin{equation}\label{eq:lyapunov_function}
@@ -393,10 +393,10 @@ To construct explicitly functions $\theta_k$ as needed in Theorem~\ref{thm:algo}
 	F(P^\theta_{\Ccal_k}(\gamma)) - F(P^\omega_{\Ccal_k}(\gamma))
 	= \scal{\mu^k}{(\varphi_\omega - \varphi_\theta) \left( \frac{A_k \gamma}{\mu^k} \right) } .
 	\]
-	Moreover, the function that maps $t \in [1,\infty)$ to $\varphi_t(x)$ is non-increasing:
+	The function that maps $t \in [1,\infty)$ to $\varphi_t(x)$ is non-increasing since
 	$\partial_t \varphi_t(x) =  (x^{1-t} - 1)\log x.$
 	For $x\neq 1$, it is even strictly decreasing.
-	Thus inequality \eqref{eq:F_P_theta} is valid, with equality \emph{iff} $A_k \gamma = \mu$.
+	Thus inequality \eqref{eq:F_P_theta} is valid, with equality \emph{iff} $A_k \gamma = \mu^k$.
 \end{proof}
 
 We now argue that a good choice for the functions $\theta_k$ may be constructed as follows. Pick a target parameter $\theta_0 \in [1;2)$ and a small security distance $\delta>0$. Define the functions $\Theta^*$ and $\Theta$ as
@@ -419,7 +419,7 @@ We now argue that a good choice for the functions $\theta_k$ may be constructed 
 This construction has several advantages:
 \begin{itemize}
 \item it allows to choose arbitrarily the parameter $\theta_0$ that will be used eventually when the algorithm is close to convergence (we motivate what are good choices for $\theta_0$ in section \ref{section:local});
-\item it is also an easy approach to having an adaptive method, as the approximation of $\Theta_k^*$ has a negligible cost (it only require to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method).
+\item it is also an easy approach to having an adaptive method, as the approximation of $\Theta^*$ has a negligible cost (it only require to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method).
 \item experiments show that this is often an excellent choice in practice.
 \end{itemize}
 
@@ -430,7 +430,7 @@ Looking at Figure~\ref{phi_omega} can help understanding this proof.	Since the p
 	Constraining the parameter to $[1,\theta_0]$ preserves this properties.% as using $\theta=1$ always satisfies inequality \eqref{eq:cond_theta_k} and using $\theta=\theta_0$ when it is smaller than $\Theta^*\left(\frac{A_k \gamma}{\mu^k}\right)$ does as well.
 \end{proof}
 
-The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitely in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which decreasing is as can be seen on Figure~\ref{phi_omega}. Note that with the choice $\theta_0=1$, one recovers exactly the original SK algorithm.
+The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitely in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which decreasing is as can be seen on Figure~\ref{phi_omega}. With the choice $\theta_0=1$, one recovers exactly the original SK algorithm.
 
 \begin{algorithm}
 \caption{Overrelaxed SK algorithm }
@@ -462,7 +462,7 @@ The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:al
 
 \section{Acceleration of local convergence rate}
 \label{section:local}
-In order to theoretically jsutify the acceleration of convergence that is observed in practice, we now study the local convergence rate of the algorithm. %We do not claim that this simple overrelaxation is the most efficient method to accelerate local convergence of fixed points---adaptive methods with excellent properties exist e.g.~\cite{2016arXiv160604133S}--- but this local analysis gives a hint for what makes our scheme relevant is the conjunction of our global convergence guarantee with this local acceleration property.
+In order to theoretically justify the acceleration of convergence that is observed in practice, we now study the local convergence rate of the algorithm. %We do not claim that this simple overrelaxation is the most efficient method to accelerate local convergence of fixed points---adaptive methods with excellent properties exist e.g.~\cite{2016arXiv160604133S}--- but this local analysis gives a hint for what makes our scheme relevant is the conjunction of our global convergence guarantee with this local acceleration property.
 
 %The local behavior of the extrapolated is summarized in the next result, which gathers many results from the literature.
 \begin{proposition}\label{prop:local}
@@ -471,9 +471,8 @@ Let $1-\eta$ be the local linear rate of convergence of the SK algorithm. By \ci
 
 Note that the local linear rate is also improved if $\theta_0$ is not the optimal choice, see \cite[chapter 5]{ciarlet1982introduction}. By remarking that for any choice of $\theta_0<2$ there is a neighborhood of $1$ on which $\varphi_{\theta_0}(\cdot)$ is nonnegative, one sees that this result applies in particular to our algorithm because eventually, for $\ell$ big enough, one has $\Theta(\gamma^\ell)=\theta_0$.
 \begin{corollary}
-The precedding local convergence rate applies to Algorithm \ref{thm:algo}, where $\theta_0$ is the chosen ``target'' overrelaxation parameter.
+The preceding local convergence rate applies to Algorithm \ref{thm:algo}, where $\theta_0$ is the chosen ``target'' over-relaxation parameter.
 \end{corollary}
-
 \begin{proof}
 For this proof we will adopt a dual point of view, where the overrelaxed projection method boils down to the well-known SOR method~\eqref{SORdual} and relying on the characterization $\gamma^{\ell}=e^{\alpha^\ell/\epsilon}\gamma^0e^{\beta^\ell/\epsilon}$ where $(\alpha^\ell,\beta^\ell)$ are the SOR iterates, initialized by $(\alpha^0,\beta^0)=(0,0)$. Notice that the dual problem~\eqref{DROT} has an invariant subspace due to the invariance by translation $(\alpha,\beta)\mapsto (\alpha-k,\beta+k)$, $k\in \IR$, but is strictly convex in any subspace which does not contain this line. Also, this invariance disappears in the associated primal iterates. 
 
@@ -524,13 +523,23 @@ From experiments, it seems possible to design a good guess for $\omega$ from $c$
 We compare Algorithm~\ref{SOR} to SK in two very different settings. In setting (a) we consider the domain $[0,1]$ discretized into $100$ samples and the squared Euclidean transport cost on this domain. The marginals are densities made of the sum of a base plateau of height $0.1$ and another plateau of heights and boundaries chosen uniformly in $[0,1]$, subsequently normalized. In setting (b) the cost is a $100\times 100$ random matrix with entries uniform in $[0,1]$ and the marginals are uniform.%The interest of having two settings is that the SK algorithm is known to behave very differently as $\epsilon$ decreases for these two problems and 
 
 Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we define $\theta_0$ as the optimal parameter as given in Proposition \ref{prop:local}. For estimating $\eta$, we follow two strategies. For strategy ``estimated'' (in blue on figure~\ref{fig:comparison}), $\eta$ is measured by looking at the local convergence rate of SK run on another random problem of the same setting and for the same value of $\epsilon$. For strategy ``measured'' (in orange on figure~\ref{fig:comparison}) the parameter is set using the local convergence rate of SK run on the same problem. Of course, the latter is unrealistic strategy but our experiment shows that the acceleration power is not so much impacted by estimating once for all the overrelaxation parameter for a class of problem with fixed regularization, as shown on~\ref{fig:comparison}.
+\begin{figure}
+\begin{minipage}[b]{.5\linewidth}
+   \centering
+   \includegraphics[scale=0.6]{images/speedratio_image}
+                    \subcaption{Quadratic cost, random marginals}\label{fig:compare_a}
+\end{minipage}%
+			\begin{minipage}[b]{.5\linewidth}
+                    \centering
+			\includegraphics[scale=0.6]{images/speedratio_ML}
+                    \subcaption{Random cost, uniform marginals}\label{fig:compare_b}
+\end{minipage}
+			\caption{\label{fig:comparison}Speed ratio of SK algorithm and its accelerated version Algorithm~\ref{SOR} w.r.t parameter $\epsilon$.}% (stopping criterion $\Vert u - u^* \Vert_\infty<10^{-6})$
+\end{figure}
+Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}. It is is worth noting that the complexity per iteration is the same, modulo negligible terms, so this ratio is also the runtime ratio (our algorithm can also be parallelized on GPUs just as SK algorithm). In both experimental settings, for low values of the regularization parameter $\epsilon$, the acceleration ratio is above $20$  with Algorithm \ref{SOR}.
 
-Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}. It is is worth noting that the complexity per iteration is the same, modulo negligible terms, so this ratio is also the runtime ratio (our algorithm can also be parallelized on GPUs just as SK algorithm).
 
-%In practice, we observed that the algorithm introduced in Theorem \ref{thm:algo} can be simplified and it is sufficient to check $F(P^\omega_{\Ccal_2}(P^\omega_{\Ccal_1}(\gamma^l)))-F(\gamma^l)>0$ for performing the over-relaxed iterations with parameter $\omega$.
-%The cost of this test is linear with respect to the data dimension (i.e. $o(n_1+n_2)$).
-
-\renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
+%\renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
 %\begin{algorithm}
 %\caption{Over-relaxed SK algorithm}
 %\label{SOR}
@@ -553,25 +562,13 @@ Figure~\ref{fig:comparison} displays the ratio of the number of iterations requi
 
 
 
-\begin{figure}
-\begin{minipage}[b]{.5\linewidth}
-   \centering
-   \includegraphics[scale=0.5]{images/speedratio_image}
-                    \subcaption{Quadratic cost, random marginals}\label{fig:compare_a}
-\end{minipage}%
-			\begin{minipage}[b]{.5\linewidth}
-                    \centering
-			\includegraphics[scale=0.5]{images/speedratio_ML}
-                    \subcaption{Random cost, uniform marginals}\label{fig:compare_b}
-\end{minipage}
-			\caption{\label{fig:comparison}Complexity ratio of SK algorithm and its accelerated version Algorithm~\ref{SOR}.}% (stopping criterion $\Vert u - u^* \Vert_\infty<10^{-6})$
-\end{figure}
+
 
 
 \section{Conclusion and perspectives}
 SK algorithm is widely used to solve entropy regularized OT. The use of overrelaxed projections turns out to be a natural and simple idea to accelerate convergence while keeping many nice properties of this algorithm (first order, paralelizable, simple). We have proposed an algorithm that adaptively chooses the overrelaxation parameter so as to guarantee global convergence. The acceleration of the convergence speed is numerically impressive, in particular in low regularization regimes. It is theoretically supported in the local regime by the standard analysis of SOR iterations.
 
-This idea of overrelaxation can be generalized to solve more general problems such as barycenters, gradient flows, unbalanced OT~\cite[chap. 4]{chizat2017these} but there is no systematic way to derive globally convergent algorithms. Our work as an effort in the direction of building and understanding the properties of robust first order algorithms for solving OT. More understanding is needed regarding SOR itself (global convergence speed, choice of $\theta_0$), but also its relation to other acceleration methods~\cite{2016arXiv160604133S,2017arXiv170509634A}.
+This idea of overrelaxation can be generalized to solve more general problems such as barycenters, gradient flows, unbalanced OT~\cite[chap. 4]{chizat2017these} but there is no systematic way to derive globally convergent algorithms. Our work is an effort in the direction of building and understanding the properties of robust first order algorithms for solving OT. More understanding is needed regarding SOR itself (global convergence speed, choice of $\theta_0$), but also its relation to other acceleration methods~\cite{2016arXiv160604133S,2017arXiv170509634A}.
 
 %Links with monotone Fista? (that choose Fista if energy decreased and forward backward otherwise...)
 
