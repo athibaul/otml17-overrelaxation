@@ -476,14 +476,12 @@ Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we 
 
 
 
+
  
 
 Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}. It is is worth noting that the complexity per iteration is the same, modulo negligible terms, so this ratio is also the runtime ratio (our algorithm can also be parallelized on GPUs just as SK algorithm). In both experimental settings, for low values of the regularization parameter $\epsilon$, the acceleration ratio is above $20$  with Algorithm \ref{SOR}.
 
  
- 
-
-
 %\renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
 %\begin{algorithm}
 %\caption{Overrelaxed SK algorithm}
