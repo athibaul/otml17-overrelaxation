@@ -92,7 +92,7 @@ We also suggest a heuristic to choose a suitable asymptotic overrelaxation param
 \end{abstract}
 
 \section{Introduction}
-Optimal Transport (OT) is an efficient and flexible tool to compare two probability distributions which has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn--Knopp algorithm \cite{sinkhorn64}   scaling with high dimensional data. 
+Optimal Transport is an efficient and flexible tool to compare two probability distributions which has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn--Knopp algorithm \cite{sinkhorn64}   scaling with high dimensional data. 
 Regularized optimal transport have thus been intensively used  in  Machine Learning with applications such as   Geodesic PCA \cite{seguy2015principal}, domain adaptation \cite{2015arXiv150700504C}, data fitting \cite{2015arXiv150605439F},  training of Boltzmann Machine \cite{NIPS2016_6248}  or dictionary learning \cite{Rolet2016,2017arXiv170801955S}.
 
 The computation of optimal transport between two data relies on the estimation of an optimal transport matrix, the entries of which represent the quantity of mass transported between  data locations. 
@@ -172,12 +172,11 @@ Another way to interpret the SK algorithm is as an alternate maximization algori
 \begin{equation}\label{DROT}
 \max_{\substack{\alpha\in \IR^n\\\beta\in \IR^m}}\; E(\alpha,\beta) \coloneqq \langle \alpha,\mu^1\rangle+\langle \beta,\mu^2\rangle-\epsilon\sum_{i,j}e^{(\alpha_i+\beta_j-c_{i,j})/\epsilon}.
 \end{equation}
-The function $E$ is concave, continuously differentiable and admits a maximizer, so alternate maximization converges and we recover, for $a_i=e^{\alpha_i/\epsilon}$, $b_j=e^{\beta_j/\epsilon}$ and $\gamma^0_{i,j}=e^{-c_{i,j}/\epsilon}$:
-\begin{align*}
-a^{\ell+1} &= {\mu^1}\oslash{\gamma^0 b^{\ell}} &
-b^{\ell+1} &= {\mu^2}\oslash{^t \gamma^0 a^{\ell+1}} 
-\end{align*}
-
+The function $E$ is concave, continuously differentiable and admits a maximizer, so alternate maximization converges and we recover SK algorithm by posing for $a_i=e^{\alpha_i/\epsilon}$, $b_j=e^{\beta_j/\epsilon}$ and $\gamma^0_{i,j}=e^{-c_{i,j}/\epsilon}$.
+%\begin{align*}
+%a^{\ell+1} &= {\mu^1}\oslash{\gamma^0 b^{\ell}} &
+%b^{\ell+1} &= {\mu^2}\oslash{^t \gamma^0 a^{\ell+1}} 
+%\end{align*}
 
 
 Efficient parallel computations can be considered \cite{cuturi13} and one can even reach real-time computation for large scale problem for certain class of cost matrices $c$ \cite{Solomon2015}. 
@@ -185,16 +184,16 @@ For small values of the parameter $\epsilon$, numerical issues can arise and a s
 The convergence of the process can nevertheless be very slow when $\epsilon$ is small.
 
 \subsection{Overview and contributions}
-In this paper, we consider an overrelaxation scheme designed to accelerate the Sinkhorn--Knopp algorithm. We first present and show the convergence of our algorithm in section 2. In section 3, we analyze the local convergence rate of the algorithm to justify the acceleration.
+In this paper, we consider an overrelaxation scheme designed to accelerate the Sinkhorn--Knopp algorithm. We first present and show the convergence of our algorithm in Section 2. In Section 3, we analyze the local convergence rate of the algorithm to justify the acceleration.
 We finally demonstrate numerically  in Section 4 the good behavior of our method, where larger accelerations are observed for decreasing values of $\epsilon$.
 
 \subsection{Related works }
-The introduction of relaxation variables through heavy ball approaches \cite{POLYAK19641} has recently gained in popularity  to speed up the convergence of algorithms optimizing convex \cite{2014arXiv1412.7457G} or non convex \cite{Zavriev1993,2016arXiv160609070O} problems. Such schemes have also been empirically considered to accelerate the SK algorithm  in \cite{peyre2016quantum,2017arXiv170801955S}. The convergence of these algorithms is nevertheless not studied yet in the context of regularized optimal transport.
+The introduction of relaxation variables through heavy ball approaches \cite{POLYAK19641} has recently gained in popularity  to speed up the convergence of algorithms optimizing convex \cite{2014arXiv1412.7457G} or non convex \cite{Zavriev1993,2016arXiv160609070O} problems. Our specific approach is very much related to the SOR algorithm~\cite{young2014iterative}, which is a classical way to solve linear systems. Similar schemes have been empirically considered to accelerate the SK algorithm  in \cite{peyre2016quantum,2017arXiv170801955S}. The convergence of these algorithms has nevertheless not been studied yet in the context of regularized optimal transport.
 
 
 \section{Overrelaxed Sinkhorn--Knopp algorithm}
 
-As illustrated in Figure \ref{alternate_projections} (a-b), the SK algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developed in this paper is to perform overrelaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c).
+As illustrated in Figure \ref{alternate_projections} (a-b), SK algorithm, that  performs alternate Bregman projections onto the affine sets $\Ccal_1$ and $\Ccal_2$, can be very slow when $\epsilon\to 0$. The idea developed in this paper is to perform overrelaxed projections in order to accelerate the process, as displayed in Figure \ref{alternate_projections} (c).
 
 \begin{figure}[ht!]
 \centering
@@ -228,12 +227,12 @@ A naive algorithm would then consist in iteratively applying $P^\omega_{\Ccal_2}
 While it often behaves well in practice, this algorithm may sometimes not converge even for reasonable values of $\omega$.
 Our goal in this section is to modify this algorithm to make it robust and to guarantee convergence.
 
-Duality gives another point of view on the iterative overrelaxed Bregman projections. They indeed correspond to a successive overelaxation (SOR) algorithm on the dual objective $E$. This can be seen by using the relationships given after equation~\eqref{DROT}:
+Duality gives another point of view on the iterative overrelaxed Bregman projections: they indeed correspond to a successive overrelaxation (SOR) algorithm on the dual objective $E$. This is a procedure which, starting from $(\alpha^0,\beta^0)=(\mathbf{0},\mathbf{0})$, defines for $\ell \in \mathbb{N}^*$,
 \begin{align}\label{SORdual}
 \alpha^{\ell+1} &= (1-\omega)\alpha^{\ell} + \omega \arg \max_\alpha E(\alpha,\beta^{\ell})\\
 \beta^{\ell + 1}&=(1-\omega) \beta^{\ell} + \omega \arg \max_\beta E(\alpha^{\ell+1},\beta).
 \end{align} 
-
+This can be seen by using the relationships given after equation~\eqref{DROT}.
 %{\color{blue} \begin{proposition} 
 %State here that the fixed points of   $\gamma^{l+1} =P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l))$ are the same than $\gamma^{l+1} =P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))$? lenaic: what is exactly needed? I can think of it tomorow.
 %\end{proposition}}
@@ -278,8 +277,8 @@ It follows from Lemma \ref{lemma:lyapunov_decrease} that the decrease of $F$ for
 
 \begin{figure}[ht!]
 \begin{center}
-\includegraphics[width=9cm]{images/cvgce_zone}
-\caption{\label{phi_omega} Value of $\varphi_\omega(x)$. The function is positive above the black line, negative below. For any relaxation parameter $\omega$ smaller than $2$, there exists a neighborhood of $1$ on which $\varphi_\omega(\cdot)$ is positive.}
+\includegraphics[width=8cm]{images/cvgce_zone}
+\caption{\label{phi_omega} Value of $\varphi_\omega(x)$. The function is positive above the red line, negative below. For any relaxation parameter $\omega$ smaller than $2$, there exists a neighborhood of $1$ on which $\varphi_\omega(\cdot)$ is positive.}
 %\includegraphics[width=11cm]{phi_omega.png}
 %\caption{\label{phi_omega} Plot of functions $\varphi_\omega(x)$ for different values $1\leq \omega\leq 2$ and   $x\in[10^{-2}, 10^1]$.}
 \end{center}
@@ -343,7 +342,7 @@ Let $\theta_1$ and $\theta_2$ be two continuous functions of $\gamma$ such that
 %{\color{red} 
 %	TODO Construire les bonnes fonctions $\theta_k(\gamma)$.}
 
-To construct explicitly functions $\theta_k$ as needed in Theorem~\ref{thm:algo}, we need the following lemma.
+We can construct explicitly functions $\theta_k$ as needed in Theorem~\ref{thm:algo} using the following lemma.
 \begin{lemma}\label{lemma:F_P_theta}
 	Let $1\le \theta < \omega$. Then, for any $\gamma \in \IR_{+*}^{n_1 n_2}$, one has
 	\begin{equation}\label{eq:F_P_theta}
@@ -352,7 +351,7 @@ To construct explicitly functions $\theta_k$ as needed in Theorem~\ref{thm:algo}
 	Moreover, equality occurs if and only if $\gamma \in \Ccal_k$.
 \end{lemma}
 \begin{proof}
-	Thanks to lemma \ref{lemma:lyapunov_decrease}, one knows that
+	Thanks to Lemma \ref{lemma:lyapunov_decrease}, one knows that
 	\[
 	F(P^\theta_{\Ccal_k}(\gamma)) - F(P^\omega_{\Ccal_k}(\gamma))
 	= \scal{\mu^k}{(\varphi_\omega - \varphi_\theta) \left( \frac{A_k \gamma}{\mu^k} \right) } .
@@ -380,14 +379,6 @@ We now argue that a good choice for the functions $\theta_k$ may be constructed 
 	\end{equation}
 	is continuous and verifies the descent condition (\ref{eq:cond_theta_k}).
 \end{proposition}
-
-This construction, is often an excellent choice in practice, has several advantages:
-\begin{enumerate}[align=right,labelsep=10pt,leftmargin=0.5cm]
-\item[$\bullet$] it allows to choose arbitrarily the parameter $\theta_0$ that will be used eventually when the algorithm is close to convergence (we motivate what are good choices for $\theta_0$ in section \ref{section:local});
-\item[$\bullet$] it is also an easy approach to having an adaptive method, as the approximation of $\Theta^*$ has a negligible cost (it only requires to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method).
-%\item[$\bullet$] experiments show that this is often an excellent choice in practice.
-\end{enumerate}
-
 \begin{proof}
 Looking at Figure~\ref{phi_omega} can help understand this proof.	Since the partial derivative of $\partial_\omega \varphi_\omega(x)$ is nonzero for any $x<1$, the implicit function theorem proves the continuity of $\Theta^*$.
 	The function $\Theta^*\left((A_k \gamma)\oslash \mu^k)\right)$ is such that every term in relation (\ref{eq:kl_diff_scal}) is non-negative.
@@ -395,7 +386,16 @@ Looking at Figure~\ref{phi_omega} can help understand this proof.	Since the part
 	Constraining the parameter to $[1,\theta_0]$ preserves this property.% as using $\theta=1$ always satisfies inequality \eqref{eq:cond_theta_k} and using $\theta=\theta_0$ when it is smaller than $\Theta^*\left(\frac{A_k \gamma}{\mu^k}\right)$ does as well.
 \end{proof}
 
-The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which decreasing is as can be seen on Figure~\ref{phi_omega}. With the choice $\theta_0=1$, one recovers exactly the original SK algorithm.is \vspace{-0.1cm}
+This construction, which is often an excellent choice in practice, has several advantages:
+\begin{enumerate}[align=right,labelsep=10pt,leftmargin=0.5cm]
+\item[$\bullet$] it allows to choose arbitrarily the parameter $\theta_0$ that will be used eventually when the algorithm is close to convergence (we motivate what are good choices for $\theta_0$ in Section \ref{section:local});
+\item[$\bullet$] it is also an easy approach to having an adaptive method, as the approximation of $\Theta^*$ has a negligible cost (it only requires to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method).
+%\item[$\bullet$] experiments show that this is often an excellent choice in practice.
+\end{enumerate}
+
+
+
+The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which is decreasing is as can be seen on Figure~\ref{phi_omega}. With the choice $\theta_0=1$, one recovers exactly the original SK algorithm.is \vspace{-0.1cm}
 \begin{algorithm}
 \caption{Overrelaxed SK algorithm }
 \label{SOR}
@@ -427,10 +427,10 @@ The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:al
 \section{Acceleration of local convergence rate}
 \label{section:local}
 In order to justify the acceleration of convergence that is observed in practice, we now study the local convergence rate of the overrelaxed algorithm, which follows from the classical convergence analysis of the linear SOR method. Our result involves the second largest eigenvalue of the matrix
- \[
+\begin{equation}\label{eq:M1}
 M_1= \diag(1\oslash \mu^1) \, \gamma^* \, \diag(1\oslash \mu^2)\, ^t\gamma^*
-\]
-where $\gamma^*$ is the solution to the regularized OT problem. This matrix corresponds to the linearized dual SK iteration at the maximizer. We denote this second largest eigenvalue by $1-\eta$, which satisfies $\eta>0$ (see \cite{knight2008sinkhorn}).
+\end{equation}
+where $\gamma^*$ is the solution to the regularized OT problem. We denote this second largest eigenvalue by $1-\eta$, which satisfies $\eta>0$ (see \cite{knight2008sinkhorn}).
 
 \begin{proposition}\label{prop:local}
 The SK algorithm converges locally at a linear rate $1-\eta$. For the optimal choice of extrapolation parameter $\theta^* = 2/(1+\sqrt{\eta})$, the overrelaxed projection algorithm converges locally linearly at a rate $(1-\sqrt{\eta})/(1+\sqrt{\eta})$. More generally, the local convergence of the overrelaxed algorithm is guaranteed as long as $\theta \in {]0,2[}$ and the linear rate is given on Figure~\ref{fig:eigtransform} as a function of $1-\eta$ and $\theta$.
@@ -441,16 +441,16 @@ In this proof, we focus on the dual problem and we recall the relationship $\gam
 The dual problem~\eqref{DROT} is invariant by translations of the form $(\alpha,\beta)\mapsto (\alpha-k,\beta+k)$, $k\in \IR$, but is otherwise strictly convex on any subspace which does not contain the line $\IR(\mathbf{1},-\mathbf{1})$ (this invariance cancels in the corresponding primal iterates). In order to deal with this invariance, consider the subspace $S$ of pairs of dual variables $(\alpha,\beta)$ that satisfy $\alpha_1=0$, let $\pi_S$ be the (non orthogonal) projection on $S$ of kernel $(\mathbf{1},-\mathbf{1})$ and let $(\alpha^*,\beta^*)\in S$ be a dual maximizer. 
 
 % 
-Since the SOR iteration it smooth, its local convergence is characterized by the local convergence of its linearized version, which corresponds to the SOR method applied to maximize the quadratic expansion of the dual objective $E$ at $(\alpha^*,\beta^*)$. This defines an affine map $M_\theta : (\alpha^{\ell},\beta^{\ell})\mapsto (\alpha^{\ell+1},\beta^{\ell+1})$ whose spectral properties are well known~\cite{ciarlet1982introduction, young2014iterative} (see also \cite[chapter 4]{chizat2017these} for the specific case of convex minimization). Specifically, in the non strictly concave case~\cite{hadjidimos1985optimization}, we have that the operator $\pi_S\circ M_1^\ell$ converges at the linear rate $1-\eta$ towards the projector on $(\alpha^*,\beta^*)$ and that the convergence of $\pi_S\circ M_\theta^\ell$ is guaranteed for $\theta \in ]0,2[$, with the rate 
+Since the SOR iteration followed by $\pi_S$ is a smooth map, its local convergence properties are characterized by the local convergence of its linearization, which corresponds to the SOR method applied to the maximization of the quadratic Taylor expansion of the dual objective $E$ at $(\alpha^*,\beta^*)$. This defines an affine map $M_\theta : (\alpha^{\ell},\beta^{\ell})\mapsto (\alpha^{\ell+1},\beta^{\ell+1})$ whose spectral properties are well known~\cite{ciarlet1982introduction, young2014iterative} (see also \cite[chapter 4]{chizat2017these} for the specific case of convex minimization). For the case $\theta=1$, we obtain the matrix $M_1$ defined in \eqref{eq:M1}. Specifically, in the non strictly concave case~\cite{hadjidimos1985optimization}, we have that the operator $\pi_S\circ M_1^\ell$ converges at the linear rate $1-\eta$ towards the projector on $(\alpha^*,\beta^*)$ and that the convergence of $\pi_S\circ M_\theta^\ell$ is guaranteed for $\theta \in ]0,2[$, with the rate 
 \[
 f(\theta,\eta) = \begin{cases}
-\theta-1 & \text{if $\theta$}\\
-\frac12 \theta^2(1-\eta) - (\theta-1) +\frac12 \sqrt{(1-\eta)\theta^2(\theta^2(1-\eta)-4(\theta-1))} & \text{otherwise.}
+\theta-1 & \text{if $\theta>\theta^*$}\\
+\frac12 \theta^2(1-\eta) - (\theta-1) +\frac12 \sqrt{(1-\eta)\theta^2(\theta^2(1-\eta)-4(\theta-1))} & \text{otherwise},
 \end{cases}
 \]
-where $\theta^*=2/(1+\sqrt{\eta})$ is the optimal parameter, for which $f(\theta,\eta)=(1-\sqrt{\eta})/(1+\sqrt{\eta})$. The function $f$ is plotted in Figure \ref{fig:eigtransform}.
+where $\theta^*\coloneqq2/(1+\sqrt{\eta})$ is the optimal parameter, for which $f(\theta^*,\eta)=(1-\sqrt{\eta})/(1+\sqrt{\eta})$. The function $f$ is plotted in Figure \ref{fig:eigtransform}.
 
-To switch from these dual convergence results to primal results, remark that $\gamma^\ell \to \gamma^*$ implies $\KL(\gamma^\ell,\gamma^0)\to \KL(\gamma^*,\gamma^0)$ which in turn implies $E(\alpha^\ell,\beta^\ell) \to \max E$ so invoking the partial strict concavity of $E$, $\pi_S(\alpha^\ell,\beta^\ell)\to (\alpha^*,\beta^*)$. The converse implication is direct. We conclude by noting that the fact that $\pi_S(\alpha^\ell, \beta^\ell)$ converges at a linear rate implies the same rate on $\gamma^\ell$, thanks to the relationship between the iterates.
+To switch from these dual convergence results to primal convergence results, remark that $\gamma^\ell \to \gamma^*$ implies $\KL(\gamma^\ell,\gamma^0)\to \KL(\gamma^*,\gamma^0)$ which in turn implies $E(\alpha^\ell,\beta^\ell) \to \max E$ so invoking the partial strict concavity of $E$, $\pi_S(\alpha^\ell,\beta^\ell)\to (\alpha^*,\beta^*)$. The converse implication is direct so it holds $[\pi_S(\alpha^\ell,\beta^\ell)\to (\alpha^*,\beta^*)] \Leftrightarrow [\gamma^\ell \to \gamma^*]$. We conclude by noting that the fact that $\pi_S(\alpha^\ell, \beta^\ell)$ converges at a linear rate implies the same rate on $\gamma^\ell$, thanks to the relationship between the iterates.
 %Using standard arguments, we have that the local convergence rate of the SOR procedure on the dual objective $E$ is that of the SOR procedure applied to the quadratic form defined by its Hessian and the linear rate of \emph{semi-convergence} to the projection on the set of minimizers. 
 \end{proof}
 
@@ -470,7 +470,7 @@ To switch from these dual convergence results to primal results, remark that $\g
 The previous local convergence analysis applies to Algorithm \ref{thm:algo}, where the local convergence rate is governed by the choice of the target extrapolation parameter $\theta_0$.
 \end{corollary}
 \begin{proof}
-What we need to show is that eventually one always has $\Theta(\gamma^\ell)=\theta_0$. This can be seen from the quadratic Taylor expansion $\varphi_{\theta_0}(1+z)=z^2(\theta_0 -\theta_0^2/2)+ o(z^2)$, which shows that for any choice of $\theta_0<2$ there is a neighborhood of $1$ on which $\varphi_{\theta_0}(\cdot)$ is nonnegative.
+What we need to show is that eventually one always has $\Theta(\gamma^\ell)=\theta_0$. This can be seen from the quadratic Taylor expansion $\varphi_{\theta_0}(1+z)=z^2(\theta_0 -\theta_0^2/2)+ o(z^2)$, which shows that for any choice of $\theta_0\in {]1,2[}$, there is a neighborhood of $1$ on which $\varphi_{\theta_0}(\cdot)$ is nonnegative.
 \end{proof}
 
 %If $(\alpha^*,\beta^*)$ is a solution of \eqref{DROT}, then all the other optimum can be written as $(\alpha^*+\kappa,\beta^*-\kappa)$, which means that the problem admits a unique solution, up to a translation with constant $\kappa\in\IR$.
@@ -480,13 +480,13 @@ What we need to show is that eventually one always has $\Theta(\gamma^\ell)=\the
     
 
 \section{Experimental results}
-We compare Algorithm~\ref{SOR} to SK algorithm in two very different settings.
+We compare Algorithm~\ref{SOR} to SK algorithm on two very different optimal transport settings.
 In setting (a) we consider the domain $[0,1]$ discretized into $100$ samples and the squared Euclidean transport cost on this domain.
-The marginals are densities made of the sum of a base plateau of height $0.1$ and another plateau of heights and boundaries chosen uniformly in $[0,1]$, subsequently normalized.
+The marginals are densities made of the sum of a base plateau of height $0.1$ and another plateau of height and boundaries chosen uniformly in $[0,1]$, subsequently normalized.
 In setting (b) the cost is a $100\times 100$ random matrix with entries uniform in $[0,1]$ and the marginals are uniform.
 %The interest of having two settings is that the SK algorithm is known to behave very differently as $\epsilon$ decreases for these two problems and 
 
-Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we define $\theta_0$ as the optimal parameter as given in Proposition \ref{prop:local}. For estimating $\eta$, we follow two strategies. For strategy ``estimated'' (in blue on figure~\ref{fig:comparison}), $\eta$ is measured by looking at the local convergence rate of SK run on another random problem of the same setting and for the same value of $\epsilon$. For strategy ``measured'' (in orange on figure~\ref{fig:comparison}) the parameter is set using the local convergence rate of SK run on the same problem. Of course, the latter is unrealistic strategy but our experiment shows that the acceleration power is not so much impacted by estimating once for all the overrelaxation parameter for a class of problem with fixed regularization, as shown on~\ref{fig:comparison}.
+Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we define $\theta_0$ as the optimal parameter as given in Proposition \ref{prop:local}. For estimating $\eta$, we follow two strategies. For strategy ``estimated'' (in blue on Figure~\ref{fig:comparison}), $\eta$ is measured by looking at the local convergence rate of SK run on another random problem of the same setting and for the same value of $\epsilon$. For strategy ``measured'' (in orange on Figure~\ref{fig:comparison}) the parameter is set using the local convergence rate of SK run on the same problem. Of course, the latter is an unrealistic strategy but it is interesting to see in our experiments that the ``estimated'' strategy performs almost as well as the ``measured'' one, as shown on~\ref{fig:comparison}.
 \begin{figure}
 \begin{minipage}[b]{.5\linewidth}
    \centering
@@ -502,7 +502,7 @@ Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we 
 \end{figure}
 
 
-Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}. It is is worth noting that the complexity per iteration is the same, modulo negligible terms, so this ratio is also the runtime ratio (our algorithm can also be parallelized on GPUs just as SK algorithm). In both experimental settings, for low values of the regularization parameter $\epsilon$, the acceleration ratio is above $20$  with Algorithm \ref{SOR}.
+Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}. It is is worth noting that the complexity per iteration of these algorithms is the same modulo negligible terms, so this ratio is also the runtime ratio (our algorithm can also be parallelized on GPUs just as SK algorithm). In both experimental settings, for low values of the regularization parameter $\epsilon$, the acceleration ratio is above $20$  with Algorithm \ref{SOR}.
 
 %\renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
 %\begin{algorithm}
