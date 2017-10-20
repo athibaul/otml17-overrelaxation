@@ -40,7 +40,7 @@
 \newtheorem{example}{Example}
 
 
-\title{Overrelaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
+\title{Over-relaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
 
 %
 \author{
@@ -85,7 +85,7 @@ Talence, France\\
 
 \begin{abstract}
 This article describes a method for quickly computing the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn--Knopp algorithm). 
-The idea is to overrelax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
+The idea is to over-relax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
 We propose a simple method for establishing global convergence by ensuring the decrease of a Lyapunov function at each step.
 An adaptive choice of overrelaxation parameter based on the Lyapunov function is constructed.
 We also suggest a heuristic to choose a suitable asymptotic overrelaxation parameter, based on a local convergence analysis. Our numerical experiments show a gain in convergence speed by an order of magnitude in certain regimes.
@@ -216,7 +216,6 @@ As illustrated in Figure \ref{alternate_projections} (a-b), the SK algorithm, th
 \caption{\label{alternate_projections} The trajectory of $\gamma^{\ell}$ given by the SK algorithm is illustrated for decreasing values of $\epsilon$ in (a) and (b). Overrelaxed projections (c) typically accelerate the convergence rate.}
 \end{figure}
 
-
 \subsection{Overrelaxed projections}
 
 We define the $\omega$-overrelaxed projection operator $P^\omega_{\Ccal_k}$ as
@@ -235,7 +234,9 @@ Duality gives another point of view on the iterative overrelaxed Bregman project
 \beta^{\ell + 1}&=(1-\omega) \beta^{\ell} + \omega \arg \max_\beta E(\alpha^{\ell+1},\beta).
 \end{align} 
 
-
+%{\color{blue} \begin{proposition} 
+%State here that the fixed points of   $\gamma^{l+1} =P^\theta_{\Ccal_2}(P^\theta_{\Ccal_1}(\gamma^l))$ are the same than $\gamma^{l+1} =P_{\Ccal_2}(P_{\Ccal_1}(\gamma^l))$? lenaic: what is exactly needed? I can think of it tomorow.
+%\end{proposition}}
 \subsection{Lyapunov function}
 Convergence of the successive overrelaxed projections is not guaranteed in general. In order to derive a robust algorithm with provable convergence, we introduce the Lyapunov function 
 \begin{equation}\label{eq:lyapunov_function}
@@ -359,7 +360,7 @@ To construct explicitly functions $\theta_k$ as needed in Theorem~\ref{thm:algo}
 	The function that maps $t \in [1,\infty)$ to $\varphi_t(x)$ is non-increasing since
 	$\partial_t \varphi_t(x) =  (x^{1-t} - 1)\log x.$
 	For $x\neq 1$, it is even strictly decreasing.
-	Thus inequality \eqref{eq:F_P_theta} is valid, with equality \emph{iff} $A_k \gamma = \mu$.
+	Thus inequality \eqref{eq:F_P_theta} is valid, with equality \emph{iff} $A_k \gamma = \mu^k$.
 \end{proof}
 
 We now argue that a good choice for the functions $\theta_k$ may be constructed as follows. Pick a target parameter $\theta_0 \in [1;2)$ and a small security distance $\delta>0$. Define the functions $\Theta^*$ and $\Theta$ as
@@ -436,7 +437,6 @@ Note that the local linear rate is also improved if $\theta_0$ is not the optima
 \begin{corollary}
 The preceding local convergence rate applies to Algorithm \ref{thm:algo}, where $\theta_0$ is the chosen ``target'' overrelaxation parameter.
 \end{corollary}
-
 \begin{proof}
 For this proof we will adopt a dual point of view, where the overrelaxed projection method boils down to the well-known SOR method~\eqref{SORdual} and relying on the characterization $\gamma^{\ell}=e^{\alpha^\ell/\epsilon}\gamma^0 e^{\beta^\ell/\epsilon}$ where $(\alpha^\ell,\beta^\ell)$ are the SOR iterates, initialized by $(\alpha^0,\beta^0)=(0,0)$. Notice that the dual problem~\eqref{DROT} has an invariant subspace due to the invariance by translation $(\alpha,\beta)\mapsto (\alpha-k,\beta+k)$, $k\in \IR$, but is strictly convex in any subspace which does not contain this line. Also, this invariance disappears in the associated primal iterates. 
 
@@ -452,25 +452,29 @@ Using standard arguments, we have that the local convergence rate of the SOR pro
     
 
 \section{Experimental results}
-We compare Algorithm~\ref{SOR} to SK in two very different settings. 
-In setting (a) we consider the domain $[0,1]$ discretized into $100$ samples and the squared Euclidean transport cost on this domain. 
+We compare Algorithm~\ref{SOR} to SK in two very different settings.
+In setting (a) we consider the domain $[0,1]$ discretized into $100$ samples and the squared Euclidean transport cost on this domain.
 The marginals are densities made of the sum of a base plateau of height $0.1$ and another plateau of heights and boundaries chosen uniformly in $[0,1]$, subsequently normalized.
 In setting (b) the cost is a $100\times 100$ random matrix with entries uniform in $[0,1]$ and the marginals are uniform.
 %The interest of having two settings is that the SK algorithm is known to behave very differently as $\epsilon$ decreases for these two problems and 
 
-Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we define $\theta_0$ as the optimal parameter as given in Proposition \ref{prop:local}.
-For estimating $\eta$, we follow two strategies. For strategy ``estimated'' (in blue on figure~\ref{fig:comparison}), $\eta$ is measured by looking at the local convergence rate of SK run on another random problem of the same setting and for the same value of $\epsilon$.
-For strategy ``measured'' (in orange on figure~\ref{fig:comparison}) the parameter is set using the local convergence rate of SK run on the same problem.
-Of course, the latter is unrealistic strategy but our experiment shows that the acceleration power is not so much impacted by estimating once for all the overrelaxation parameter for a class of problem with fixed regularization, as shown on~\ref{fig:comparison}.
+Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we define $\theta_0$ as the optimal parameter as given in Proposition \ref{prop:local}. For estimating $\eta$, we follow two strategies. For strategy ``estimated'' (in blue on figure~\ref{fig:comparison}), $\eta$ is measured by looking at the local convergence rate of SK run on another random problem of the same setting and for the same value of $\epsilon$. For strategy ``measured'' (in orange on figure~\ref{fig:comparison}) the parameter is set using the local convergence rate of SK run on the same problem. Of course, the latter is unrealistic strategy but our experiment shows that the acceleration power is not so much impacted by estimating once for all the overrelaxation parameter for a class of problem with fixed regularization, as shown on~\ref{fig:comparison}.
+\begin{figure}
+\begin{minipage}[b]{.5\linewidth}
+   \centering
+   \includegraphics[scale=0.6]{images/speedratio_image}
+                    \subcaption{Quadratic cost, random marginals}\label{fig:compare_a}
+\end{minipage}%
+			\begin{minipage}[b]{.5\linewidth}
+                    \centering
+			\includegraphics[scale=0.6]{images/speedratio_ML}
+                    \subcaption{Random cost, uniform marginals}\label{fig:compare_b}
+\end{minipage}
+			\caption{\label{fig:comparison}Speed ratio of SK algorithm and its accelerated version Algorithm~\ref{SOR} w.r.t parameter $\epsilon$.}% (stopping criterion $\Vert u - u^* \Vert_\infty<10^{-6})$
+\end{figure}
+Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}. It is is worth noting that the complexity per iteration is the same, modulo negligible terms, so this ratio is also the runtime ratio (our algorithm can also be parallelized on GPUs just as SK algorithm). In both experimental settings, for low values of the regularization parameter $\epsilon$, the acceleration ratio is above $20$  with Algorithm \ref{SOR}.
 
-Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}.
-It is is worth noting that the complexity per iteration is the same, modulo negligible terms, so this ratio is also the runtime ratio.
-%(our algorithm can also be parallelized on GPUs just as SK algorithm).
-
-%In practice, we observed that the algorithm introduced in Theorem \ref{thm:algo} can be simplified and it is sufficient to check $F(P^\omega_{\Ccal_2}(P^\omega_{\Ccal_1}(\gamma^{\ell})))-F(\gamma^{\ell})>0$ for performing the overrelaxed iterations with parameter $\omega$.
-%The cost of this test is linear with respect to the data dimension (i.e. $o(n_1+n_2)$).
-
-\renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
+%\renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
 %\begin{algorithm}
 %\caption{Overrelaxed SK algorithm}
 %\label{SOR}
@@ -493,19 +497,7 @@ It is is worth noting that the complexity per iteration is the same, modulo negl
 
 
 
-\begin{figure}
-\begin{minipage}[b]{.5\linewidth}
-   \centering
-   \includegraphics[scale=0.5]{images/speedratio_image}
-                    \subcaption{Quadratic cost, random marginals}\label{fig:compare_a}
-\end{minipage}%
-			\begin{minipage}[b]{.5\linewidth}
-                    \centering
-			\includegraphics[scale=0.5]{images/speedratio_ML}
-                    \subcaption{Random cost, uniform marginals}\label{fig:compare_b}
-\end{minipage}
-			\caption{\label{fig:comparison}Complexity ratio of SK algorithm and its accelerated version Algorithm~\ref{SOR}.}% (stopping criterion $\Vert u - u^* \Vert_\infty<10^{-6})$
-\end{figure}
+
 
 
 \section{Conclusion and perspectives}
