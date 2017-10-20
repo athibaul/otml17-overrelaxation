@@ -278,7 +278,7 @@ It follows from Lemma \ref{lemma:lyapunov_decrease} that the decrease of $F$ for
 
 \begin{figure}[ht!]
 \begin{center}
-\includegraphics[width=7cm]{images/cvgce_zone}
+\includegraphics[width=9cm]{images/cvgce_zone}
 \caption{\label{phi_omega} Value of $\varphi_\omega(x)$. The function is positive above the black line, negative below. For any relaxation parameter $\omega$ smaller than $2$, there exists a neighborhood of $1$ on which $\varphi_\omega(\cdot)$ is positive.}
 %\includegraphics[width=11cm]{phi_omega.png}
 %\caption{\label{phi_omega} Plot of functions $\varphi_\omega(x)$ for different values $1\leq \omega\leq 2$ and   $x\in[10^{-2}, 10^1]$.}
@@ -380,12 +380,12 @@ We now argue that a good choice for the functions $\theta_k$ may be constructed 
 	\end{equation}
 	is continuous and verifies the descent condition (\ref{eq:cond_theta_k}).
 \end{proposition}
-This construction has several advantages:
-\begin{itemize}
-\item it allows to choose arbitrarily the parameter $\theta_0$ that will be used eventually when the algorithm is close to convergence (we motivate what are good choices for $\theta_0$ in section \ref{section:local});
-\item it is also an easy approach to having an adaptive method, as the approximation of $\Theta^*$ has a negligible cost (it only require to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method).
-\item experiments show that this is often an excellent choice in practice.
-\end{itemize}
+This construction, is often an excellent choice in practice, has several advantages:
+\begin{enumerate}[align=right,labelsep=10pt,leftmargin=0.5cm]
+\item[$\bullet$] it allows to choose arbitrarily the parameter $\theta_0$ that will be used eventually when the algorithm is close to convergence (we motivate what are good choices for $\theta_0$ in section \ref{section:local});
+\item[$\bullet$] it is also an easy approach to having an adaptive method, as the approximation of $\Theta^*$ has a negligible cost (it only require to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method).
+%\item[$\bullet$] experiments show that this is often an excellent choice in practice.
+\end{enumerate}
 
 \begin{proof}
 Looking at Figure~\ref{phi_omega} can help understand this proof.	Since the partial derivative of $\partial_\omega \varphi_\omega(x)$ is nonzero for any $x<1$, the implicit function theorem proves the continuity of $\Theta^*$.
@@ -394,8 +394,7 @@ Looking at Figure~\ref{phi_omega} can help understand this proof.	Since the part
 	Constraining the parameter to $[1,\theta_0]$ preserves this property.% as using $\theta=1$ always satisfies inequality \eqref{eq:cond_theta_k} and using $\theta=\theta_0$ when it is smaller than $\Theta^*\left(\frac{A_k \gamma}{\mu^k}\right)$ does as well.
 \end{proof}
 
-The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which decreasing is as can be seen on Figure~\ref{phi_omega}. With the choice $\theta_0=1$, one recovers exactly the original SK algorithm.
-
+The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which decreasing is as can be seen on Figure~\ref{phi_omega}. With the choice $\theta_0=1$, one recovers exactly the original SK algorithm.is \vspace{-0.1cm}
 \begin{algorithm}
 \caption{Overrelaxed SK algorithm }
 \label{SOR}
@@ -419,7 +418,7 @@ The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:al
 %\ENDIF
 \ENDWHILE
  \RETURN $\gamma=\diag(a)\gamma^0\diag(b)$
-\end{algorithmic}
+\end{algorithmic}\vspace*{-0.1cm}
 \end{algorithm}
 
 
@@ -438,9 +437,10 @@ Note that the local linear rate is also improved if $\theta_0$ is not the optima
 The preceding local convergence rate applies to Algorithm \ref{thm:algo}, where $\theta_0$ is the chosen ``target'' overrelaxation parameter.
 \end{corollary}
 \begin{proof}
-For this proof we will adopt a dual point of view, where the overrelaxed projection method boils down to the well-known SOR method~\eqref{SORdual}  and relying on the characterization $\gamma^{\ell}=e^{\alpha^\ell/\epsilon}\gamma^0e^{\beta^\ell/\epsilon}$ where $(\alpha^\ell,\beta^\ell)$ are the SOR iterates, initialized by $(\alpha^0,\beta^0)=(0,0)$. Notice that the dual problem~\eqref{DROT} has an invariant subspace due to the invariance by translation $(\alpha,\beta)\mapsto (\alpha-k,\beta+k)$, $k\in \IR$, but is strictly convex in any subspace which does not contain this line. Also, this invariance disappears in the associated primal iterates. 
+For this proof we will adopt a dual point of view, where the overrelaxed projection method boils down to the well-known SOR method~\eqref{SORdual}  and we will rely  on the characterization $\gamma^{\ell}=e^{\alpha^\ell/\epsilon}\gamma^0e^{\beta^\ell/\epsilon}$ where $(\alpha^\ell,\beta^\ell)$ are the SOR iterates, initialized by $(\alpha^0,\beta^0)=(0,0)$. Notice that the dual problem~\eqref{DROT} has an invariant subspace due to the invariance by translation $(\alpha,\beta)\mapsto (\alpha-k,\beta+k)$, $k\in \IR$, but is strictly convex in any subspace which does not contain this line. Also, this invariance disappears in the associated primal iterates. 
 
-The SOR procedure~\eqref{SORdual}, when applied to maximize a concave quadratic form, defines a linear map $M_\omega : (\alpha^{\ell},\beta^{\ell})\mapsto (\alpha^{\ell+1},\beta^{\ell+1})$ which spectral properties are well known~\cite{ciarlet1982introduction, young2014iterative} , even in the non strictly concave case~\cite{hadjidimos1985optimization}, where convergence is replaced by \emph{semi-convergence}, i.e.\ convergence to a nonzero linear map.
+The SOR procedure~\eqref{SORdual}, when applied to maximize a concave quadratic form, defines a linear map $M_\omega : (\alpha^{\ell},\beta^{\ell})\mapsto (\alpha^{\ell+1},\beta^{\ell+1})$ which spectral properties are well known~\cite{ciarlet1982introduction, young2014iterative}, even in the non strictly concave case~\cite{hadjidimos1985optimization}, where convergence is replaced by \emph{semi-convergence}, i.e.\ convergence to a nonzero linear map.
+In this context, when alternate maximization converges linearly at the rate $1-\eta$,  the local linear convergence rate of the SOR method is known to be $(1-\sqrt{\eta})/(1+\sqrt{\eta})$ ~\cite[Chapter 3]{chizat2017these}. 
 
 Using standard arguments, we have that the local convergence rate of the SOR procedure on the dual objective $E$ is that of the SOR procedure applied to the quadratic form defined by its Hessian and the linear rate of \emph{semi-convergence} to the projection on the set of minimizers. 
 \end{proof}
