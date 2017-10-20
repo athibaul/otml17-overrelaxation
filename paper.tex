@@ -40,7 +40,7 @@
 \newtheorem{example}{Example}
 
 
-\title{Over-relaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
+\title{Overrelaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
 
 %
 \author{
@@ -56,7 +56,7 @@ Paris, France\\
  \AND
 Charles DOSSAL\\
 INSA Toulouse\\
-Institut de Math\'ematiques de Toulouse\\
+%Institut de Math\'ematiques de Toulouse\\
 Toulouse,  France\\
 \texttt{dossal@insa-toulouse.fr}
 \And 
@@ -85,7 +85,7 @@ Talence, France\\
 
 \begin{abstract}
 This article describes a method for quickly computing the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn--Knopp algorithm). 
-The idea is to over-relax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
+The idea is to overrelax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
 We propose a simple method for establishing global convergence by ensuring the decrease of a Lyapunov function at each step.
 An adaptive choice of overrelaxation parameter based on the Lyapunov function is constructed.
 We also suggest a heuristic to choose a suitable asymptotic overrelaxation parameter, based on a local convergence analysis. Our numerical experiments show a gain in convergence speed by an order of magnitude in certain regimes.
@@ -243,7 +243,7 @@ Convergence of the successive overrelaxed projections is not guaranteed in gener
 F(\gamma) = \KL(\gamma^*, \gamma),
 \end{equation}
 where $\gamma^*$ denotes the solution of the regularized OT problem. We will use this function to enforce the strict descent criterion $F(\gamma^{\ell+1}) < F(\gamma^\ell)$ as long as the process has not converged.
-%
+
 The choice of \eqref{eq:lyapunov_function} as a Lyapunov function is of course related to the fact that Bregman projections are used throughout the algorithm. Further, we will show (Lemma \ref{lemma:lyapunov_decrease}) that its decrease is very easy to compute and this descent criterion still allows enough freedom in the choice of the overrelaxation parameter.
 
 Crucial properties of this Lyapunov function are gathered in the next lemma.
@@ -251,7 +251,7 @@ Crucial properties of this Lyapunov function are gathered in the next lemma.
 	For any $M \in \IR_+^*$, the sublevel set $\left\{ \gamma \mid F(\gamma) \le M \right\}$ is compact.
 %\end{lemma}
 %\begin{lemma}
-	Moreover, for $\gamma$ in $\IR^{mn}_{+*}$, the decrease of the Lyapunov function after an overrelaxed projection can be computed as
+	Moreover, for any $\gamma$ in $\IR^{mn}_{+*}$, the decrease of the Lyapunov function after an overrelaxed projection can be computed as
 	\begin{equation} \label{eq:kl_diff_scal}
 	F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma)) = 
 	\scal{\mu^k}{\varphi_\omega \left((A_k \gamma) \oslash \mu^k \right)},
@@ -267,18 +267,18 @@ Crucial properties of this Lyapunov function are gathered in the next lemma.
 The fact that the Kullback-Leibler divergence is jointly lower semicontinuous implies in particular that $K$ is closed. Moreover, $K\subset \mathbb{R}^{n_1\times n_2}_+$ is bounded because $F$ is the sum of nonnegative, coercive functions of each component of its argument $\gamma$.
 %\end{proof}
 %\begin{proof}
-%
+
 Formula \eqref{eq:kl_diff_scal} comes the expression $F(\gamma^1)-F(\gamma^2)= \sum_{i,j}\left(\gamma^*_{i,j}\log(\gamma^2_{i,j}/\gamma^1_{i,j})+\gamma^1_{i,j}-\gamma^2_{i,j}\right)$ and the relations \eqref{eq:def_or_proj} and \eqref{scaling}.
 \end{proof}
 
 
 %Note that the difference $F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma))$ may be calculated without knowing $\gamma^*$, as shown by the following lemma.
 
-It follows from Lemma \ref{lemma:lyapunov_decrease} that the decrease of $F$ for an overrelaxed projection is very cheap to estimate, since its computational cost is linear with respect to the dimension of data $\mu^k$. In Figure \ref{phi_omega}, we display the function  $\varphi_\omega(x)$. Notice that for the SK algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always nonnegative. For other values $1\le\omega<2$, it is nonnegative for $x$ close to 1.
+It follows from Lemma \ref{lemma:lyapunov_decrease} that the decrease of $F$ for an overrelaxed projection is very cheap to estimate, since its computational cost is linear with respect to the dimension of data $\mu^k$. In Figure \ref{phi_omega}, we display the function  $\varphi_\omega(x)$. Notice that for the Sinkhorn--Knopp algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always nonnegative. For other values $1\le\omega<2$, it is nonnegative for $x$ close to 1.
 
 \begin{figure}[ht!]
 \begin{center}
-\includegraphics[width=7cm]{images/cvgce_zone}
+\includegraphics[width=9cm]{images/cvgce_zone}
 \caption{\label{phi_omega} Value of $\varphi_\omega(x)$. The function is positive above the black line, negative below. For any relaxation parameter $\omega$ smaller than $2$, there exists a neighborhood of $1$ on which $\varphi_\omega(\cdot)$ is positive.}
 %\includegraphics[width=11cm]{phi_omega.png}
 %\caption{\label{phi_omega} Plot of functions $\varphi_\omega(x)$ for different values $1\leq \omega\leq 2$ and   $x\in[10^{-2}, 10^1]$.}
@@ -380,12 +380,13 @@ We now argue that a good choice for the functions $\theta_k$ may be constructed 
 	\end{equation}
 	is continuous and verifies the descent condition (\ref{eq:cond_theta_k}).
 \end{proposition}
-This construction has several advantages:
-\begin{itemize}
-\item it allows to choose arbitrarily the parameter $\theta_0$ that will be used eventually when the algorithm is close to convergence (we motivate what are good choices for $\theta_0$ in section \ref{section:local});
-\item it is also an easy approach to having an adaptive method, as the approximation of $\Theta^*$ has a negligible cost (it only require to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method);
-\item experiments show that this is often an excellent choice in practice.
-\end{itemize}
+
+This construction, is often an excellent choice in practice, has several advantages:
+\begin{enumerate}[align=right,labelsep=10pt,leftmargin=0.5cm]
+\item[$\bullet$] it allows to choose arbitrarily the parameter $\theta_0$ that will be used eventually when the algorithm is close to convergence (we motivate what are good choices for $\theta_0$ in section \ref{section:local});
+\item[$\bullet$] it is also an easy approach to having an adaptive method, as the approximation of $\Theta^*$ has a negligible cost (it only requires to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method).
+%\item[$\bullet$] experiments show that this is often an excellent choice in practice.
+\end{enumerate}
 
 \begin{proof}
 Looking at Figure~\ref{phi_omega} can help understand this proof.	Since the partial derivative of $\partial_\omega \varphi_\omega(x)$ is nonzero for any $x<1$, the implicit function theorem proves the continuity of $\Theta^*$.
@@ -394,8 +395,7 @@ Looking at Figure~\ref{phi_omega} can help understand this proof.	Since the part
 	Constraining the parameter to $[1,\theta_0]$ preserves this property.% as using $\theta=1$ always satisfies inequality \eqref{eq:cond_theta_k} and using $\theta=\theta_0$ when it is smaller than $\Theta^*\left(\frac{A_k \gamma}{\mu^k}\right)$ does as well.
 \end{proof}
 
-The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which decreasing is as can be seen on Figure~\ref{phi_omega}. Note that with the choice $\theta_0=1$, one recovers exactly the original SK algorithm.
-
+The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which decreasing is as can be seen on Figure~\ref{phi_omega}. With the choice $\theta_0=1$, one recovers exactly the original SK algorithm.is \vspace{-0.1cm}
 \begin{algorithm}
 \caption{Overrelaxed SK algorithm }
 \label{SOR}
@@ -419,7 +419,7 @@ The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:al
 %\ENDIF
 \ENDWHILE
  \RETURN $\gamma=\diag(a)\gamma^0\diag(b)$
-\end{algorithmic}
+\end{algorithmic}\vspace*{-0.1cm}
 \end{algorithm}
 
 
@@ -501,6 +501,7 @@ Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we 
 			\caption{\label{fig:comparison}Speed ratio of SK algorithm and its accelerated version Algorithm~\ref{SOR} w.r.t parameter $\epsilon$.}% (stopping criterion $\Vert u - u^* \Vert_\infty<10^{-6})$
 \end{figure}
 
+
 Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}. It is is worth noting that the complexity per iteration is the same, modulo negligible terms, so this ratio is also the runtime ratio (our algorithm can also be parallelized on GPUs just as SK algorithm). In both experimental settings, for low values of the regularization parameter $\epsilon$, the acceleration ratio is above $20$  with Algorithm \ref{SOR}.
 
 %\renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
@@ -537,7 +538,7 @@ The acceleration of the convergence speed is numerically impressive, in particul
 It is theoretically supported in the local regime by the standard analysis of SOR iterations.
 
 This idea of overrelaxation can be generalized to solve more general problems such as multi-marginal OT, barycenters, gradient flows, unbalanced OT~\cite[chap. 4]{chizat2017these} but there is no systematic way to derive globally convergent algorithms.
-Our work is an effort in the direction of building and understanding the properties of robust first order algorithms for solving OT. More understanding is needed regarding SOR itself (global convergence speed, choice of $\theta_0$), but also its relation to other acceleration methods~\cite{2016arXiv160604133S,2017arXiv170509634A}.
+Our work is a step in the direction of building and understanding the properties of robust first order algorithms for solving OT. More understanding is needed regarding SOR itself (global convergence speed, choice of $\theta_0$), but also its relation to other acceleration methods~\cite{2016arXiv160604133S,2017arXiv170509634A}.
 
 %Links with monotone Fista? (that choose Fista if energy decreased and forward backward otherwise...)
 
