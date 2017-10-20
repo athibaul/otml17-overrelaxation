@@ -430,7 +430,7 @@ In order to justify the acceleration of convergence that is observed in practice
 \begin{equation}\label{eq:M1}
 M_1= \diag(1\oslash \mu^1) \, \gamma^* \, \diag(1\oslash \mu^2)\, ^t\gamma^*
 \end{equation}
-where $\gamma^*$ is the solution to the regularized OT problem. We denote this second largest eigenvalue by $1-\eta$, which satisfies $\eta>0$ (see \cite{knight2008sinkhorn}).
+where $\gamma^*$ is the solution to the regularized OT problem (the largest eigenvalue is $1$, associated to the eigenvector $\mathbf{1}$). We denote this second largest eigenvalue by $1-\eta$, which satisfies $\eta>0$ (see \cite{knight2008sinkhorn}).
 
 \begin{proposition}\label{prop:local}
 The SK algorithm converges locally at a linear rate $1-\eta$. For the optimal choice of extrapolation parameter $\theta^* = 2/(1+\sqrt{\eta})$, the overrelaxed projection algorithm converges locally linearly at a rate $(1-\sqrt{\eta})/(1+\sqrt{\eta})$. More generally, the local convergence of the overrelaxed algorithm is guaranteed as long as $\theta \in {]0,2[}$ and the linear rate is given on Figure~\ref{fig:eigtransform} as a function of $1-\eta$ and $\theta$.
@@ -438,10 +438,10 @@ The SK algorithm converges locally at a linear rate $1-\eta$. For the optimal ch
 
 \begin{proof}
 In this proof, we focus on the dual problem and we recall the relationship $\gamma^{\ell}=e^{\alpha^\ell/\epsilon}\gamma^0e^{\beta^\ell/\epsilon}$ between the iterates of the overrelaxed projection algorithm $\gamma^\ell$ and the  iterates $(\alpha^\ell,\beta^\ell)$ of the SOR algorithm on the dual problem~\eqref{SORdual}, initialized with $(\alpha^0,\beta^0)=(0,0)$. %First notice that if $\gamma^\ell \to \gamma^*$, then $\KL(\gamma^\ell,\gamma^0)\to\KL(\gamma^*,\gamma^0)$, which is equivalent to $E(\alpha^\ell,\beta^\ell)$ converges to the maximum of $E$.
-The dual problem~\eqref{DROT} is invariant by translations of the form $(\alpha,\beta)\mapsto (\alpha-k,\beta+k)$, $k\in \IR$, but is otherwise strictly convex on any subspace which does not contain the line $\IR(\mathbf{1},-\mathbf{1})$ (this invariance cancels in the corresponding primal iterates). In order to deal with this invariance, consider the subspace $S$ of pairs of dual variables $(\alpha,\beta)$ that satisfy $\alpha_1=0$, let $\pi_S$ be the (non orthogonal) projection on $S$ of kernel $(\mathbf{1},-\mathbf{1})$ and let $(\alpha^*,\beta^*)\in S$ be a dual maximizer. 
+The dual problem~\eqref{DROT} is invariant by translations of the form $(\alpha,\beta)\mapsto (\alpha-k,\beta+k)$, $k\in \IR$, but is otherwise strictly convex on any subspace which does not contain the line $\IR(\mathbf{1},-\mathbf{1})$. In order to deal with this invariance (which cancels in the corresponding primal iterates), consider the subspace $S$ of pairs of dual variables $(\alpha,\beta)$ that satisfy $\alpha_1=0$, let $\pi_S$ be the (non orthogonal) projection on $S$ of kernel $(\mathbf{1},-\mathbf{1})$ and let $(\alpha^*,\beta^*)\in S$ be a dual maximizer. 
 
 % 
-Since the SOR iteration followed by $\pi_S$ is a smooth map, its local convergence properties are characterized by the local convergence of its linearization, which corresponds to the SOR method applied to the maximization of the quadratic Taylor expansion of the dual objective $E$ at $(\alpha^*,\beta^*)$. This defines an affine map $M_\theta : (\alpha^{\ell},\beta^{\ell})\mapsto (\alpha^{\ell+1},\beta^{\ell+1})$ whose spectral properties are well known~\cite{ciarlet1982introduction, young2014iterative} (see also \cite[chapter 4]{chizat2017these} for the specific case of convex minimization). For the case $\theta=1$, we obtain the matrix $M_1$ defined in \eqref{eq:M1}. Specifically, in the non strictly concave case~\cite{hadjidimos1985optimization}, we have that the operator $\pi_S\circ M_1^\ell$ converges at the linear rate $1-\eta$ towards the projector on $(\alpha^*,\beta^*)$ and that the convergence of $\pi_S\circ M_\theta^\ell$ is guaranteed for $\theta \in ]0,2[$, with the rate 
+Since one SOR iteration is a smooth map, the local convergence properties of the SOR algorithm are characterized by the local convergence of its linearization, which here corresponds to the SOR method applied to the maximization of the quadratic Taylor expansion of the dual objective $E$ at $(\alpha^*,\beta^*)$. This defines an affine map $M_\theta : (\alpha^{\ell},\beta^{\ell})\mapsto (\alpha^{\ell+1},\beta^{\ell+1})$ whose spectral properties are well known~\cite{ciarlet1982introduction, young2014iterative} (see also \cite[chapter 4]{chizat2017these} for the specific case of convex minimization). For the case $\theta=1$, this corresponds to the matrix $M_1$ defined in \eqref{eq:M1}. Specifically, in the non strictly concave case~\cite{hadjidimos1985optimization}, we have that the operator $\pi_S\circ M_1^\ell$ converges at the linear rate $1-\eta$ towards the projector on $(\alpha^*,\beta^*)$ and that the convergence of $\pi_S\circ M_\theta^\ell$ is guaranteed for $\theta \in ]0,2[$, with the rate 
 \[
 f(\theta,\eta) = \begin{cases}
 \theta-1 & \text{if $\theta>\theta^*$}\\
@@ -467,11 +467,13 @@ To switch from these dual convergence results to primal convergence results, rem
 %Note that the local linear rate is also improved if $\theta_0$ is not the optimal choice, see \cite[chapter 5]{ciarlet1982introduction}, \cite[chapter 4]{chizat2017these}. 
 
 \begin{corollary}
-The previous local convergence analysis applies to Algorithm \ref{thm:algo}, where the local convergence rate is governed by the choice of the target extrapolation parameter $\theta_0$.
+The previous local convergence analysis applies to Algorithm \ref{thm:algo} and the local convergence rate is governed by the choice of the target extrapolation parameter $\theta_0$.
 \end{corollary}
 \begin{proof}
 What we need to show is that eventually one always has $\Theta(\gamma^\ell)=\theta_0$. This can be seen from the quadratic Taylor expansion $\varphi_{\theta_0}(1+z)=z^2(\theta_0 -\theta_0^2/2)+ o(z^2)$, which shows that for any choice of $\theta_0\in {]1,2[}$, there is a neighborhood of $1$ on which $\varphi_{\theta_0}(\cdot)$ is nonnegative.
 \end{proof}
+
+%Of course, a difficulty is that the number $\eta$ is not known a priori. In the numerical experiments, we have noticed that 
 
 %If $(\alpha^*,\beta^*)$ is a solution of \eqref{DROT}, then all the other optimum can be written as $(\alpha^*+\kappa,\beta^*-\kappa)$, which means that the problem admits a unique solution, up to a translation with constant $\kappa\in\IR$.
 
