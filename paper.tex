@@ -243,10 +243,9 @@ Convergence of the successive overrelaxed projections is not guaranteed in gener
 F(\gamma) = \KL(\gamma^*, \gamma),
 \end{equation}
 
-where $\gamma^*$ denotes the solution of the regularized OT problem. We will use this function to enforce the strict descent criterion $F(\gamma^{k+1}) < F(\gamma^k)$ as long as the process has not converged.
-
-The choice of \eqref{eq:lyapunov_function} as a Lyapunov function is of course related to the fact that Bregman projections are used throughout the algorithm. Further, we will show in Lemma \ref{lemma:lyapunov_decrease} that its decrease is very easy to compute and this descent criterion still allows enough freedom in the choice of the overrelaxation parameter.
-
+where $\gamma^*$ denotes the solution of the regularized OT problem. We will use this function to enforce the strict descent criterion $F(\gamma^{\ell+1}) < F(\gamma^\ell)$ as long as the process has not converged.
+%
+The choice of \eqref{eq:lyapunov_function} as a Lyapunov function is of course related to the fact that Bregman projections are used throughout the algorithm. Further, we will show (Lemma \ref{lemma:lyapunov_decrease}) that its decrease is very easy to compute and this descent criterion still allows enough freedom in the choice of the overrelaxation parameter.
 
 Crucial properties of this Lyapunov function are gathered in the next lemma.
 \begin{lemma} \label{lemma:lyapunov_decrease}
@@ -474,6 +473,7 @@ Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we 
 \end{minipage}
 			\caption{\label{fig:comparison}Speed ratio of SK algorithm and its accelerated version Algorithm~\ref{SOR} w.r.t parameter $\epsilon$.}% (stopping criterion $\Vert u - u^* \Vert_\infty<10^{-6})$
 \end{figure}
+
 
 Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}. It is is worth noting that the complexity per iteration is the same, modulo negligible terms, so this ratio is also the runtime ratio (our algorithm can also be parallelized on GPUs just as SK algorithm). In both experimental settings, for low values of the regularization parameter $\epsilon$, the acceleration ratio is above $20$  with Algorithm \ref{SOR}.
 
