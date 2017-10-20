@@ -179,7 +179,7 @@ The function $E$ is concave, continuously differentiable and admits a maximizer,
 %\end{align*}
 
 
-Efficient parallel computations can be considered \cite{cuturi13} and one can even reach real-time computation for large scale problem for certain class of cost matrices $c$ \cite{Solomon2015}. 
+Efficient parallel computations can be considered \cite{cuturi13} and one can almost reach real-time computation for large scale problem for certain class of cost matrices $c$  allowing the use of seprable convolutions \cite{Solomon2015}. 
 For small values of the parameter $\epsilon$, numerical issues can arise and a stabilization of the algorithm is necessary \cite{2016arXiv160705816C}.
 The convergence of the process can nevertheless be very slow when $\epsilon$ is small.
 
@@ -395,7 +395,7 @@ This construction, which is often an excellent choice in practice, has several a
 
 
 
-The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which is decreasing is as can be seen on Figure~\ref{phi_omega}. With the choice $\theta_0=1$, one recovers exactly the original SK algorithm.is \vspace{-0.1cm}
+The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which is decreasing is as can be seen on Figure~\ref{phi_omega}. With the choice $\theta_0=1$, one recovers exactly the original SK algorithm.is 
 \begin{algorithm}
 \caption{Overrelaxed SK algorithm }
 \label{SOR}
@@ -419,7 +419,7 @@ The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:al
 %\ENDIF
 \ENDWHILE
  \RETURN $\gamma=\diag(a)\gamma^0\diag(b)$
-\end{algorithmic}\vspace*{-0.1cm}
+\end{algorithmic}
 \end{algorithm}
 
 
@@ -430,10 +430,10 @@ In order to justify the acceleration of convergence that is observed in practice
 \begin{equation}\label{eq:M1}
 M_1= \diag(1\oslash \mu^1) \, \gamma^* \, \diag(1\oslash \mu^2)\, ^t\gamma^*
 \end{equation}
-where $\gamma^*$ is the solution to the regularized OT problem (the largest eigenvalue is $1$, associated to the eigenvector $\mathbf{1}$). We denote this second largest eigenvalue by $1-\eta$, which satisfies $\eta>0$ (see \cite{knight2008sinkhorn}).
+where $\gamma^*$ is the solution to the regularized OT problem (the largest eigenvalue is $1$, associated to the eigenvector $\mathbf{1}$). We denote the second largest eigenvalue by $1-\eta$, it satisfies $\eta>0$  \cite{knight2008sinkhorn}.
 
 \begin{proposition}\label{prop:local}
-The SK algorithm converges locally at a linear rate $1-\eta$. For the optimal choice of extrapolation parameter $\theta^* = 2/(1+\sqrt{\eta})$, the overrelaxed projection algorithm converges locally linearly at a rate $(1-\sqrt{\eta})/(1+\sqrt{\eta})$. More generally, the local convergence of the overrelaxed algorithm is guaranteed as long as $\theta \in {]0,2[}$ and the linear rate is given on Figure~\ref{fig:eigtransform} as a function of $1-\eta$ and $\theta$.
+The SK algorithm converges locally at a linear rate $1-\eta$. For the optimal choice of extrapolation parameter $\theta^* = 2/(1+\sqrt{\eta})$, the overrelaxed projection algorithm converges locally linearly at a rate $(1-\sqrt{\eta})/(1+\sqrt{\eta})$. The local convergence of the overrelaxed algorithm is guaranteed for $\theta \in {]0,2[}$ and the linear rate is given on Figure~\ref{fig:eigtransform} as a function of $1-\eta$ and $\theta$.
 \end{proposition}
 
 \begin{proof}
@@ -450,13 +450,14 @@ f(\theta,\eta) = \begin{cases}
 \]
 where $\theta^*\coloneqq2/(1+\sqrt{\eta})$ is the optimal parameter, for which $f(\theta^*,\eta)=(1-\sqrt{\eta})/(1+\sqrt{\eta})$. The function $f$ is plotted in Figure \ref{fig:eigtransform}.
 
-To switch from these dual convergence results to primal convergence results, remark that $\gamma^\ell \to \gamma^*$ implies $\KL(\gamma^\ell,\gamma^0)\to \KL(\gamma^*,\gamma^0)$ which in turn implies $E(\alpha^\ell,\beta^\ell) \to \max E$ so invoking the partial strict concavity of $E$, $\pi_S(\alpha^\ell,\beta^\ell)\to (\alpha^*,\beta^*)$. The converse implication is direct so it holds $[\pi_S(\alpha^\ell,\beta^\ell)\to (\alpha^*,\beta^*)] \Leftrightarrow [\gamma^\ell \to \gamma^*]$. We conclude by noting that the fact that $\pi_S(\alpha^\ell, \beta^\ell)$ converges at a linear rate implies the same rate on $\gamma^\ell$, thanks to the relationship between the iterates.
+To switch from these dual convergence results to primal convergence results, remark that $\gamma^\ell \to \gamma^*$ implies $\KL(\gamma^\ell,\gamma^0)\to \KL(\gamma^*,\gamma^0)$ which in turn implies $E(\alpha^\ell,\beta^\ell) \to \max E$ so invoking the partial strict concavity of $E$, $\pi_S(\alpha^\ell,\beta^\ell)\to (\alpha^*,\beta^*)$. The converse implication is direct so it holds $[\pi_S(\alpha^\ell,\beta^\ell)\to (\alpha^*,\beta^*)] \Leftrightarrow [\gamma^\ell \to \gamma^*]$. We conclude by noting the fact that $\pi_S(\alpha^\ell, \beta^\ell)$ converges at a linear rate implies the same rate on $\gamma^\ell$, thanks to the relationship between the iterates.
 %Using standard arguments, we have that the local convergence rate of the SOR procedure on the dual objective $E$ is that of the SOR procedure applied to the quadratic form defined by its Hessian and the linear rate of \emph{semi-convergence} to the projection on the set of minimizers. 
 \end{proof}
 
+
 \begin{figure}
 \centering
-\includegraphics[scale=0.65]{images/eigen_transform}
+\includegraphics[scale=0.8]{images/eigen_transform}
 \caption{\label{fig:eigtransform} Local linear rate of convergence of the overrelaxed algorithm as a function of $1-\eta$, the local convergence rate of SK algorithm and $\theta$ the overrelaxation parameter. (plain curve) the original rate is recovered for $\theta=1$. (dashed curve) optimal overrelaxation parameter $\theta^*$.}
 \end{figure}
 
