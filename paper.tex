@@ -383,14 +383,14 @@ We now argue that a good choice for the functions $\theta_k$ may be constructed 
 This construction has several advantages:
 \begin{itemize}
 \item it allows to choose arbitrarily the parameter $\theta_0$ that will be used eventually when the algorithm is close to convergence (we motivate what are good choices for $\theta_0$ in section \ref{section:local});
-\item it is also an easy approach to having an adaptive method, as the approximation of $\Theta^*$ has a negligible cost (it only require to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method).
+\item it is also an easy approach to having an adaptive method, as the approximation of $\Theta^*$ has a negligible cost (it only require to solve a one dimensional problem that depends on the smallest value of $(A_k \gamma)\oslash \mu^k$, which can be done in a few iterations of Newton's method);
 \item experiments show that this is often an excellent choice in practice.
 \end{itemize}
 
 \begin{proof}
 Looking at Figure~\ref{phi_omega} can help understand this proof.	Since the partial derivative of $\partial_\omega \varphi_\omega(x)$ is nonzero for any $x<1$, the implicit function theorem proves the continuity of $\Theta^*$.
 	The function $\Theta^*\left((A_k \gamma)\oslash \mu^k)\right)$ is such that every term in relation (\ref{eq:kl_diff_scal}) is non-negative.
-	Therefore, by lemma \ref{lemma:F_P_theta}, using this parameter minus $\delta$ ensures the strong decrease (\ref{eq:cond_theta_k}) of the Lyapunov function.
+	Therefore, by Lemma \ref{lemma:F_P_theta}, using this parameter minus $\delta$ ensures the strong decrease (\ref{eq:cond_theta_k}) of the Lyapunov function.
 	Constraining the parameter to $[1,\theta_0]$ preserves this property.% as using $\theta=1$ always satisfies inequality \eqref{eq:cond_theta_k} and using $\theta=\theta_0$ when it is smaller than $\Theta^*\left(\frac{A_k \gamma}{\mu^k}\right)$ does as well.
 \end{proof}
 
@@ -426,23 +426,51 @@ The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:al
 
 \section{Acceleration of local convergence rate}
 \label{section:local}
-In order to theoretically justify the acceleration of convergence that is observed in practice, we now study the local convergence rate of the algorithm. %We do not claim that this simple overrelaxation is the most efficient method to accelerate local convergence of fixed points---adaptive methods with excellent properties exist e.g.~\cite{2016arXiv160604133S}--- but this local analysis gives a hint for what makes our scheme relevant is the conjunction of our global convergence guarantee with this local acceleration property.
+In order to justify the acceleration of convergence that is observed in practice, we now study the local convergence rate of the overrelaxed algorithm, which follows from the classical convergence analysis of the linear SOR method. Our result involves the second largest eigenvalue of the matrix
+ \[
+M_1= \diag(1\oslash \mu^1) \, \gamma^* \, \diag(1\oslash \mu^2)\, ^t\gamma^*
+\]
+where $\gamma^*$ is the solution to the regularized OT problem. This matrix corresponds to the linearized dual SK iteration at the maximizer. We denote this second largest eigenvalue by $1-\eta$, which satisfies $\eta>0$ (see \cite{knight2008sinkhorn}).
 
-%The local behavior of the extrapolated is summarized in the next result, which gathers many results from the literature.
 \begin{proposition}\label{prop:local}
-Let $1-\eta$ be the local linear rate of convergence of the SK algorithm. By \cite{knight2008sinkhorn} we know that $\eta>0$. Then, for the optimal choice of parameter $\theta_0 = 2/(1+\sqrt{\eta})$, the overrelaxed projection algorithm converges locally linearly at a rate $(1-\sqrt{\eta})/(1+\sqrt{\eta})$.
+The SK algorithm converges locally at a linear rate $1-\eta$. For the optimal choice of extrapolation parameter $\theta^* = 2/(1+\sqrt{\eta})$, the overrelaxed projection algorithm converges locally linearly at a rate $(1-\sqrt{\eta})/(1+\sqrt{\eta})$. More generally, the local convergence of the overrelaxed algorithm is guaranteed as long as $\theta \in {]0,2[}$ and the linear rate is given on Figure~\ref{fig:eigtransform} as a function of $1-\eta$ and $\theta$.
 \end{proposition}
 
-Note that the local linear rate is also improved if $\theta_0$ is not the optimal choice, see \cite[chapter 5]{ciarlet1982introduction}. By remarking that for any choice of $\theta_0<2$ there is a neighborhood of $1$ on which $\varphi_{\theta_0}(\cdot)$ is nonnegative, one sees that this result applies in particular to our algorithm because eventually, for $\ell$ big enough, one has $\Theta(\gamma^\ell)=\theta_0$.
+\begin{proof}
+In this proof, we focus on the dual problem and we recall the relationship $\gamma^{\ell}=e^{\alpha^\ell/\epsilon}\gamma^0e^{\beta^\ell/\epsilon}$ between the iterates of the overrelaxed projection algorithm $\gamma^\ell$ and the  iterates $(\alpha^\ell,\beta^\ell)$ of the SOR algorithm on the dual problem~\eqref{SORdual}, initialized with $(\alpha^0,\beta^0)=(0,0)$. %First notice that if $\gamma^\ell \to \gamma^*$, then $\KL(\gamma^\ell,\gamma^0)\to\KL(\gamma^*,\gamma^0)$, which is equivalent to $E(\alpha^\ell,\beta^\ell)$ converges to the maximum of $E$.
+The dual problem~\eqref{DROT} is invariant by translations of the form $(\alpha,\beta)\mapsto (\alpha-k,\beta+k)$, $k\in \IR$, but is otherwise strictly convex on any subspace which does not contain the line $\IR(\mathbf{1},-\mathbf{1})$ (this invariance cancels in the corresponding primal iterates). In order to deal with this invariance, consider the subspace $S$ of pairs of dual variables $(\alpha,\beta)$ that satisfy $\alpha_1=0$, let $\pi_S$ be the (non orthogonal) projection on $S$ of kernel $(\mathbf{1},-\mathbf{1})$ and let $(\alpha^*,\beta^*)\in S$ be a dual maximizer. 
+
+% 
+Since the SOR iteration it smooth, its local convergence is characterized by the local convergence of its linearized version, which corresponds to the SOR method applied to maximize the quadratic expansion of the dual objective $E$ at $(\alpha^*,\beta^*)$. This defines an affine map $M_\theta : (\alpha^{\ell},\beta^{\ell})\mapsto (\alpha^{\ell+1},\beta^{\ell+1})$ whose spectral properties are well known~\cite{ciarlet1982introduction, young2014iterative} (see also \cite[chapter 4]{chizat2017these} for the specific case of convex minimization). Specifically, in the non strictly concave case~\cite{hadjidimos1985optimization}, we have that the operator $\pi_S\circ M_1^\ell$ converges at the linear rate $1-\eta$ towards the projector on $(\alpha^*,\beta^*)$ and that the convergence of $\pi_S\circ M_\theta^\ell$ is guaranteed for $\theta \in ]0,2[$, with the rate 
+\[
+f(\theta,\eta) = \begin{cases}
+\theta-1 & \text{if $\theta$}\\
+\frac12 \theta^2(1-\eta) - (\theta-1) +\frac12 \sqrt{(1-\eta)\theta^2(\theta^2(1-\eta)-4(\theta-1))} & \text{otherwise.}
+\end{cases}
+\]
+where $\theta^*=2/(1+\sqrt{\eta})$ is the optimal parameter, for which $f(\theta,\eta)=(1-\sqrt{\eta})/(1+\sqrt{\eta})$. The function $f$ is plotted in Figure \ref{fig:eigtransform}.
+
+To switch from these dual convergence results to primal results, remark that $\gamma^\ell \to \gamma^*$ implies $\KL(\gamma^\ell,\gamma^0)\to \KL(\gamma^*,\gamma^0)$ which in turn implies $E(\alpha^\ell,\beta^\ell) \to \max E$ so invoking the partial strict concavity of $E$, $\pi_S(\alpha^\ell,\beta^\ell)\to (\alpha^*,\beta^*)$. The converse implication is direct. We conclude by noting that the fact that $\pi_S(\alpha^\ell, \beta^\ell)$ converges at a linear rate implies the same rate on $\gamma^\ell$, thanks to the relationship between the iterates.
+%Using standard arguments, we have that the local convergence rate of the SOR procedure on the dual objective $E$ is that of the SOR procedure applied to the quadratic form defined by its Hessian and the linear rate of \emph{semi-convergence} to the projection on the set of minimizers. 
+\end{proof}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.65]{images/eigen_transform}
+\caption{\label{fig:eigtransform} Local linear rate of convergence of the overrelaxed algorithm as a function of $1-\eta$, the local convergence rate of SK algorithm and $\theta$ the overrelaxation parameter. (plain curve) the original rate is recovered for $\theta=1$. (dashed curve) optimal overrelaxation parameter $\theta^*$.}
+\end{figure}
+
+%\begin{proposition}%\label{prop:local}
+%Let $1-\eta$ be the (worst case) local linear rate of convergence of the SK algorithm. By \cite{knight2008sinkhorn} we know that $\eta>0$. Then, for the optimal choice of parameter $\theta_0 = 2/(1+\sqrt{\eta})$, the overrelaxed projection algorithm converges locally linearly at a rate $(1-\sqrt{\eta})/(1+\sqrt{\eta})$.
+%\end{proposition}
+
+%Note that the local linear rate is also improved if $\theta_0$ is not the optimal choice, see \cite[chapter 5]{ciarlet1982introduction}, \cite[chapter 4]{chizat2017these}. 
+
 \begin{corollary}
-The preceding local convergence rate applies to Algorithm \ref{thm:algo}, where $\theta_0$ is the chosen ``target'' overrelaxation parameter.
+The previous local convergence analysis applies to Algorithm \ref{thm:algo}, where the local convergence rate is governed by the choice of the target extrapolation parameter $\theta_0$.
 \end{corollary}
 \begin{proof}
-For this proof we will adopt a dual point of view, where the overrelaxed projection method boils down to the well-known SOR method~\eqref{SORdual}  and relying on the characterization $\gamma^{\ell}=e^{\alpha^\ell/\epsilon}\gamma^0e^{\beta^\ell/\epsilon}$ where $(\alpha^\ell,\beta^\ell)$ are the SOR iterates, initialized by $(\alpha^0,\beta^0)=(0,0)$. Notice that the dual problem~\eqref{DROT} has an invariant subspace due to the invariance by translation $(\alpha,\beta)\mapsto (\alpha-k,\beta+k)$, $k\in \IR$, but is strictly convex in any subspace which does not contain this line. Also, this invariance disappears in the associated primal iterates. 
-
-The SOR procedure~\eqref{SORdual}, when applied to maximize a concave quadratic form, defines a linear map $M_\omega : (\alpha^{\ell},\beta^{\ell})\mapsto (\alpha^{\ell+1},\beta^{\ell+1})$ which spectral properties are well known~\cite{ciarlet1982introduction, young2014iterative} , even in the non strictly concave case~\cite{hadjidimos1985optimization}, where convergence is replaced by \emph{semi-convergence}, i.e.\ convergence to a nonzero linear map.
-
-Using standard arguments, we have that the local convergence rate of the SOR procedure on the dual objective $E$ is that of the SOR procedure applied to the quadratic form defined by its Hessian and the linear rate of \emph{semi-convergence} to the projection on the set of minimizers. 
+What we need to show is that eventually one always has $\Theta(\gamma^\ell)=\theta_0$. This can be seen from the quadratic Taylor expansion $\varphi_{\theta_0}(1+z)=z^2(\theta_0 -\theta_0^2/2)+ o(z^2)$, which shows that for any choice of $\theta_0<2$ there is a neighborhood of $1$ on which $\varphi_{\theta_0}(\cdot)$ is nonnegative.
 \end{proof}
 
 %If $(\alpha^*,\beta^*)$ is a solution of \eqref{DROT}, then all the other optimum can be written as $(\alpha^*+\kappa,\beta^*-\kappa)$, which means that the problem admits a unique solution, up to a translation with constant $\kappa\in\IR$.
@@ -452,7 +480,7 @@ Using standard arguments, we have that the local convergence rate of the SOR pro
     
 
 \section{Experimental results}
-We compare Algorithm~\ref{SOR} to SK in two very different settings.
+We compare Algorithm~\ref{SOR} to SK algorithm in two very different settings.
 In setting (a) we consider the domain $[0,1]$ discretized into $100$ samples and the squared Euclidean transport cost on this domain.
 The marginals are densities made of the sum of a base plateau of height $0.1$ and another plateau of heights and boundaries chosen uniformly in $[0,1]$, subsequently normalized.
 In setting (b) the cost is a $100\times 100$ random matrix with entries uniform in $[0,1]$ and the marginals are uniform.
@@ -472,6 +500,7 @@ Given an estimation of $1-\eta$, the local convergence rate of SK algorithm, we 
 \end{minipage}
 			\caption{\label{fig:comparison}Speed ratio of SK algorithm and its accelerated version Algorithm~\ref{SOR} w.r.t parameter $\epsilon$.}% (stopping criterion $\Vert u - u^* \Vert_\infty<10^{-6})$
 \end{figure}
+
 Figure~\ref{fig:comparison} displays the ratio of the number of iterations required to reach a precision of $10^{-6}$ on the dual variable $\alpha$ for SK algorithm and Algorithm \ref{SOR}. It is is worth noting that the complexity per iteration is the same, modulo negligible terms, so this ratio is also the runtime ratio (our algorithm can also be parallelized on GPUs just as SK algorithm). In both experimental settings, for low values of the regularization parameter $\epsilon$, the acceleration ratio is above $20$  with Algorithm \ref{SOR}.
 
 %\renewcommand{\algorithmiccomment}[1]{\hfill\bgroup(#1)\egroup}
