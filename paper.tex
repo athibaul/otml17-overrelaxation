@@ -40,7 +40,7 @@
 \newtheorem{example}{Example}
 
 
-\title{Over-relaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
+\title{Overrelaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
 
 %
 \author{
@@ -85,7 +85,7 @@ Talence, France\\
 
 \begin{abstract}
 This article describes a method for quickly computing the solution to the regularized optimal transport problem. It generalizes and improves upon the widely-used iterative Bregman projections algorithm (or Sinkhorn--Knopp algorithm). 
-The idea is to over-relax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
+The idea is to overrelax the Bregman projection operators, allowing for faster convergence. In practice this corresponds to elevating the diagonal scaling factors to a given power, at each step of the algorithm.
 We propose a simple method for establishing global convergence by ensuring the decrease of a Lyapunov function at each step.
 An adaptive choice of overrelaxation parameter based on the Lyapunov function is constructed.
 We also suggest a heuristic to choose a suitable asymptotic overrelaxation parameter, based on a local convergence analysis. Our numerical experiments show a gain in convergence speed by an order of magnitude in certain regimes.
@@ -243,7 +243,7 @@ Convergence of the successive overrelaxed projections is not guaranteed in gener
 F(\gamma) = \KL(\gamma^*, \gamma),
 \end{equation}
 where $\gamma^*$ denotes the solution of the regularized OT problem. We will use this function to enforce the strict descent criterion $F(\gamma^{\ell+1}) < F(\gamma^\ell)$ as long as the process has not converged.
-%
+
 The choice of \eqref{eq:lyapunov_function} as a Lyapunov function is of course related to the fact that Bregman projections are used throughout the algorithm. Further, we will show (Lemma \ref{lemma:lyapunov_decrease}) that its decrease is very easy to compute and this descent criterion still allows enough freedom in the choice of the overrelaxation parameter.
 
 Crucial properties of this Lyapunov function are gathered in the next lemma.
