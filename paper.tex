@@ -251,7 +251,7 @@ Crucial properties of this Lyapunov function are gathered in the next lemma.
 	For any $M \in \IR_+^*$, the sublevel set $\left\{ \gamma \mid F(\gamma) \le M \right\}$ is compact.
 %\end{lemma}
 %\begin{lemma}
-	Moreover, for $\gamma$ in $\IR^{mn}_{+*}$, the decrease of the Lyapunov function after an overrelaxed projection can be computed as
+	Moreover, for any $\gamma$ in $\IR^{mn}_{+*}$, the decrease of the Lyapunov function after an overrelaxed projection can be computed as
 	\begin{equation} \label{eq:kl_diff_scal}
 	F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma)) = 
 	\scal{\mu^k}{\varphi_\omega \left((A_k \gamma) \oslash \mu^k \right)},
@@ -267,14 +267,14 @@ Crucial properties of this Lyapunov function are gathered in the next lemma.
 The fact that the Kullback-Leibler divergence is jointly lower semicontinuous implies in particular that $K$ is closed. Moreover, $K\subset \mathbb{R}^{n_1\times n_2}_+$ is bounded because $F$ is the sum of nonnegative, coercive functions of each component of its argument $\gamma$.
 %\end{proof}
 %\begin{proof}
-%
+
 Formula \eqref{eq:kl_diff_scal} comes the expression $F(\gamma^1)-F(\gamma^2)= \sum_{i,j}\left(\gamma^*_{i,j}\log(\gamma^2_{i,j}/\gamma^1_{i,j})+\gamma^1_{i,j}-\gamma^2_{i,j}\right)$ and the relations \eqref{eq:def_or_proj} and \eqref{scaling}.
 \end{proof}
 
 
 %Note that the difference $F(\gamma) - F(P^\omega_{\Ccal_k}(\gamma))$ may be calculated without knowing $\gamma^*$, as shown by the following lemma.
 
-It follows from Lemma \ref{lemma:lyapunov_decrease} that the decrease of $F$ for an overrelaxed projection is very cheap to estimate, since its computational cost is linear with respect to the dimension of data $\mu^k$. In Figure \ref{phi_omega}, we display the function  $\varphi_\omega(x)$. Notice that for the SK algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always nonnegative. For other values $1\le\omega<2$, it is nonnegative for $x$ close to 1.
+It follows from Lemma \ref{lemma:lyapunov_decrease} that the decrease of $F$ for an overrelaxed projection is very cheap to estimate, since its computational cost is linear with respect to the dimension of data $\mu^k$. In Figure \ref{phi_omega}, we display the function  $\varphi_\omega(x)$. Notice that for the Sinkhorn--Knopp algorithm, which corresponds to $\omega=1$, the function $\varphi_\omega$ is always nonnegative. For other values $1\le\omega<2$, it is nonnegative for $x$ close to 1.
 
 \begin{figure}[ht!]
 \begin{center}
@@ -394,7 +394,7 @@ Looking at Figure~\ref{phi_omega} can help understand this proof.	Since the part
 	Constraining the parameter to $[1,\theta_0]$ preserves this property.% as using $\theta=1$ always satisfies inequality \eqref{eq:cond_theta_k} and using $\theta=\theta_0$ when it is smaller than $\Theta^*\left(\frac{A_k \gamma}{\mu^k}\right)$ does as well.
 \end{proof}
 
-The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which decreasing is as can be seen on Figure~\ref{phi_omega}. Note that with the choice $\theta_0=1$, one recovers exactly the original SK algorithm.
+The resulting algorithm, which is proved to be convergent by Theorem~\ref{thm:algo}, is written in pseudo-code in Algorithm \ref{SOR}. It uses the function $\Theta$ defined implicitly in \eqref{eq:Theta}, which in practice is approximated with a few iterations of Newton's method on the function $\omega \mapsto \varphi_\omega(\min u)$ which decreasing is as can be seen on Figure~\ref{phi_omega}. With the choice $\theta_0=1$, one recovers exactly the original SK algorithm.
 
 \begin{algorithm}
 \caption{Overrelaxed SK algorithm }
