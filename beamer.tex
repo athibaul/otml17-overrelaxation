@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[compress]{beamer}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -118,6 +118,7 @@ very small $\eta$ $\Longrightarrow$
 slow convergence
 \end{frame}
 
+\subsection{Overrelaxation}
 \begin{frame}{Overrelaxation}
 Bregman projection $\Longleftrightarrow$ scaling of rows/columns
 \begin{align}\label{scaling}
@@ -135,24 +136,87 @@ P_{\Ccal_2}(\gamma) &= \gamma \diag(b)^\theta \nonumber
 (element-wise exponentiation)
 \end{frame}
 
+\begin{frame}{Behavior}
+\centering
+\input{schema_c.tex}\\
+Typically take $\theta \in [1,2)$.
+\end{frame}
+
+\section{Ensuring convergence}
+
+\iffalse
+\subsection[Local rate]{Local rate of convergence}
+
 \begin{frame}{Local study}
-\begin{columns}
-	\begin{column}{0.4\textwidth}
-		\centering
-		\input{schema_c.tex}\\
-		Typically take $\theta \in [1,2)$.
-	\end{column}
-	\begin{column}{0.6\textwidth}
-		\pause
-		Overrelaxation modifies each eigenvalue of $D_{\gamma^*}(P_{\Ccal_1} \circ P_{\Ccal_2})$.
+		Overrelaxation modifies each eigenvalue of $D_{\gamma^*}(P^\theta_{\Ccal_1} \circ P^\theta_{\Ccal_2})$.
 		\begin{center}
 			\includegraphics[width=6cm]{images/eigen_transform.png}
 		\end{center}
 		\pause
-		Optimal parameter~: $\theta^* = \frac{2}{1+\sqrt{\eta}}$
-	\end{column}
-\end{columns}
+		Optimal parameter~: $\theta^* = \frac{2}{1+\sqrt{\eta}}$\\
+		\pause
+		Linear convergence rate~: $\frac{1-\sqrt{\eta}}{1+\sqrt{\eta}} \sim 1-2\sqrt{\eta}$
 \end{frame}
+\fi
+
+\subsection{Lyapunov function}
+\begin{frame}{Ensuring global convergence}
+Lyapunov function~:
+\[F(\gamma) := \KL(\gamma^*,\gamma)\]
+\pause
+Does not always decrease for $\theta \in [1,2)$, but~:
+\begin{itemize}
+	\item makes sense
+	\item easy calculation of differences
+	\item decreases for \emph{most} $\theta \in [1,2)$ in practice
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Algorithm}
+Choose $\theta_1(\gamma)$, $\theta_2(\gamma)$ continuous functions, such that
+\begin{equation}\label{eq:cond_theta_k}
+\forall \gamma \notin \Ccal_k,\quad
+F(P_{\Ccal_k}^{\theta_k(\gamma)}(\gamma)) < F(\gamma),
+\end{equation}
+and alternatively iterate $P_{\Ccal_1}^{\theta_1}$ and $P_{\Ccal_2}^{\theta_2}$, starting from $\gamma^0 = e^{-c/\epsilon}$.\\
+
+\begin{theorem}
+	This process converges to $\gamma^*$.
+\end{theorem}
+\end{frame}
+
+\begin{frame}{Properties of the Lyapunov function}
+Calculating differences~:
+\begin{equation} \label{eq:kl_diff_scal}
+F(\gamma) - F(P^\theta_{\Ccal_k}(\gamma)) = 
+\scal{\mu^k}{\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)},
+\end{equation}
+where
+\begin{equation}
+\varphi_\theta(x) = x(1-x^{-\theta}) - \theta \log x
+\end{equation}
+is a real function, applied coordinate-wise.
+\end{frame}
+
+\subsection{Construction of $\theta_k$}
+\begin{frame}{Ensuring the decrease}
+\begin{center}
+	\includegraphics[width=5cm]{images/cvgce_zone_2.png}\\
+	Function $\varphi_\theta(x)$ is positive above the red line, negative below.
+\end{center}
+\pause
+Simple solution~: ensuring every coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ is strictly positive.
+\pause
+\begin{align*}
+\Theta^*(u) &:= \max \left\{\theta \mid \varphi_\theta(u) \ge 0 \right\}
+&
+\Theta(u) &:= clip_{[1,\theta_0]}(\Theta^*(u)-\delta)
+\end{align*}
+\[
+\theta_k (\gamma) := \Theta((A_k \gamma) \oslash \mu^k)
+\]
+\end{frame}
+
 
 
 \end{document}
