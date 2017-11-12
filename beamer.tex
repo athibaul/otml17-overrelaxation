@@ -1,0 +1,158 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{xcolor} % Pour colorer des symboles dans les équations
+\usepackage{bbm}
+
+\usepackage{tikz}
+\usepackage{cite}
+
+% Math operators
+\newcommand{\scal}[2]{\left\langle #1 , #2 \right\rangle}
+\DeclareMathOperator{\IR}{\mathbb{R}}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator{\One}{\mathbbm{1}}
+\DeclareMathOperator{\Ccal}{\mathcal{C}}
+\DeclareMathOperator{\logsumexp}{logsumexp}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\KL}{KL}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\renewcommand{\epsilon}{\varepsilon}
+
+\title[Overrelaxed Sinkhorn--Knopp]{Overrelaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
+
+%
+\author[A. THIBAULT]{
+	Alexis THIBAULT, 
+	L\'ena\"ic CHIZAT,\\
+	Charles DOSSAL,
+	Nicolas PAPADAKIS
+}
+\institute[OTML'17]{Optimal Transport and Machine Learning workshop \\ NIPS 2017}
+\date{December 9, 2017}
+
+\usetheme{Warsaw}
+
+
+\begin{document}
+
+\titlepage
+
+\begin{frame}
+\tableofcontents
+\end{frame}
+
+\section[Overrelaxing SK]{Overrelaxing the Sinkhorn--Knopp algorithm}
+
+\subsection[SK algorithm]{The Sinkhorn--Knopp algorithm}
+\begin{frame}{Regularized optimal transport}
+Entropic regularization of optimal transport~:
+\[
+\gamma^* = \argmin_{\gamma \in \IR^{n_1 n_2}_+ \cap \Ccal_1 \cap \Ccal_2}
+	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One)
+\]
+\pause
+Constraint sets~:
+\begin{align}
+\Ccal_1 &= \left\{ \gamma \mid A_1 \gamma = \mu^1 \right\},
+&
+\Ccal_2 &= \left\{ \gamma \mid A_2 \gamma = \mu^2 \right\}.
+\end{align}
+\pause
+Kullback--Leibler divergence~:
+\begin{equation}\label{KL}
+\KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}
+\end{equation}
+\end{frame}
+
+
+\begin{frame}{Sinkhorn--Knopp algorithm}
+\begin{columns}
+\begin{column}{0.6\textwidth}
+	
+Bregman/Kullback-Leibler projection~:
+\[
+P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi).
+\]
+\pause
+\begin{align*}
+\gamma^0 &= e^{-c/\epsilon},\\
+\gamma^* &= P_{\Ccal_1 \cap \Ccal_2}(\gamma^0).
+\end{align*}
+\pause
+Sinkhorn--Knopp algorithm (SK)~:
+\[
+\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
+\]
+\end{column}
+
+\begin{column}{0.4\textwidth}
+	\centering
+	\input{schema_a.tex}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Limits of the SK algorithm}
+Linear convergence rate $1-\eta$, $\eta > 0$.
+
+\begin{columns}
+	\begin{column}{0.5\textwidth}
+		\centering
+		\input{schema_a.tex}\\
+		Large $\epsilon$
+	\end{column}
+	\begin{column}{0.5\textwidth}
+		\centering
+		\input{schema_b.tex}\\
+		Small $\epsilon$
+	\end{column}
+\end{columns}
+
+Small $\epsilon$ $\Longrightarrow$
+very small $\eta$ $\Longrightarrow$
+slow convergence
+\end{frame}
+
+\begin{frame}{Overrelaxation}
+Bregman projection $\Longleftrightarrow$ scaling of rows/columns
+\begin{align}\label{scaling}
+P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
+a &=  {\mu^1}\oslash{A_1 \gamma} \\
+P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &\text{with}\quad
+b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
+\end{align}
+\pause
+Overrelaxed projections of parameter $\theta \in \IR$~:
+\begin{align}\label{or_scaling}
+P_{\Ccal_1}(\gamma) &= \diag(a)^\theta \gamma\\
+P_{\Ccal_2}(\gamma) &= \gamma \diag(b)^\theta \nonumber
+\end{align}
+(element-wise exponentiation)
+\end{frame}
+
+\begin{frame}{Local study}
+\begin{columns}
+	\begin{column}{0.4\textwidth}
+		\centering
+		\input{schema_c.tex}\\
+		Typically take $\theta \in [1,2)$.
+	\end{column}
+	\begin{column}{0.6\textwidth}
+		\pause
+		Overrelaxation modifies each eigenvalue of $D_{\gamma^*}(P_{\Ccal_1} \circ P_{\Ccal_2})$.
+		\begin{center}
+			\includegraphics[width=6cm]{images/eigen_transform.png}
+		\end{center}
+		\pause
+		Optimal parameter~: $\theta^* = \frac{2}{1+\sqrt{\eta}}$
+	\end{column}
+\end{columns}
+\end{frame}
+
+
+\end{document}
