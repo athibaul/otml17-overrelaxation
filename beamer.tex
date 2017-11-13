@@ -23,7 +23,9 @@
 \newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
 \renewcommand{\epsilon}{\varepsilon}
 
-\title[Overrelaxed Sinkhorn--Knopp]{Overrelaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
+\newtheorem{proposition}{Proposition}
+
+\title[Overrelaxed SK Algorithm]{Overrelaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport}
 
 %
 \author[A. THIBAULT]{
@@ -35,7 +37,7 @@
 \institute[OTML'17]{Optimal Transport and Machine Learning workshop \\ NIPS 2017}
 \date{December 9, 2017}
 
-\usetheme{Warsaw}
+\usetheme{CambridgeUS}
 
 
 \begin{document}
@@ -43,7 +45,10 @@
 \titlepage
 
 \begin{frame}
+Accelerate the Sinkhorn--Knopp algorithm + ensure global convergence.
 \tableofcontents
+% We'll be looking at a way of accelerating an algorithm, called the SK algorithm, whose goal is to calculate the solution of the regularized optimal transport problem. The principle of overrelaxation has been shown to successfully accelerate this algorithm. However, there is no proof in the literature that the proposed algorithm always converges, and no automated choice of parameters.
+% In our paper, we suggest a way of ensuring global convergence. This is done simply by choosing the overrelaxation parameters at each step of the algorithm so that a given function decreases. We will motivate our choice of function with numerical results.
 \end{frame}
 
 \section[Overrelaxing SK]{Overrelaxing the Sinkhorn--Knopp algorithm}
@@ -51,43 +56,58 @@
 \subsection[SK algorithm]{The Sinkhorn--Knopp algorithm}
 \begin{frame}{Regularized optimal transport}
 Entropic regularization of optimal transport~:
-\[
+\begin{equation} \label{eq:problem}
 \gamma^* = \argmin_{\gamma \in \IR^{n_1 n_2}_+ \cap \Ccal_1 \cap \Ccal_2}
 	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One)
-\]
+\end{equation}
 \pause
 Constraint sets~:
-\begin{align}
+\begin{align*}
 \Ccal_1 &= \left\{ \gamma \mid A_1 \gamma = \mu^1 \right\},
 &
 \Ccal_2 &= \left\{ \gamma \mid A_2 \gamma = \mu^2 \right\}.
-\end{align}
+\end{align*}
 \pause
 Kullback--Leibler divergence~:
-\begin{equation}\label{KL}
+\begin{equation*}\label{KL}
 \KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}
-\end{equation}
+\end{equation*}
 \end{frame}
 
 
-\begin{frame}{Sinkhorn--Knopp algorithm}
-\begin{columns}
-\begin{column}{0.6\textwidth}
+\begin{frame}{Bregman projections}
 	
-Bregman/Kullback-Leibler projection~:
+Bregman projection onto $\Ccal$~:
 \[
 P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi).
 \]
 \pause
 \begin{align*}
-\gamma^0 &= e^{-c/\epsilon},\\
-\gamma^* &= P_{\Ccal_1 \cap \Ccal_2}(\gamma^0).
+\gamma^0 &= e^{-c/\epsilon},&
+\text{(\ref{eq:problem})} \Longleftrightarrow
+\gamma^* &= P_{\Ccal_1 \cap \Ccal_2}(\gamma^0)
 \end{align*}
 \pause
-Sinkhorn--Knopp algorithm (SK)~:
-\[
-\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
-\]
+Bregman projection onto $\Ccal_1$ or $\Ccal_2$ $\Longleftrightarrow$ scaling of rows or columns
+\begin{align*}\label{scaling}
+P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
+a &=  {\mu^1}\oslash{A_1 \gamma} \\
+P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &\text{with}\quad
+b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
+\end{align*}
+
+\end{frame}
+
+\begin{frame}{Sinkhorn--Knopp algorithm}
+	
+	\begin{columns}
+	\begin{column}{0.6\textwidth}
+
+	Sinkhorn--Knopp algorithm (SK)~:
+	\[
+	\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
+	\]
+	
 \end{column}
 
 \begin{column}{0.4\textwidth}
@@ -120,27 +140,24 @@ slow convergence
 
 \subsection{Overrelaxation}
 \begin{frame}{Overrelaxation}
-Bregman projection $\Longleftrightarrow$ scaling of rows/columns
-\begin{align}\label{scaling}
-P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
-a &=  {\mu^1}\oslash{A_1 \gamma} \\
-P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &\text{with}\quad
-b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
-\end{align}
-\pause
-Overrelaxed projections of parameter $\theta \in \IR$~:
-\begin{align}\label{or_scaling}
-P_{\Ccal_1}(\gamma) &= \diag(a)^\theta \gamma\\
-P_{\Ccal_2}(\gamma) &= \gamma \diag(b)^\theta \nonumber
-\end{align}
-(element-wise exponentiation)
+	\begin{columns}
+		\begin{column}{0.6\textwidth}
+			Overrelaxed projections of parameter $\theta \in \IR$~:
+			\begin{align}\label{or_scaling}
+			P_{\Ccal_1}^\theta(\gamma) &= \diag(a)^\theta \gamma\\
+			P_{\Ccal_2}^\theta(\gamma) &= \gamma \diag(b)^\theta \nonumber
+			\end{align}
+			(element-wise exponentiation)
+		\end{column}
+		\begin{column}{0.4\textwidth}
+			\centering
+			\input{schema_c.tex}\\
+			Typically take $\theta \in [1,2)$.
+		\end{column}
+	\end{columns}
 \end{frame}
 
-\begin{frame}{Behavior}
-\centering
-\input{schema_c.tex}\\
-Typically take $\theta \in [1,2)$.
-\end{frame}
+
 
 \section{Ensuring convergence}
 
@@ -159,30 +176,37 @@ Typically take $\theta \in [1,2)$.
 \end{frame}
 \fi
 
-\subsection{Lyapunov function}
-\begin{frame}{Ensuring global convergence}
-Lyapunov function~:
-\[F(\gamma) := \KL(\gamma^*,\gamma)\]
-\pause
-Does not always decrease for $\theta \in [1,2)$, but~:
-\begin{itemize}
-	\item makes sense
-	\item easy calculation of differences
-	\item decreases for \emph{most} $\theta \in [1,2)$ in practice
-\end{itemize}
-\end{frame}
+
 
 \begin{frame}{Algorithm}
+How to ensure global convergence?
+\pause
+\begin{proposition}
+Choose $F(\gamma)$ continuous function whose unique minimizer is $\gamma^*$.\\
 Choose $\theta_1(\gamma)$, $\theta_2(\gamma)$ continuous functions, such that
 \begin{equation}\label{eq:cond_theta_k}
 \forall \gamma \notin \Ccal_k,\quad
-F(P_{\Ccal_k}^{\theta_k(\gamma)}(\gamma)) < F(\gamma),
+F(P_{\Ccal_k}^{\theta_k(\gamma)}(\gamma)) < F(\gamma).
 \end{equation}
-and alternatively iterate $P_{\Ccal_1}^{\theta_1}$ and $P_{\Ccal_2}^{\theta_2}$, starting from $\gamma^0 = e^{-c/\epsilon}$.\\
+\pause
+Alternatively iterate $P_{\Ccal_1}^{\theta_1}$ and $P_{\Ccal_2}^{\theta_2}$, starting from $\gamma^0 = e^{-c/\epsilon}$.\\
+This process converges to $\gamma^*$.
+\end{proposition}
+\end{frame}
 
-\begin{theorem}
-	This process converges to $\gamma^*$.
-\end{theorem}
+\subsection{Lyapunov function}
+\begin{frame}{Ensuring global convergence}
+	Our choice of Lyapunov function~:
+	\[F(\gamma) := \KL(\gamma^*,\gamma)\]
+	\pause
+	
+	Motivation of this arbitrary choice~:
+	\begin{itemize}
+		\item makes sense
+		\item easy calculation of differences
+		\item decreases for \emph{most} $\theta \in [1,2)$ in practice
+	\end{itemize}
+	
 \end{frame}
 
 \begin{frame}{Properties of the Lyapunov function}
@@ -198,7 +222,7 @@ where
 is a real function, applied coordinate-wise.
 \end{frame}
 
-\subsection{Construction of $\theta_k$}
+\subsection[Choice of OR parameters]{Choice of overrelaxation parameters}
 \begin{frame}{Ensuring the decrease}
 \begin{center}
 	\includegraphics[width=5cm]{images/cvgce_zone_2.png}\\
