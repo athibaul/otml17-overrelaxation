@@ -62,7 +62,7 @@
 \begin{frame}{Regularized optimal transport}
 Entropic regularization of optimal transport:
 \begin{equation*} \label{eq:problem}
-\gamma^* = \argmin_{\gamma \in \IR^{n_1 n_2}_+ \cap \Ccal_1 \cap \Ccal_2}
+\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
 	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One)
 \end{equation*}
 \pause
@@ -89,7 +89,7 @@ P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi).
 \pause
 Setting $\gamma^0 = e^{-c/\epsilon}$:
 \begin{align*}
-\gamma^* = \argmin_{\gamma \in \IR^{n_1 n_2}_+ \cap \Ccal_1 \cap \Ccal_2}
+\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
 	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One)
 \Longleftrightarrow
 \gamma^* &= P_{\Ccal_1 \cap \Ccal_2}(\gamma^0)
@@ -236,19 +236,49 @@ is a real function, applied coordinate-wise.
 	{\small \em Function $\varphi_\theta(x)$ is positive above the red line, negative below.}
 \end{center}
 \pause
-\begin{itemize}
-\item Sufficient condition: the smallest  coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ is strictly positive
-\pause
-\begin{align*}
-\Theta^*(u) &:= \max \left\{\theta \mid \varphi_\theta(u) \ge 0 \right\}
-&
-\Theta(u) &:= clip_{[1,\theta_0]}(\Theta^*(\min u)-\delta)
-\end{align*}
-\[
-\theta_k (\gamma) := \Theta((A_k \gamma) \oslash \mu^k)
-\]
-\pause
-\item $1$D problem of negligible computational cost
-\end{itemize}
+Sufficient condition: ensure that the smallest  coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ is strictly positive
 \end{frame}
+
+\begin{frame}{Advantages of this choice}
+	\begin{align*}
+	\Theta^*(u) &:= \max \left\{\theta \mid \varphi_\theta(u) \ge 0 \right\}
+	&
+	\Theta(u) &:= clip_{[1,\theta_0]}(\Theta^*(\min u)-\delta)
+	\end{align*}
+	\[
+	\theta_k (\gamma) := \Theta((A_k \gamma) \oslash \mu^k)
+	\]
+	\pause
+	\begin{itemize}
+		\item Easy calculations (1-D monotone problem for $\Theta^*$)
+		\item Excellent choice in practice
+		\item Possibility to choose the final parameter $\theta_0$
+	\end{itemize}
+	\pause
+	If SK converges at rate $1-\eta$, $\theta_0 = \frac{2}{1+\sqrt{\eta}}$ is asymptotically optimal.
+\end{frame}
+
+\section{Numerical results}
+\begin{frame}{Numerical results}
+	\begin{itemize}
+	\item Speed comparison with SK, on problems of size $100 \times 100$, for various~$\epsilon$\\
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/speedratio_image}\\
+			\footnotesize Euclidean 1-D cost, random marginals
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{images/speedratio_ML}\\
+			\footnotesize  Random cost, uniform marginals
+		\end{column}
+	\end{columns}
+	\item About 2 to 30 times faster in most cases
+	\end{itemize}
+\end{frame}
+
+
+
+
 \end{document}
