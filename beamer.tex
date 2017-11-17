@@ -47,8 +47,8 @@
 \begin{frame}
 {Context} 
 \begin{itemize}
-\item Fast computation of regularized Optimal Transport with the Sinkhorn--Knopp algorithm  {\color{blue}[Cuturi, 2013]}
-\item Slower algorithm for small values of the regularization parameter $\epsilon$
+\item Fast computation of regularized Optimal Transport with the Sinkhorn--Knopp algorithm (SK) {\color{blue}[Cuturi, 2013]}
+\item Slower for small regularization $\epsilon$
 \end{itemize}
 \uncover<2>{
 \tableofcontents}
@@ -89,9 +89,9 @@ P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi).
 \pause
 Setting $\gamma^0 = e^{-c/\epsilon}$:
 \begin{align*}
-\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
+\gamma^* &= \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
 	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One)
-\Longleftrightarrow
+& &\Longleftrightarrow &
 \gamma^* &= P_{\Ccal_1 \cap \Ccal_2}(\gamma^0)
 \end{align*}
 \pause
@@ -150,10 +150,10 @@ slow convergence
 	\begin{columns}
 		\begin{column}{0.6\textwidth}
 			Overrelaxed projections of parameter $\theta \in \IR$:
-			\begin{align}\label{or_scaling}
+			\begin{align*}\label{or_scaling}
 			P_{\Ccal_1}^\theta(\gamma) &= \diag(a)^\theta \gamma\\
 			P_{\Ccal_2}^\theta(\gamma) &= \gamma \diag(b)^\theta \nonumber
-			\end{align}
+			\end{align*}
 			(element-wise exponentiation)
 		\end{column}
 		\begin{column}{0.4\textwidth}
@@ -189,12 +189,12 @@ slow convergence
 How to ensure global convergence?
 \pause
 \begin{proposition}
-Choose $F(\gamma)$ continuous function whose unique minimizer is $\gamma^*$.\\
+Choose $F(\gamma)$ continuous, coercive function whose unique minimizer is $\gamma^*$.\\
 Choose $\theta_1(\gamma)$, $\theta_2(\gamma)$ continuous functions, such that
-\begin{equation}\label{eq:cond_theta_k}
+\begin{equation*}\label{eq:cond_theta_k}
 \forall \gamma \notin \Ccal_k,\quad
 F(P_{\Ccal_k}^{\theta_k(\gamma)}(\gamma)) < F(\gamma).
-\end{equation}
+\end{equation*}
 \pause
 Alternatively iterate $P_{\Ccal_1}^{\theta_1}$ and $P_{\Ccal_2}^{\theta_2}$, starting from $\gamma^0 = e^{-c/\epsilon}$.\\
 This process converges to $\gamma^*$.
@@ -209,34 +209,38 @@ This process converges to $\gamma^*$.
 	
 	Motivation of this arbitrary choice:
 	\begin{itemize}
-		\item makes sense
-		\item easy calculation of differences
-		\item decreases for \emph{most} $\theta \in [1,2)$ in practice
+		\item Makes sense
+		% Verifies properties
+		% + In the Bregman context, it is not absurd to consider this function. Decreases when performing simple Bregman projections.
+		\item Easy calculation of differences % between the evaluation on a point and on its projection
+		\item Decreases for \emph{most} $\theta \in [1,2)$ in practice % Allows to choose rather large overrelaxation parameters
 	\end{itemize}
 	
 \end{frame}
 
 \begin{frame}{Properties of the Lyapunov function}
 Calculating differences:
-\begin{equation} \label{eq:kl_diff_scal}
+\begin{equation*} \label{eq:kl_diff_scal}
 F(\gamma) - F(P^\theta_{\Ccal_k}(\gamma)) = 
 \scal{\mu^k}{\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)},
-\end{equation}
+\end{equation*}
 where
-\begin{equation}
+\begin{equation*}
 \varphi_\theta(x) = x(1-x^{-\theta}) - \theta \log x
-\end{equation}
+\end{equation*}
 is a real function, applied coordinate-wise.
 \end{frame}
 
 \subsection[Choice of OR parameters]{Choice of overrelaxation parameters}
 \begin{frame}{Ensuring the decrease}
 \begin{center}
-	\vspace*{-0.2cm}\includegraphics[width=4.5cm]{images/cvgce_zone_2.png}\vspace{-0.2cm}\\
+	\vspace*{-0.2cm}\includegraphics[height=5cm]{images/cvgce_zone_2.png}\vspace{-0.2cm}\\
 	{\small \em Function $\varphi_\theta(x)$ is positive above the red line, negative below.}
 \end{center}
 \pause
-Sufficient condition: ensure that the smallest  coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ is strictly positive
+\begin{block}{Sufficient condition}
+	If every coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ is strictly positive, then $F$ decreases.
+\end{block}
 \end{frame}
 
 \begin{frame}{Advantages of this choice}
@@ -248,6 +252,10 @@ Sufficient condition: ensure that the smallest  coordinate of $\varphi_\theta \l
 	\[
 	\theta_k (\gamma) := \Theta((A_k \gamma) \oslash \mu^k)
 	\]
+	
+	\begin{block}{Remark}
+		Vector $(A_k \gamma)\oslash \mu^k$ is calculated once whenever performing a projection.
+	\end{block}
 	\pause
 	\begin{itemize}
 		\item Easy calculations (1-D monotone problem for $\Theta^*$)
@@ -255,7 +263,9 @@ Sufficient condition: ensure that the smallest  coordinate of $\varphi_\theta \l
 		\item Possibility to choose the final parameter $\theta_0$
 	\end{itemize}
 	\pause
-	If SK converges at rate $1-\eta$, $\theta_0 = \frac{2}{1+\sqrt{\eta}}$ is asymptotically optimal.
+	\begin{block}{Optimal parameter}
+		If SK converges at rate $1-\eta$, then $\theta_0 = \frac{2}{1+\sqrt{\eta}}$ is asymptotically optimal.
+	\end{block}
 \end{frame}
 
 \section{Numerical results}
@@ -274,11 +284,22 @@ Sufficient condition: ensure that the smallest  coordinate of $\varphi_\theta \l
 			\footnotesize  Random cost, uniform marginals
 		\end{column}
 	\end{columns}
+	\vspace{0.2cm}
 	\item About 2 to 30 times faster in most cases
 	\end{itemize}
 \end{frame}
 
 
+\section*{Conclusion}
+\begin{frame}{Conclusion}
+	\begin{itemize}
+		\item Overrelaxation
+		\item Global convergence
+		\item Adaptive choice of parameters
+		\item Efficient, especially for small $\epsilon$
+		\item Generalizable (multi-marginal, barycenters, gradient flow)
+	\end{itemize}
+\end{frame}
 
 
 \end{document}
