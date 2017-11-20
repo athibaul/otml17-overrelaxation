@@ -19,7 +19,7 @@
 %----------------------------------------------------------------------------------------
 
 \documentclass[portrait,a0paper,fontscale=0.35]{baposter} % Adjust the font scale/size here : fontscale=0.285
-\usepackage{textpos}
+%\usepackage{textpos}
 \usepackage[frenchb]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -36,15 +36,15 @@
 \usepackage{multicol} % Required for multiple columns
 \usepackage{tikz} % Required for flow chart
 \usetikzlibrary{shapes,arrows} % Tikz libraries required for the flow chart in the template
-\usepackage{dsfont}
-\usepackage{listings}
+%\usepackage{dsfont}
+%\usepackage{listings}
 \usepackage{subfigure}
 \usepackage{color}
-\usepackage{nth}
-\usepackage{a4wide}
+%\usepackage{nth}
+%\usepackage{a4wide}
 \usepackage{graphicx,color}
 \usepackage{array}
-\usepackage[nottoc, notlof, notlot]{tocbibind}
+%\usepackage[nottoc, notlof, notlot]{tocbibind}
 \usepackage{subfigure}
 \usetikzlibrary{arrows,shapes,positioning,calc}
 %\definecolor{CPU}{RGB}{30, 167, 223}
@@ -52,12 +52,12 @@
 \definecolor{gris}{gray}{0.9}
 \usepackage{geometry}
 \geometry{left=0.5cm,right=0.5cm,bottom=0.5cm,top=0.5cm,centering}
-\usepackage{subfig}
+%\usepackage{subfig}
 \usepackage{float}
 \usepackage{multicol}
 \usepackage{enumitem,rotating}
 \usepackage{bbm}
-\usepackage{wrapfig}
+%\usepackage{wrapfig}
 
 
 \newcommand{\sidecap}[1]{ {\begin{sideways}\parbox{0.2\textwidth}{\centering #1}\end{sideways}} }
@@ -142,16 +142,21 @@ columns=2,
 % Introduction
 
 \headerbox{Introduction}{name=intro,column=0}{
-	Optimal Transport is an efficient and flexible tool to compare two probability distributions. It has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn--Knopp algorithm \cite{sinkhorn64} scaling with high dimensional data.\\
-	\begin{minipage}{0.49\textwidth}
+	Optimal Transport is an efficient and flexible tool to compare two probability distributions. It has been popularized in the computer vision community in the context of discrete histograms [Rubner, 2000]. The introduction of entropic regularization in [Cuturi, 2013] has made possible the use of the fast Sinkhorn--Knopp algorithm (SK) [Sinkhorn, 1964c] scaling with high dimensional data.\\
 	\begin{center}
-		\includegraphics[width=5cm]{schema_c}
+		\begin{tabular}{c c c c}
+		\includegraphics[height=3cm]{1d_interp_mu} &
+		\includegraphics[height=3cm]{1d_interp_0_2} &
+		\includegraphics[height=3cm]{1d_interp_2} &
+		\includegraphics[height=3cm]{1d_interp_18} \\
+		&
+		$\epsilon = 5$ &
+		$\epsilon = 0.5$ &
+		$\epsilon = 0.02$
+		\end{tabular}
+	\captionof{figure}{Regularized optimal transport maps for decreasing regularization parameter $\epsilon$.}
 	\end{center}
-	\caption{A wrapped figure going nicely inside the text.}\label{wrap-fig:1}
-	\end{minipage}
-	\begin{minipage}{0.49\textwidth}
-		Optimal Transport is an efficient and flexible tool to compare two probability distributions. It has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn--Knopp algorithm \cite{sinkhorn64} scaling with high dimensional data.
-	\end{minipage}
+	For small regularization $\epsilon$, the SK algorithm becomes extremely slow. To counter this, we propose a new algorithm that accelerates SK by \emph{overrelaxation}.
 }
 
 
@@ -160,11 +165,29 @@ columns=2,
 %----------------------------------------------------------------------------------------
 
 \headerbox{Sinkhorn-Knopp Algorithm}{name=Sinkhorn,column=0,below=intro}{
-	We aim at numerically solving the entropic regularization of optimal transport~:
+	We aim at numerically solving the entropic regularization of optimal transport:
 	\begin{equation} \label{eq:problem}
 	\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
-	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One)
+	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One).
 	\end{equation}
+	In this equation, $\Ccal_1$ and $\Ccal_2$ are the marginal constraint sets corresponding to two discrete measures $\mu^1$ and $\mu^2$,
+	and where $\KL$ is the Kullback--Leibler divergence.
+	\begin{gather*}
+	\Ccal_1 = \left\{ \gamma \mid A_1 \gamma = \mu^1 \right\},
+	\quad\quad\quad
+	\Ccal_2 = \left\{ \gamma \mid A_2 \gamma = \mu^2 \right\}.\\
+	\KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
+	\end{gather*}
+	As it is strictly convex, it has exactly one solution. It can be written equivalently as the \emph{Bregman projection} of a point onto a convex set:
+	\begin{gather*}
+	P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi),\\
+	\gamma^* = P_{\Ccal_1 \cap \Ccal_2}(e^{-c/\epsilon}).
+	\end{gather*}
+	Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is much easier: indeed, it corresponds to scaling the rows or columns of the matrix so that the corresponding marginal sum is correct.
+	Therefore the solution can be computed by alternating Bregman projections, as shown in [Bregman, 1964]:
+	\[
+	\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
+	\]
 }
 
 
