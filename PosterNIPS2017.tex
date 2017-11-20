@@ -56,6 +56,8 @@
 \usepackage{float}
 \usepackage{multicol}
 \usepackage{enumitem,rotating}
+\usepackage{bbm}
+\usepackage{wrapfig}
 
 
 \newcommand{\sidecap}[1]{ {\begin{sideways}\parbox{0.2\textwidth}{\centering #1}\end{sideways}} }
@@ -73,8 +75,6 @@
 
 \setlength{\columnsep}{1.5em} % Slightly increase the space between columns
 \setlength{\columnseprule}{0mm} % No horizontal rule between columns
-\def\diag{\mathop{\rm diag}\nolimits}%
-\def\argmin{\mathop{\rm arg \; min}\limits}%
 
 \definecolor{lightred}{rgb}{0.5 0 0}
 
@@ -85,6 +85,22 @@
 }
 
 \definecolor{CPU}{RGB}{0, 153, 125} % Defines the color used for content box headers
+
+
+
+
+% Math operators
+\newcommand{\scal}[2]{\left\langle #1 , #2 \right\rangle}
+\DeclareMathOperator{\IR}{\mathbb{R}}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator{\One}{\mathbbm{1}}
+\DeclareMathOperator{\Ccal}{\mathcal{C}}
+\DeclareMathOperator{\logsumexp}{logsumexp}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\KL}{KL}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\renewcommand{\epsilon}{\varepsilon}
+
 
 \begin{document}
 
@@ -115,7 +131,7 @@ columns=2,
 %----------------------------------------------------------------------------------------
 %
 {\includegraphics[height=5em]{logo_ens_psl.png}} % First university/lab logo on the left
-{\bf Overrelaxed Sinkhorn--Knopp Algorithm for Regularized Optimal Transport\vspace{0.2em}} 
+{\bf Overrelaxed Sinkhorn--Knopp algorithm\\ for regularized optimal transport\vspace{0.2em}} 
 {{Alexis Thibault, L\'enaïc Chizat, Charles Dossal and  Nicolas Papadakis}} % Author names and institution
 {\includegraphics[height=5em]{logo_imb.png}} % Second university/lab logo on the right
 
@@ -123,14 +139,34 @@ columns=2,
 %	RESEARCH
 %----------------------------------------------------------------------------------------
 
+% Introduction
+
+\headerbox{Introduction}{name=intro,column=0}{
+	Optimal Transport is an efficient and flexible tool to compare two probability distributions. It has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn--Knopp algorithm \cite{sinkhorn64} scaling with high dimensional data.\\
+	\begin{minipage}{0.49\textwidth}
+	\begin{center}
+		\includegraphics[width=5cm]{schema_c}
+	\end{center}
+	\caption{A wrapped figure going nicely inside the text.}\label{wrap-fig:1}
+	\end{minipage}
+	\begin{minipage}{0.49\textwidth}
+		Optimal Transport is an efficient and flexible tool to compare two probability distributions. It has been popularized in the computer vision community in the context of discrete histograms \cite{Rubner2000}. The introduction of entropic regularization in \cite{cuturi13} has made possible the use of the fast Sinkhorn--Knopp algorithm \cite{sinkhorn64} scaling with high dimensional data.
+	\end{minipage}
+}
+
 
 %----------------------------------------------------------------------------------------
 %	Notations and definitions
 %----------------------------------------------------------------------------------------
 
-\headerbox{Sinkhorn-Knopp Algorithm}{name=Sinkhorn,column=0}{
-
+\headerbox{Sinkhorn-Knopp Algorithm}{name=Sinkhorn,column=0,below=intro}{
+	We aim at numerically solving the entropic regularization of optimal transport~:
+	\begin{equation} \label{eq:problem}
+	\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
+	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One)
+	\end{equation}
 }
+
 
 %----------------------------------------------------------------------------------------
 %	
