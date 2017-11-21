@@ -57,7 +57,7 @@
 \usepackage{multicol}
 \usepackage{enumitem,rotating}
 \usepackage{bbm}
-%\usepackage{wrapfig}
+\usepackage{tcolorbox}
 
 
 \newcommand{\sidecap}[1]{ {\begin{sideways}\parbox{0.2\textwidth}{\centering #1}\end{sideways}} }
@@ -143,19 +143,23 @@ columns=2,
 
 \headerbox{Introduction}{name=intro,column=0}{
 	Optimal Transport is an efficient and flexible tool to compare two probability distributions. It has been popularized in the computer vision community in the context of discrete histograms [Rubner, 2000]. The introduction of entropic regularization in [Cuturi, 2013] has made possible the use of the fast Sinkhorn--Knopp algorithm (SK) [Sinkhorn, 1964c] scaling with high dimensional data.\\
-	\begin{center}
-		\begin{tabular}{c c c c}
-		\includegraphics[height=3cm]{1d_interp_mu} &
-		\includegraphics[height=3cm]{1d_interp_0_2} &
-		\includegraphics[height=3cm]{1d_interp_2} &
-		\includegraphics[height=3cm]{1d_interp_18} \\
-		&
-		$\epsilon = 5$ &
-		$\epsilon = 0.5$ &
-		$\epsilon = 0.02$
-		\end{tabular}
-	\captionof{figure}{Regularized optimal transport maps for decreasing regularization parameter $\epsilon$.}
-	\end{center}
+	\begin{minipage}{\textwidth}
+		\centering
+		\begin{tcolorbox}[width=0.99\textwidth,/tcb/size=small, /tcb/top=2.0mm]
+			\centering
+			\begin{tabular}{c c c c}
+				\includegraphics[height=3cm]{1d_interp_mu} &
+				\includegraphics[height=3cm]{1d_interp_0_2} &
+				\includegraphics[height=3cm]{1d_interp_2} &
+				\includegraphics[height=3cm]{1d_interp_18} \\
+				&
+				$\epsilon = 5$ &
+				$\epsilon = 0.5$ &
+				$\epsilon = 0.02$
+			\end{tabular}
+			\captionof{figure}{Regularized optimal transport maps for decreasing regularization parameter $\epsilon$.} \label{fig:1d_ot}
+		\end{tcolorbox}
+	\end{minipage}
 	For small regularization $\epsilon$, the SK algorithm becomes extremely slow. To counter this, we propose a new algorithm that accelerates SK by \emph{overrelaxation}.
 }
 
@@ -178,16 +182,32 @@ columns=2,
 	\Ccal_2 = \left\{ \gamma \mid A_2 \gamma = \mu^2 \right\}.\\
 	\KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
 	\end{gather*}
-	As it is strictly convex, it has exactly one solution. It can be written equivalently as the \emph{Bregman projection} of a point onto a convex set:
-	\begin{gather*}
-	P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi),\\
-	\gamma^* = P_{\Ccal_1 \cap \Ccal_2}(e^{-c/\epsilon}).
-	\end{gather*}
-	Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is much easier: indeed, it corresponds to scaling the rows or columns of the matrix so that the corresponding marginal sum is correct.
-	Therefore the solution can be computed by alternating Bregman projections, as shown in [Bregman, 1964]:
-	\[
-	\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
-	\]
+	\begin{minipage}{0.6\textwidth}
+		As problem (\ref{eq:problem}) is strictly convex, it has exactly one solution. It can be written equivalently as the \emph{Bregman projection} of a point onto a convex set:
+		\begin{gather*}
+		P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi),\\
+		\text{(\ref{eq:problem})} \quad \Longleftrightarrow \quad \gamma^* = P_{\Ccal_1 \cap \Ccal_2}(e^{-c/\epsilon}).
+		\end{gather*}
+		Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is much easier. Indeed, it corresponds to scaling the rows or columns of the matrix so that the corresponding marginal sum is correct.
+		\begin{align*}\label{scaling}
+		P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
+		a &=  {\mu^1}\oslash{A_1 \gamma} \\
+		P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &\text{with}\quad
+		b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
+		\end{align*}
+	\end{minipage}
+	\begin{minipage}{0.39\textwidth}
+		\begin{tcolorbox}[/tcb/size=small, /tcb/top=2.0mm]
+		\centering
+		\input{schema_a}
+		\captionof{figure}{The Sinkhorn--Knopp algorithm iterates Bregman projections on the two constraint sets.}
+		\end{tcolorbox}
+	\end{minipage}
+
+	As shown in [Bregman, 1964], the solution can be computed by alternating Bregman projections. The main idea of the Sinkhorn--Knopp algorithm can therefore be written as:
+\begin{equation}
+\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
+\end{equation}
 }
 
 
@@ -196,7 +216,28 @@ columns=2,
 %----------------------------------------------------------------------------------------
 
 \headerbox{Overrelaxation}{name=overrelaxation,column=1}{
-
+Although the SK algorithm is much more efficient than linear solvers in a high-dimensional setting, it becomes extremely slow when the regularization $\epsilon$ is small.
+To counteract this limitation, we use the principle of \emph{overrelaxation}.
+\begin{minipage}{0.5\textwidth}
+	\begin{tcolorbox}[size=small, top=2mm]
+		\centering
+		\begin{tabular}{c c}
+		\input{schema_b} &
+		\input{schema_c} \\
+		SK &
+		Overrelaxed SK
+		\end{tabular}
+	\captionof{figure}{For small regularization $\epsilon$, the SK algorithm converges slowly, whereas the overrelaxed SK algorithm converges with a better rate}
+	\end{tcolorbox}
+\end{minipage}
+\begin{minipage}{0.49\textwidth}
+	We define the overrelaxed projections of parameter $\theta \in \IR$:
+	\begin{align*}\label{or_scaling}
+	P_{\Ccal_1}^\theta(\gamma) &= \diag(a)^\theta \gamma\\
+	P_{\Ccal_2}^\theta(\gamma) &= \gamma \diag(b)^\theta \nonumber
+	\end{align*}
+	(element-wise exponentiation)
+\end{minipage}
 }
 
 %----------------------------------------------------------------------------------------
