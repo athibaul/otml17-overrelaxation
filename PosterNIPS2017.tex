@@ -130,10 +130,10 @@ columns=2,
 %	TITLE SECTION 
 %----------------------------------------------------------------------------------------
 %
-{\includegraphics[height=5em]{logo_ens_psl.png}} % First university/lab logo on the left
+{\includegraphics[height=6em]{logo_ens_psl.png}} % First university/lab logo on the left
 {\bf Overrelaxed Sinkhorn--Knopp algorithm\\ for regularized optimal transport\vspace{0.2em}} 
 {{Alexis Thibault, L\'enaïc Chizat, Charles Dossal and  Nicolas Papadakis}} % Author names and institution
-{\includegraphics[height=5em]{logo_imb.png}} % Second university/lab logo on the right
+{\includegraphics[height=6em]{logo_imb.png}} % Second university/lab logo on the right
 
 %----------------------------------------------------------------------------------------
 %	RESEARCH
@@ -161,6 +161,8 @@ columns=2,
 		\end{tcolorbox}
 	\end{minipage}
 	For small regularization $\epsilon$, the SK algorithm becomes extremely slow. To counter this, we propose a new algorithm that accelerates SK by \emph{overrelaxation}.
+	This idea has been shown to successfully accelerate the algorithm. However, there is no proof of convergence in the literature, and no automated choice of parameters.
+	In our paper, we suggest a way of ensuring global convergence. This is done simply by choosing the overrelaxation parameters at each step of the algorithm so that a given function decreases. We will motivate our choice of function with numerical results.
 }
 
 
@@ -216,9 +218,7 @@ columns=2,
 %----------------------------------------------------------------------------------------
 
 \headerbox{Overrelaxation}{name=overrelaxation,column=1}{
-Although the SK algorithm is much more efficient than linear solvers in a high-dimensional setting, it becomes extremely slow when the regularization $\epsilon$ is small.
-To counteract this limitation, we use the principle of \emph{overrelaxation}.
-\begin{minipage}{0.5\textwidth}
+\begin{minipage}{0.49\textwidth}
 	\begin{tcolorbox}[size=small, top=2mm]
 		\centering
 		\begin{tabular}{c c}
@@ -231,20 +231,27 @@ To counteract this limitation, we use the principle of \emph{overrelaxation}.
 	\end{tcolorbox}
 \end{minipage}
 \begin{minipage}{0.49\textwidth}
+	\vspace{0.6mm}
+	Although the SK algorithm is much more efficient than linear solvers in a high-dimensional setting, it becomes extremely slow when the regularization $\epsilon$ is small.
+	To counteract this limitation, we use the principle of \emph{overrelaxation}.
+	
 	We define the overrelaxed projections of parameter $\theta \in \IR$:
 	\begin{align*}\label{or_scaling}
 	P_{\Ccal_1}^\theta(\gamma) &= \diag(a)^\theta \gamma\\
-	P_{\Ccal_2}^\theta(\gamma) &= \gamma \diag(b)^\theta \nonumber
+	P_{\Ccal_2}^\theta(\gamma) &= \gamma \diag(b)^\theta \nonumber .
 	\end{align*}
-	(element-wise exponentiation)
+	In these equations, the exponentiation is applied element-wise.
+	
+	In the euclidean setting, which also corresponds to the linearization of the operators around the solution, iterative overrelaxed projections can be shown to converge for any $\theta \in (0,2)$.
 \end{minipage}
+But in general, there is no proof of global convergence for iterative overrelaxed Bregman projections. In order to ensure convergence, we use a Lyapunov function.
 }
 
 %----------------------------------------------------------------------------------------
 % Main result
 %----------------------------------------------------------------------------------------
 
-\headerbox{Lyapunov Function}{name=lyapunov,below=Sinkhorn,column=0}{
+\headerbox{Lyapunov Function}{name=lyapunov,column=1,below=overrelaxation,bottomaligned=Sinkhorn}{
     
 }
 
@@ -253,7 +260,7 @@ To counteract this limitation, we use the principle of \emph{overrelaxation}.
 %	Bootstrap
 %----------------------------------------------------------------------------------------
 
-\headerbox{Experiments}{name=expe,below=overrelaxation,column=1}{
+\headerbox{Experiments}{name=expe,below=Sinkhorn,column=0,span=2}{
 
 
 
@@ -264,7 +271,7 @@ To counteract this limitation, we use the principle of \emph{overrelaxation}.
 %----------------------------------------------------------------------------------------
 
 
-\headerbox{References}{name=references,below=lyapunov,span =2}{
+\headerbox{References}{name=references,below=expe,span =2}{
 \noindent [1] M. Cuturi. Sinkhorn distances: Lightspeed computation of optimal transport. {\it Advances in Neural Information Processing Systems 26}, 2013.\\
 ...
 }
