@@ -48,10 +48,23 @@
 {Context} 
 \begin{itemize}
 \item Fast computation of regularized Optimal Transport with the Sinkhorn--Knopp algorithm (SK) {\color{blue}[Cuturi, 2013]}
-\item Slower for small regularization $\epsilon$
+\item For small regularization $\epsilon$, more precise but slower
 \end{itemize}
-\uncover<2>{
-\tableofcontents}
+\begin{tabular}{c c c c}
+	\includegraphics[height=3cm]{1d_interp_mu} &
+	\includegraphics[height=3cm]{1d_interp_0_2} &
+	\includegraphics[height=3cm]{1d_interp_2} &
+	\includegraphics[height=3cm]{1d_interp_18} \\
+	&
+	$\epsilon = 5$ &
+	$\epsilon = 0.5$ &
+	$\epsilon = 0.02$
+\end{tabular}
+\end{frame}
+
+
+\begin{frame}
+	\tableofcontents
 % We'll be looking at a way of accelerating an algorithm, called the SK algorithm, whose goal is to calculate the solution of the regularized optimal transport problem. The principle of overrelaxation has been shown to successfully accelerate this algorithm. However, there is no proof in the literature that the proposed algorithm always converges, and no automated choice of parameters.
 % In our paper, we suggest a way of ensuring global convergence. This is done simply by choosing the overrelaxation parameters at each step of the algorithm so that a given function decreases. We will motivate our choice of function with numerical results.
 \end{frame}
@@ -65,6 +78,8 @@ Entropic regularization of optimal transport:
 \gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
 	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One)
 \end{equation*}
+$c \in \IR_+^{n_1 n_2}$ cost matrix, $\mu_1 \in \IR^{n_1}$, $\mu_2 \in \IR^{n_2}$ discrete measures, $\epsilon > 0$ regularization .
+
 \pause
 Constraint sets:
 \begin{align*}
@@ -98,11 +113,11 @@ Setting $\gamma^0 = e^{-c/\epsilon}$:
 Bregman projection onto $\Ccal_1$ or $\Ccal_2$ $\Longleftrightarrow$ scaling of rows or columns
 \begin{align*}\label{scaling}
 P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
-a &=  {\mu^1}\oslash{A_1 \gamma} \\
+a &=  {\mu^1}\oslash{A_1 \gamma}, \\
 P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &\text{with}\quad
-b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
+b &= {\mu^2}\oslash{A_2 \gamma},\nonumber
 \end{align*}
-
+where $\oslash$ is the entry-wise division.
 \end{frame}
 
 \begin{frame}{Sinkhorn--Knopp algorithm}
@@ -115,6 +130,8 @@ b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
 	\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
 	\]
 	
+	{\color{blue} [Benamou et al., 2015]}
+	
 \end{column}
 
 \begin{column}{0.4\textwidth}
@@ -125,7 +142,8 @@ b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
 \end{frame}
 
 \begin{frame}{Limitation of the SK algorithm}
-Linear convergence rate $1-\eta$, $\eta > 0$.
+Linear convergence:
+\[ \norm{\gamma^\ell - \gamma^*} = \mathcal{O}\left((1-\eta)^\ell \right) , \quad \eta > 0 \]
 
 \begin{columns}
 	\begin{column}{0.5\textwidth}
@@ -192,7 +210,7 @@ How to ensure global convergence?
 Choose $F(\gamma)$ continuous, coercive function whose unique minimizer is $\gamma^*$.\\
 Choose $\theta_1(\gamma)$, $\theta_2(\gamma)$ continuous functions, such that
 \begin{equation*}\label{eq:cond_theta_k}
-\forall \gamma \notin \Ccal_k,\quad
+\forall k \in \{1,2\}, \, \forall \gamma \notin \Ccal_k,\quad\quad
 F(P_{\Ccal_k}^{\theta_k(\gamma)}(\gamma)) < F(\gamma).
 \end{equation*}
 \pause
@@ -219,7 +237,7 @@ This process converges to $\gamma^*$.
 \end{frame}
 
 \begin{frame}{Properties of the Lyapunov function}
-Calculating differences:
+Calculating differences: for $k \in \{1,2\}$,
 \begin{equation*} \label{eq:kl_diff_scal}
 F(\gamma) - F(P^\theta_{\Ccal_k}(\gamma)) = 
 \scal{\mu^k}{\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)},
@@ -229,18 +247,21 @@ where
 \varphi_\theta(x) = x(1-x^{-\theta}) - \theta \log x
 \end{equation*}
 is a real function, applied coordinate-wise.
-\end{frame}
-
-\subsection[Choice of OR parameters]{Choice of overrelaxation parameters}
-\begin{frame}{Ensuring the decrease}
-\begin{center}
-	\vspace*{-0.2cm}\includegraphics[height=5cm]{images/cvgce_zone_2.png}\vspace{-0.2cm}\\
-	{\small \em Function $\varphi_\theta(x)$ is positive above the red line, negative below.}
-\end{center}
 \pause
 \begin{block}{Sufficient condition}
 	If every coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ is strictly positive, then $F$ decreases.
 \end{block}
+\end{frame}
+
+\subsection[Choice of OR parameters]{Choice of overrelaxation parameters}
+\begin{frame}{Ensuring the decrease}
+\begin{block}{Sufficient condition}
+	If every coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ is strictly positive, then $F$ decreases.
+\end{block}
+\begin{center}
+	\vspace*{-0.2cm}\includegraphics[height=5cm]{images/cvgce_zone_2.png}\vspace{-0.2cm}\\
+	{\small \em Function $\varphi_\theta(x)$ is positive above the red line, negative below.}
+\end{center}
 \end{frame}
 
 \begin{frame}{Advantages of this choice}
@@ -250,11 +271,11 @@ is a real function, applied coordinate-wise.
 	\Theta(u) &:= clip_{[1,\theta_0]}(\Theta^*(\min u)-\delta)
 	\end{align*}
 	\[
-	\theta_k (\gamma) := \Theta((A_k \gamma) \oslash \mu^k)
+	k \in \{1,2\}, \quad \theta_k (\gamma) := \Theta((A_k \gamma) \oslash \mu^k)
 	\]
 	
 	\begin{block}{Remark}
-		Vector $(A_k \gamma)\oslash \mu^k$ is calculated once whenever performing a projection.
+		The vector $(A_k \gamma)\oslash \mu^k$ is calculated once whenever performing a projection.
 	\end{block}
 	\pause
 	\begin{itemize}
@@ -297,7 +318,7 @@ is a real function, applied coordinate-wise.
 		\item Global convergence
 		\item Adaptive choice of parameters
 		\item Efficient, especially for small $\epsilon$
-		\item Generalizable (multi-marginal, barycenters, gradient flow)
+		\item Generalizable (multi-marginal, barycenters)
 	\end{itemize}
 \end{frame}
 
