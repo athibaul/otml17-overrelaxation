@@ -191,6 +191,7 @@ columns=2,
 		\text{(\ref{eq:problem})} \quad \Longleftrightarrow \quad \gamma^* = P_{\Ccal_1 \cap \Ccal_2}(e^{-c/\epsilon}).
 		\end{gather*}
 		Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is much easier. Indeed, it corresponds to scaling the rows or columns of the matrix so that the corresponding marginal sum is correct.
+		Operator $\oslash$ denotes element-wise division:
 		\begin{align*}\label{scaling}
 		P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
 		a &=  {\mu^1}\oslash{A_1 \gamma} \\
@@ -244,7 +245,6 @@ columns=2,
 	
 	In the euclidean setting, which also corresponds to the linearization of the operators around the solution, iterative overrelaxed projections can be shown to converge for any $\theta \in (0,2)$.
 \end{minipage}
-But in general, there is no proof of global convergence for iterative overrelaxed Bregman projections. In order to ensure convergence, we use a Lyapunov function.
 }
 
 %----------------------------------------------------------------------------------------
@@ -252,7 +252,45 @@ But in general, there is no proof of global convergence for iterative overrelaxe
 %----------------------------------------------------------------------------------------
 
 \headerbox{Lyapunov Function}{name=lyapunov,column=1,below=overrelaxation,bottomaligned=Sinkhorn}{
+	There is no general proof of global convergence for iterative overrelaxed Bregman projections. In order to ensure convergence, we use a Lyapunov function.
+	\begin{tcolorbox}[size=small]
+    	Choose $F(\gamma)$ continuous, coercive function whose unique minimizer is $\gamma^*$.\\
+    	Choose $\theta_1(\gamma)$, $\theta_2(\gamma)$ continuous functions, such that
+    	\begin{equation*}\label{eq:cond_theta_k}
+    	\forall k \in \{1,2\}, \, \forall \gamma \notin \Ccal_k,\quad\quad
+    	F(P_{\Ccal_k}^{\theta_k(\gamma)}(\gamma)) < F(\gamma).
+    	\end{equation*}
+    	Alternately iterate $P_{\Ccal_1}^{\theta_1}$ and $P_{\Ccal_2}^{\theta_2}$, starting from $\gamma^0 = e^{-c/\epsilon}$.\\
+    	This process converges to $\gamma^*$.
+    \end{tcolorbox}
+    Our choice of Lyapunov function is: \[F(\gamma) := \KL(\gamma^*,\gamma)\]
     
+    
+    It is motivated by the fact that this function decreases for regular Bregman projections.
+    Moreover, we can check numerically
+    
+    \begin{minipage}{0.35\textwidth}
+    	\begin{tcolorbox}[size=small]
+    	\centering
+    	\includegraphics[width=\textwidth]{images/cvgce_zone_2.png}
+    	\captionof{figure}{
+    		Function $\varphi_\theta(x)$ is positive above the red line, negative below.}
+    	\end{tcolorbox}
+    \end{minipage}
+    \begin{minipage}{0.65\textwidth}
+    	The difference between two evaluations of the function can be computed directly thanks to the formula:
+    	\begin{equation*} \label{eq:kl_diff_scal}
+    	F(\gamma) - F(P^\theta_{\Ccal_k}(\gamma)) = 
+    	\scal{\mu^k}{\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)}.
+    	\end{equation*}
+    	We want this quantity to be positive. A sufficient condition is that every coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ be positive. Functions $\theta_1, \theta_2$ are crafted for this purpose.
+    	\begin{align*}
+    	\Theta^*(u) &:= \max \left\{\theta \mid \varphi_\theta(u) \ge 0 \right\}
+    	\\
+    	\Theta(u) &:= clip_{[1,\theta_0]}(\Theta^*(\min u)-\delta)\\
+    	k \in \{1,2\}, \quad \theta_k (\gamma) &:= \Theta((A_k \gamma) \oslash \mu^k)
+    	\end{align*}
+    \end{minipage}
 }
 
 
