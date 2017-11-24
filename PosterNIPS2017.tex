@@ -18,7 +18,7 @@
 %	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
 %----------------------------------------------------------------------------------------
 
-\documentclass[portrait,a0paper,fontscale=0.35]{baposter} % Adjust the font scale/size here : fontscale=0.285
+\documentclass[landscape,a0paper,fontscale=0.35]{baposter} % Adjust the font scale/size here : fontscale=0.285
 %\usepackage{textpos}
 \usepackage[frenchb]{babel}
 \usepackage[T1]{fontenc}
@@ -124,7 +124,7 @@ headershape=rounded, % Specify the rounded corner in the content box headers, ca
 headerfont=\Large\bf\textsc, % Large, bold and sans serif font in the headers of content boxes
 %textfont={\setlength{\parindent}{1.5em}}, % Uncomment for paragraph indentation
 linewidth=1.8pt, % Width of the border lines around content boxes
-columns=2,
+columns=3,
 }
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION 
@@ -141,9 +141,17 @@ columns=2,
 
 % Introduction
 
-\headerbox{Introduction}{name=intro,column=0}{
-	Optimal Transport is an efficient and flexible tool to compare two probability distributions. It has been popularized in the computer vision community in the context of discrete histograms [Rubner, 2000]. The introduction of entropic regularization in [Cuturi, 2013] has made possible the use of the fast Sinkhorn--Knopp algorithm (SK) [Sinkhorn, 1964c] scaling with high dimensional data.\\
-	\begin{minipage}{\textwidth}
+\headerbox{Introduction}{name=intro,column=0,span=2}{
+	\begin{minipage}{0.55\textwidth}
+		Optimal Transport is an efficient and flexible tool to compare two probability distributions. It has been popularized in the computer vision community in the context of discrete histograms. The introduction of entropic regularization in [Cuturi, 2013] has made possible the use of the fast Sinkhorn--Knopp algorithm (SK) [Sinkhorn, 1964] scaling with high dimensional data.
+		
+		For small regularization $\epsilon$, the SK algorithm becomes extremely slow. To counter this, we propose a new algorithm that accelerates SK by \emph{overrelaxation}.
+		This idea has been shown to successfully accelerate the algorithm. However, there is no proof of convergence in the literature, and no automated choice of parameters.
+		In our paper, we suggest a way of ensuring global convergence. This is done simply by choosing the overrelaxation parameters at each step of the algorithm so that a given function decreases. We will motivate our choice of function with numerical results.
+		
+		The algorithm we obtain converges faster than Sinkhorn--Knopp, while remaining parallelizable, and having almost the same cost per iteration.
+	\end{minipage}
+	\begin{minipage}{0.45\textwidth}
 		\centering
 		\begin{tcolorbox}[width=0.99\textwidth,/tcb/size=small, /tcb/top=2.0mm]
 			\centering
@@ -160,65 +168,16 @@ columns=2,
 			\captionof{figure}{Regularized optimal transport maps for decreasing regularization parameter $\epsilon$.} \label{fig:1d_ot}
 		\end{tcolorbox}
 	\end{minipage}
-	For small regularization $\epsilon$, the SK algorithm becomes extremely slow. To counter this, we propose a new algorithm that accelerates SK by \emph{overrelaxation}.
-	This idea has been shown to successfully accelerate the algorithm. However, there is no proof of convergence in the literature, and no automated choice of parameters.
-	In our paper, we suggest a way of ensuring global convergence. This is done simply by choosing the overrelaxation parameters at each step of the algorithm so that a given function decreases. We will motivate our choice of function with numerical results.
 }
 
 
-%----------------------------------------------------------------------------------------
-%	Notations and definitions
-%----------------------------------------------------------------------------------------
-
-\headerbox{Sinkhorn-Knopp Algorithm}{name=Sinkhorn,column=0,below=intro}{
-	We aim at numerically solving the entropic regularization of optimal transport:
-	\begin{equation} \label{eq:problem}
-	\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
-	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One).
-	\end{equation}
-	In this equation, $\Ccal_1$ and $\Ccal_2$ are the marginal constraint sets corresponding to two discrete measures $\mu^1$ and $\mu^2$,
-	and where $\KL$ is the Kullback--Leibler divergence.
-	\begin{gather*}
-	\Ccal_1 = \left\{ \gamma \mid A_1 \gamma = \mu^1 \right\},
-	\quad\quad\quad
-	\Ccal_2 = \left\{ \gamma \mid A_2 \gamma = \mu^2 \right\}.\\
-	\KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
-	\end{gather*}
-	\begin{minipage}{0.6\textwidth}
-		As problem (\ref{eq:problem}) is strictly convex, it has exactly one solution. It can be written equivalently as the \emph{Bregman projection} of a point onto a convex set:
-		\begin{gather*}
-		P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi),\\
-		\text{(\ref{eq:problem})} \quad \Longleftrightarrow \quad \gamma^* = P_{\Ccal_1 \cap \Ccal_2}(e^{-c/\epsilon}).
-		\end{gather*}
-		Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is much easier. Indeed, it corresponds to scaling the rows or columns of the matrix so that the corresponding marginal sum is correct.
-		Operator $\oslash$ denotes element-wise division:
-		\begin{align*}\label{scaling}
-		P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
-		a &=  {\mu^1}\oslash{A_1 \gamma} \\
-		P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &\text{with}\quad
-		b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
-		\end{align*}
-	\end{minipage}
-	\begin{minipage}{0.39\textwidth}
-		\begin{tcolorbox}[/tcb/size=small, /tcb/top=2.0mm]
-		\centering
-		\input{schema_a}
-		\captionof{figure}{The Sinkhorn--Knopp algorithm iterates Bregman projections on the two constraint sets.}
-		\end{tcolorbox}
-	\end{minipage}
-
-	As shown in [Bregman, 1964], the solution can be computed by alternating Bregman projections. The main idea of the Sinkhorn--Knopp algorithm can therefore be written as:
-\begin{equation}
-\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
-\end{equation}
-}
 
 
 %----------------------------------------------------------------------------------------
 %	
 %----------------------------------------------------------------------------------------
 
-\headerbox{Overrelaxation}{name=overrelaxation,column=1}{
+\headerbox{Overrelaxation}{name=overrelaxation,column=2}{
 \begin{minipage}{0.49\textwidth}
 	\begin{tcolorbox}[size=small, top=2mm]
 		\centering
@@ -248,10 +207,107 @@ columns=2,
 }
 
 %----------------------------------------------------------------------------------------
+%	Bootstrap
+%----------------------------------------------------------------------------------------
+
+\headerbox{Experiments}{name=expe,below=overrelaxation,column=2}{
+	\begin{minipage}{\textwidth}
+		We compare our algorithm to SK algorithm on two different optimal transport settings.
+		\begin{itemize}
+			\item In setting (a) we consider the domain $[0,1]$ discretized into $100$ samples and the squared Euclidean transport cost on this domain.
+			The marginals are densities made of the sum of a base plateau of height $0.1$ and another plateau of height and boundaries chosen uniformly in $[0,1]$, subsequently normalized.
+			\item In setting (b) the cost is a $100\times 100$ random matrix with entries uniform in $[0,1]$ and the marginals are uniform.
+		\end{itemize}
+		We plot the relative speed of our algorithm compared to Sinkhorn, for various values of the regularization parameter $\epsilon$. In both experimental settings, our algorithm wins by a factor above $20$ for small values of $\epsilon$.
+	\end{minipage}
+	\begin{minipage}{\textwidth}
+		\begin{tcolorbox}[size=small]
+			\begin{minipage}[b]{.5\linewidth}
+				\centering
+				\includegraphics[scale=0.5]{images/speedratio_image}\\
+				{\centering\small (a) Quadratic cost, random marginals}\label{fig:compare_a}
+			\end{minipage}%
+			\begin{minipage}[b]{.5\linewidth}
+				\centering
+				\includegraphics[scale=0.5]{images/speedratio_ML}\\
+				{\centering\small (b) Random cost, uniform marginals}\label{fig:compare_b}
+			\end{minipage}
+		\end{tcolorbox}
+	\end{minipage}
+}
+
+
+%----------------------------------------------------------------------------------------
+%	REFERENCES
+%----------------------------------------------------------------------------------------
+
+
+\headerbox{References}{name=references,below=expe,column=2}{
+	\small
+	\begin{tabular}{r p{0.67\textwidth}}
+		{[Cuturi, 2013]} & M. Cuturi. Sinkhorn distances: Lightspeed computation of optimal transport. {\it Advances in Neural Information Processing Systems 26}, 2013.\\
+		{[Benamou et al., 2015]} & Benamou, J.-D., Carlier, G., Cuturi, M., Nenna, L., and Peyr\'e, G. (2015).
+		{\it Iterative Bregman projections for regularized transportation problems.} SIAM Journal on Scientific
+		Computing, 37(2):A1111–A1138.\\
+		{[Sinkhorn, 1964]} & Sinkhorn, R. (1964). {\it A relationship between arbitrary positive matrices and doubly stochastic matrices.} The annals of mathematical statistics, 35(2):876–879.
+	\end{tabular}
+}
+
+
+%----------------------------------------------------------------------------------------
+%	Notations and definitions
+%----------------------------------------------------------------------------------------
+
+\headerbox{Sinkhorn-Knopp Algorithm}{name=Sinkhorn,column=0,below=intro,bottomaligned=references}{
+	We aim at numerically solving the entropic regularization of optimal transport:
+	\begin{equation} \label{eq:problem}
+	\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
+	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One).
+	\end{equation}
+	In this equation, $\Ccal_1$ and $\Ccal_2$ are the marginal constraint sets corresponding to two discrete measures $\mu^1$ and $\mu^2$,
+	and where $\KL$ is the Kullback--Leibler divergence.
+	\begin{gather*}
+	\Ccal_1 = \left\{ \gamma \mid A_1 \gamma = \mu^1 \right\},
+	\quad\quad\quad
+	\Ccal_2 = \left\{ \gamma \mid A_2 \gamma = \mu^2 \right\}.\\
+	\KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
+	\end{gather*}
+	\begin{minipage}{0.6\textwidth}
+		As problem (\ref{eq:problem}) is strictly convex, it has exactly one solution, that can be written equivalently as the \emph{Bregman projection} of $\gamma^0 = e^{-c/\epsilon}$ onto a convex set:
+		\begin{gather*}
+		P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi),\\
+		\text{(\ref{eq:problem})} \quad \Longleftrightarrow \quad \gamma^* = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0).
+		\end{gather*}
+		Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is simply performed by scaling the rows or columns of the matrix so that the corresponding marginal sum is correct.
+		Operator $\oslash$ denotes element-wise division:
+		\begin{align*}\label{scaling}
+		P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
+		a &=  {\mu^1}\oslash{A_1 \gamma} \\
+		P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &\text{with}\quad
+		b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
+		\end{align*}
+	\end{minipage}
+	\begin{minipage}{0.39\textwidth}
+		\begin{tcolorbox}[/tcb/size=small, /tcb/top=2.0mm]
+			\centering
+			\input{schema_a}
+			\captionof{figure}{The Sinkhorn--Knopp algorithm iterates Bregman projections on the two constraint sets.}
+		\end{tcolorbox}
+	\end{minipage}
+	
+	As shown in [Bregman, 1964], the solution can be computed by alternating Bregman projections. The main idea of the Sinkhorn--Knopp algorithm can therefore be written as:
+	\begin{equation}
+	\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
+	\end{equation}
+	This algorithm converges linearly: if we denote by $\gamma^\ell = (P_{\Ccal_2} \circ P_{\Ccal_1})^{(\ell)}(\gamma^0)$ the $\ell$-th iterate, then
+	\[ \norm{\gamma^\ell - \gamma^*} = \mathcal{O}\left((1-\eta)^\ell \right) , \quad \eta > 0 \]
+}
+
+%----------------------------------------------------------------------------------------
 % Main result
 %----------------------------------------------------------------------------------------
 
-\headerbox{Lyapunov Function}{name=lyapunov,column=1,below=overrelaxation,bottomaligned=Sinkhorn}{
+\headerbox{Lyapunov Function}{name=lyapunov,column=1,below=intro,bottomaligned=Sinkhorn}{
 	There is no general proof of global convergence for iterative overrelaxed Bregman projections. In order to ensure convergence, we use a Lyapunov function.
 	\begin{tcolorbox}[size=small]
     	Choose $F(\gamma)$ continuous, coercive function whose unique minimizer is $\gamma^*$.\\
@@ -264,10 +320,7 @@ columns=2,
     	This process converges to $\gamma^*$.
     \end{tcolorbox}
     Our choice of Lyapunov function is: \[F(\gamma) := \KL(\gamma^*,\gamma)\]
-    
-    
-    It is motivated by the fact that this function decreases for regular Bregman projections.
-    Moreover, we can check numerically
+    It should be noted that this function decreases for regular Bregman projections.
     
     \begin{minipage}{0.35\textwidth}
     	\begin{tcolorbox}[size=small]
@@ -283,36 +336,20 @@ columns=2,
     	F(\gamma) - F(P^\theta_{\Ccal_k}(\gamma)) = 
     	\scal{\mu^k}{\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)}.
     	\end{equation*}
-    	We want this quantity to be positive. A sufficient condition is that every coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ be positive. Functions $\theta_1, \theta_2$ are crafted for this purpose.
-    	\begin{align*}
-    	\Theta^*(u) &:= \max \left\{\theta \mid \varphi_\theta(u) \ge 0 \right\}
+    	We want this difference to be positive. A sufficient condition is that every coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ be positive. Functions $\theta_1, \theta_2$ are crafted for this purpose.
+    	\begin{gather*}
+    	\Theta^*(u) := \max \left\{\theta \mid \varphi_\theta(u) \ge 0 \right\}
     	\\
-    	\Theta(u) &:= clip_{[1,\theta_0]}(\Theta^*(\min u)-\delta)\\
-    	k \in \{1,2\}, \quad \theta_k (\gamma) &:= \Theta((A_k \gamma) \oslash \mu^k)
-    	\end{align*}
+    	\Theta(u) := clip_{[1,\theta_0]}(\Theta^*(\min u)-\delta)\\
+    	k \in \{1,2\}, \quad \theta_k (\gamma) := \Theta((A_k \gamma) \oslash \mu^k)
+    	\end{gather*}
     \end{minipage}
+    This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ that is used asymptotically. A linear study around the solution shows that overrelaxation modifies the eigenvalues in a predictable way: in particular, if the linear convergence rate of the Sinkhorn--Knopp algorithm is $1-\eta$, then the optimal asymptotic overrelaxation parameter is $\theta_0 = \frac{2}{1+\sqrt{\eta}}$.
 }
 
 
-%----------------------------------------------------------------------------------------
-%	Bootstrap
-%----------------------------------------------------------------------------------------
-
-\headerbox{Experiments}{name=expe,below=Sinkhorn,column=0,span=2}{
 
 
-
-}
-
-%----------------------------------------------------------------------------------------
-%	REFERENCES
-%----------------------------------------------------------------------------------------
-
-
-\headerbox{References}{name=references,below=expe,span =2}{
-\noindent [1] M. Cuturi. Sinkhorn distances: Lightspeed computation of optimal transport. {\it Advances in Neural Information Processing Systems 26}, 2013.\\
-...
-}
 
 
 
