@@ -149,7 +149,7 @@ columns=3,
 		This idea has been shown to successfully accelerate the algorithm. However, there is no proof of convergence in the literature, and no automated choice of parameters.
 		In our paper, we suggest a way of ensuring global convergence. This is done simply by choosing the overrelaxation parameters at each step of the algorithm so that a given function decreases. We will motivate our choice of function with numerical results.
 		
-		The algorithm we obtain converges between 2 and 20 times faster than Sinkhorn--Knopp, while remaining parallelizable, and having almost the same cost per iteration.
+		The algorithm we obtain converges between 2 and 20 times faster than Sinkhorn--Knopp, while remaining parallelizable, and having almost the same cost per iteration. Moreover, the log-domain techniques used to stabilize the Sinkhorn--Knopp algorithm with regard to numerical approximations {[Schmitzer, 2016]} can be directly extended to this algorithm.
 	\end{minipage}
 	\begin{minipage}{0.45\textwidth}
 		\centering
@@ -210,54 +210,6 @@ In the global, non-euclidean setting, we use an additional criterion based on a 
 
 
 
-%----------------------------------------------------------------------------------------
-%	Notations and definitions
-%----------------------------------------------------------------------------------------
-
-\headerbox{Sinkhorn-Knopp Algorithm}{name=Sinkhorn,column=0,below=intro}{
-	We aim at numerically solving the entropic regularization of optimal transport:
-	\begin{equation} \label{eq:problem}
-	\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
-	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One).
-	\end{equation}
-	In this equation, $\Ccal_1$ and $\Ccal_2$ are the marginal constraint sets corresponding to two discrete measures $\mu^1$ and $\mu^2$,
-	and where $\KL$ is the Kullback--Leibler divergence.
-	\begin{gather*}
-	\Ccal_1 = \left\{ \gamma \mid A_1 \gamma = \mu^1 \right\},
-	\quad\quad\quad
-	\Ccal_2 = \left\{ \gamma \mid A_2 \gamma = \mu^2 \right\}.\\
-	\KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
-	\end{gather*}
-	\begin{minipage}{0.55\textwidth}
-		As problem (\ref{eq:problem}) is strictly convex, it has exactly one solution, that can be written equivalently as the \emph{Bregman projection} of $\gamma^0 = e^{-c/\epsilon}$ onto a convex set:
-		\begin{gather*}
-		P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi),\\
-		\text{(\ref{eq:problem})} \quad \Longleftrightarrow \quad \gamma^* = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0).
-		\end{gather*}
-		Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is simply performed by scaling the rows or columns of the matrix so that the corresponding marginal sum is correct.
-		Operator $\oslash$ denotes element-wise division:
-		\begin{align*}\label{scaling}
-		P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
-		a &=  {\mu^1}\oslash{A_1 \gamma} \\
-		P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &\text{with}\quad
-		b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
-		\end{align*}
-	\end{minipage}
-	\begin{minipage}{0.44\textwidth}
-		\begin{tcolorbox}[/tcb/size=small, /tcb/top=2.0mm]
-			\centering
-			\input{schema_a}
-			\captionof{figure}{The Sinkhorn--Knopp algorithm iterates Bregman projections on the two constraint sets.}
-		\end{tcolorbox}
-	\end{minipage}
-	
-	As shown in [Bregman, 1964], the solution can be computed by alternating Bregman projections. The main idea of the Sinkhorn--Knopp algorithm can therefore be written as:
-	\begin{equation}
-	\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
-	\end{equation}
-	This algorithm converges linearly: if we denote by $\gamma^\ell = (P_{\Ccal_2} \circ P_{\Ccal_1})^{(\ell)}(\gamma^0)$ the $\ell$-th iterate, then
-	\[ \norm{\gamma^\ell - \gamma^*} = \mathcal{O}\left((1-\eta)^\ell \right) , \quad \eta > 0 \]
-}
 
 %----------------------------------------------------------------------------------------
 % Main result
@@ -338,20 +290,72 @@ This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ th
 }
 
 
+
 %----------------------------------------------------------------------------------------
 %	REFERENCES
 %----------------------------------------------------------------------------------------
 
 
-\headerbox{References}{name=references,below=overrelaxation,column=1}{
+\headerbox{References}{name=references,below=overrelaxation,column=1,bottomaligned=expe}{
 	\small
 	\begin{tabular}{r p{0.67\textwidth}}
 		{[Cuturi, 2013]} & M. Cuturi. Sinkhorn distances: Lightspeed computation of optimal transport. {\it Advances in Neural Information Processing Systems 26}, 2013.\\
 		{[Benamou et al., 2015]} & Benamou, J.-D., Carlier, G., Cuturi, M., Nenna, L., and Peyr\'e, G. (2015).
 		{\it Iterative Bregman projections for regularized transportation problems.} SIAM Journal on Scientific
 		Computing, 37(2):A1111–A1138.\\
-		{[Sinkhorn, 1964]} & Sinkhorn, R. (1964). {\it A relationship between arbitrary positive matrices and doubly stochastic matrices.} The annals of mathematical statistics, 35(2):876–879.
+		{[Sinkhorn, 1964]} & Sinkhorn, R. (1964). {\it A relationship between arbitrary positive matrices and doubly stochastic matrices.} The annals of mathematical statistics, 35(2):876–879.\\
+		{[Schmitzer, 2016]} & Schmitzer, B. 2016. Stabilized sparse scaling algorithms for entropy regularized transport problems. {\it arXiv preprint arXiv:1610.06519.}
 	\end{tabular}
+}
+
+
+%----------------------------------------------------------------------------------------
+%	Notations and definitions
+%----------------------------------------------------------------------------------------
+
+\headerbox{Sinkhorn-Knopp Algorithm}{name=Sinkhorn,column=0,below=intro,bottomaligned=expe}{
+	We aim at numerically solving the entropic regularization of optimal transport:
+	\begin{equation} \label{eq:problem}
+	\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
+	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One).
+	\end{equation}
+	In this equation, $\Ccal_1$ and $\Ccal_2$ are the marginal constraint sets corresponding to two discrete measures $\mu^1$ and $\mu^2$,
+	and where $\KL$ is the Kullback--Leibler divergence.
+	\begin{gather*}
+	\Ccal_1 = \left\{ \gamma \mid A_1 \gamma = \mu^1 \right\},
+	\quad\quad\quad
+	\Ccal_2 = \left\{ \gamma \mid A_2 \gamma = \mu^2 \right\}.\\
+	\KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
+	\end{gather*}
+	\begin{minipage}{0.55\textwidth}
+		As problem (\ref{eq:problem}) is strictly convex, it has exactly one solution, that can be written equivalently as the \emph{Bregman projection} of $\gamma^0 = e^{-c/\epsilon}$ onto a convex set:
+		\begin{gather*}
+		P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi),\\
+		\text{(\ref{eq:problem})} \quad \Longleftrightarrow \quad \gamma^* = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0).
+		\end{gather*}
+		Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is simply performed by scaling the rows or columns of the matrix so that the corresponding marginal sum is correct.
+		Operator $\oslash$ denotes element-wise division:
+		\begin{align*}\label{scaling}
+		P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
+		a &=  {\mu^1}\oslash{A_1 \gamma} \\
+		P_{\Ccal_2}(\gamma) &= \gamma \diag(b) &\text{with}\quad
+		b &= {\mu^2}\oslash{A_2 \gamma}\nonumber
+		\end{align*}
+	\end{minipage}
+	\begin{minipage}{0.44\textwidth}
+		\begin{tcolorbox}[/tcb/size=small, /tcb/top=2.0mm]
+			\centering
+			\input{schema_a}
+			\captionof{figure}{The Sinkhorn--Knopp algorithm iterates Bregman projections on the two constraint sets.}
+		\end{tcolorbox}
+	\end{minipage}
+	
+	As shown in [Bregman, 1964], the solution can be computed by alternating Bregman projections. The main idea of the Sinkhorn--Knopp algorithm can therefore be written as:
+	\begin{equation}
+	\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
+	\end{equation}
+	This algorithm converges linearly: if we denote by $\gamma^\ell = (P_{\Ccal_2} \circ P_{\Ccal_1})^{(\ell)}(\gamma^0)$ the $\ell$-th iterate, then
+	\[ \norm{\gamma^\ell - \gamma^*} = \mathcal{O}\left((1-\eta)^\ell \right) , \quad \eta > 0 \]
 }
 
 
