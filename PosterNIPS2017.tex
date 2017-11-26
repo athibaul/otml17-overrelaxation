@@ -143,13 +143,15 @@ columns=3,
 
 \headerbox{Introduction}{name=intro,column=0,span=2}{
 	\begin{minipage}{0.55\textwidth}
-		Optimal Transport is an efficient and flexible tool to compare two probability distributions. It has been popularized in the computer vision community in the context of discrete histograms. The introduction of entropic regularization in [Cuturi, 2013] has made possible the use of the fast Sinkhorn--Knopp algorithm (SK) [Sinkhorn, 1964] scaling with high dimensional data.
-		
-		For small regularization $\epsilon$, the SK algorithm becomes extremely slow. To counter this, we propose a new algorithm that accelerates SK by \emph{overrelaxation}.
-		This idea has been shown to successfully accelerate the algorithm. However, there is no proof of convergence in the literature, and no automated choice of parameters.
-		In our paper, we suggest a way of ensuring global convergence. This is done simply by choosing the overrelaxation parameters at each step of the algorithm so that a given function decreases. We will motivate our choice of function with numerical results.
-		
-		The algorithm we obtain converges between 2 and 20 times faster than Sinkhorn--Knopp, while remaining parallelizable, and having almost the same cost per iteration. Moreover, the log-domain techniques used to stabilize the Sinkhorn--Knopp algorithm with regard to numerical approximations {[Schmitzer, 2016]} can be directly extended to this algorithm.
+		\begin{itemize}
+			\item[] Optimal Transport is an efficient and flexible tool to compare two probability distributions. Thanks to entropic regularization [Cuturi, 2013], the fast Sinkhorn--Knopp algorithm (SK) [Sinkhorn, 1964] can be used to numerically calculate the solution.
+			
+			\item[] Yet, for small regularization $\epsilon$, the SK algorithm becomes extremely slow. To counter this, we propose a new algorithm that accelerates SK by \emph{overrelaxation}.
+			This idea has been numerically shown to accelerate the algorithm, but with no proof of convergence.
+			We ensure global convergence by choosing the overrelaxation parameters at each step of the algorithm so that a given Lyapunov function decreases.
+			
+			\item[] The algorithm we obtain converges between 2 and 20 times faster than Sinkhorn--Knopp, while having almost the same cost per iteration, and retaining other nice properties.
+		\end{itemize}
 	\end{minipage}
 	\begin{minipage}{0.45\textwidth}
 		\centering
@@ -216,7 +218,7 @@ In the global, non-euclidean setting, we use an additional criterion based on a 
 %----------------------------------------------------------------------------------------
 
 \headerbox{Lyapunov Function}{name=lyapunov,column=2}{
-	Although the overrelaxation of iterative Bregman projections as presented here is already in use in the context of numerical calculations of optimal transport, there is no proof that this algorithm converges to the solution. In order to ensure this result, we use a Lyapunov function, and slightly modify the algorithm.
+	To ensure convergence of iterative overrelaxed Bregman projections, we assert the decrease of a Lyapunov function.
 	\begin{tcolorbox}[size=small]
     	Choose $F(\gamma)$ continuous, coercive function whose unique minimizer is $\gamma^*$.\\
     	Choose $\theta_1(\gamma)$, $\theta_2(\gamma)$ continuous functions, such that
@@ -224,14 +226,12 @@ In the global, non-euclidean setting, we use an additional criterion based on a 
     	\forall k \in \{1,2\}, \, \forall \gamma \notin \Ccal_k,\quad\quad
     	F(P_{\Ccal_k}^{\theta_k(\gamma)}(\gamma)) < F(\gamma).
     	\end{equation*}
-    	Alternately iterate $P_{\Ccal_1}^{\theta_1}$ and $P_{\Ccal_2}^{\theta_2}$, starting from $\gamma^0 = e^{-c/\epsilon}$.\\
+    	Alternately iterate $P_{\Ccal_1}^{\theta_1}$ and $P_{\Ccal_2}^{\theta_2}$, starting from $\gamma^0 = e^{-c/\epsilon}$.
     	This process converges to $\gamma^*$.
     \end{tcolorbox}
-    Our choice of Lyapunov function is: \[F(\gamma) := \KL(\gamma^*,\gamma)\]
-    It should be noted that this function decreases for regular Bregman projections.
-    
-    
-    The difference between two evaluations of the function can be computed directly thanks to the formula:
+    Our choice of Lyapunov function is: $F(\gamma) := \KL(\gamma^*,\gamma)$
+    Note that this function decreases for regular Bregman projections.
+    The difference between two evaluations can be computed directly:
     
     \begin{minipage}{0.65\textwidth}
     	\begin{equation*} \label{eq:kl_diff_scal}
@@ -263,28 +263,26 @@ This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ th
 %	Bootstrap
 %----------------------------------------------------------------------------------------
 
-\headerbox{Experiments}{name=expe,below=lyapunov,column=2}{
-	\begin{minipage}{\textwidth}
-		We compare our algorithm to SK algorithm on two different settings.
+\headerbox{Experiments}{name=expe,below=overrelaxation,column=1,span=2}{
+	\begin{minipage}{0.32\textwidth}
+		We compare our algorithm to SK algorithm on two different settings of size $100 \times 100$.
 		\begin{itemize}
-			\item In setting (a) we consider the domain $[0,1]$ discretized into $100$ samples and the squared Euclidean cost.
-			The marginals are randomly generated, piecewise constant on $[0,1]$.
-			\item In setting (b) the cost is a $100\times 100$ random matrix with entries uniform in $[0,1]$ and the marginals are uniform.
+			\item[(a)] Cost $c$ is the squared euclidean norm on $[0,1]$. Marginals are randomly generated, piecewise constant.
+			\item[(b)] Cost $c$ is a $100\times 100$ random matrix with entries uniform in $[0,1]$. Marginals are uniform.
 		\end{itemize}
-		We plot the relative speed of our algorithm compared to Sinkhorn, for various values of the regularization parameter $\epsilon$. In both experimental settings, our algorithm wins by a factor above $20$ for small values of $\epsilon$.
+		In both experimental settings, our algorithm wins by a factor above $20$ for small $\epsilon$.
 	\end{minipage}
-	\begin{minipage}{\textwidth}
+	\begin{minipage}{0.68\textwidth}
 		\begin{tcolorbox}[size=small]
-			\begin{minipage}[b]{.5\linewidth}
+			\begin{minipage}{0.5\textwidth}
 				\centering
-				\includegraphics[scale=0.35]{images/speedratio_image}\\
-				{\centering\small (a) Quadratic cost, random marginals}\label{fig:compare_a}
+				\includegraphics[width=\textwidth]{images/speedratio_image}
 			\end{minipage}%
-			\begin{minipage}[b]{.5\linewidth}
+			\begin{minipage}{0.5\textwidth}
 				\centering
-				\includegraphics[scale=0.35]{images/speedratio_ML}\\
-				{\centering\small (b) Random cost, uniform marginals}\label{fig:compare_b}
+				\includegraphics[width=\textwidth]{images/speedratio_ML}
 			\end{minipage}
+		\captionof{figure}{Relative speed of our algorithm compared to Sinkhorn--Knopp, for various values of $\epsilon$}
 		\end{tcolorbox}
 	\end{minipage}
 }
@@ -296,16 +294,19 @@ This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ th
 %----------------------------------------------------------------------------------------
 
 
-\headerbox{References}{name=references,below=overrelaxation,column=1,bottomaligned=expe}{
-	\small
-	\begin{tabular}{r p{0.67\textwidth}}
-		{[Cuturi, 2013]} & M. Cuturi. Sinkhorn distances: Lightspeed computation of optimal transport. {\it Advances in Neural Information Processing Systems 26}, 2013.\\
-		{[Benamou et al., 2015]} & Benamou, J.-D., Carlier, G., Cuturi, M., Nenna, L., and Peyr\'e, G. (2015).
+\headerbox{References}{name=references,below=lyapunov,column=2,bottomaligned=overrelaxation}{
+	\scriptsize
+	\begin{multicols}{2}
+		\textbf{[Cuturi, 2013]} M. Cuturi. Sinkhorn distances: Lightspeed computation of optimal transport. {\it Advances in Neural Information Processing Systems 26}, 2013.
+		
+		\textbf{[Benamou et al., 2015]} Benamou, J.-D., Carlier, G., Cuturi, M., Nenna, L., and Peyr\'e, G. (2015).
 		{\it Iterative Bregman projections for regularized transportation problems.} SIAM Journal on Scientific
-		Computing, 37(2):A1111–A1138.\\
-		{[Sinkhorn, 1964]} & Sinkhorn, R. (1964). {\it A relationship between arbitrary positive matrices and doubly stochastic matrices.} The annals of mathematical statistics, 35(2):876–879.\\
-		{[Schmitzer, 2016]} & Schmitzer, B. 2016. Stabilized sparse scaling algorithms for entropy regularized transport problems. {\it arXiv preprint arXiv:1610.06519.}
-	\end{tabular}
+		Computing, 37(2):A1111–A1138.
+		
+		\textbf{[Sinkhorn, 1964]} Sinkhorn, R. (1964). {\it A relationship between arbitrary positive matrices and doubly stochastic matrices.} The annals of mathematical statistics, 35(2):876–879.
+		
+		\textbf{[Schmitzer, 2016]} Schmitzer, B. 2016. Stabilized sparse scaling algorithms for entropy regularized transport problems. {\it arXiv preprint arXiv:1610.06519.}
+	\end{multicols}
 }
 
 
