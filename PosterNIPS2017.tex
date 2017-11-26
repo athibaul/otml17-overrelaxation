@@ -146,9 +146,8 @@ columns=3,
 		\begin{itemize}
 			\item[] Optimal Transport is an efficient and flexible tool to compare two probability distributions. Thanks to entropic regularization [Cuturi, 2013], the fast Sinkhorn--Knopp algorithm (SK) [Sinkhorn, 1964] can be used to numerically calculate the solution.
 			
-			\item[] Yet, for small regularization $\epsilon$, the SK algorithm becomes extremely slow. To counter this, we propose a new algorithm that accelerates SK by \emph{overrelaxation}.
-			This idea has been numerically shown to accelerate the algorithm, but with no proof of convergence.
-			We ensure global convergence by choosing the overrelaxation parameters at each step of the algorithm so that a given Lyapunov function decreases.
+			\item[] To counter the slowing of SK for small $\epsilon$, we propose a new algorithm based on \emph{overrelaxation}.
+			Global convergence is ensured by choosing the overrelaxation parameters at each step of the algorithm so that a given Lyapunov function decreases.
 			
 			\item[] The algorithm we obtain converges between 2 and 20 times faster than Sinkhorn--Knopp, while having almost the same cost per iteration, and retaining other nice properties.
 		\end{itemize}
