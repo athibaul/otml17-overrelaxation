@@ -144,12 +144,17 @@ columns=3,
 \headerbox{Introduction}{name=intro,column=0,span=2}{
 	\begin{minipage}{0.55\textwidth}
 		\begin{itemize}
-			\item[] Optimal Transport is an efficient and flexible tool to compare two probability distributions. Thanks to entropic regularization [Cuturi, 2013], the fast Sinkhorn--Knopp algorithm (SK) [Sinkhorn, 1964] can be used to numerically calculate the solution.
+			\item Optimal Transport: efficient and flexible tool to compare two probability distributions.
 			
-			\item[] To counter the slowing of SK for small $\epsilon$, we propose a new algorithm based on \emph{overrelaxation}.
-			Global convergence is ensured by choosing the overrelaxation parameters at each step of the algorithm so that a given Lyapunov function decreases.
+			\item The fast \textbf{Sinkhorn--Knopp} algorithm (SK) can be used to numerically calculate an approximate solution [Cuturi, 2013].
 			
-			\item[] The algorithm we obtain converges between 2 and 20 times faster than Sinkhorn--Knopp, while having almost the same cost per iteration, and retaining other nice properties.
+			\item Our contribution: new algorithm based on \textbf{overrelaxation} of SK.
+			
+			\item Always converges to the solution
+			
+			\item Adaptive choice of parameters
+			
+			\item Converges \textbf{between 2 and 20 times faster} than SK, with almost the same cost per iteration, and other nice properties.
 		\end{itemize}
 	\end{minipage}
 	\begin{minipage}{0.45\textwidth}
@@ -179,7 +184,7 @@ columns=3,
 %----------------------------------------------------------------------------------------
 
 \headerbox{Overrelaxation}{name=overrelaxation,column=1,below=intro}{
-\begin{minipage}{0.49\textwidth}
+\begin{minipage}{0.6\textwidth}
 	\begin{tcolorbox}[size=small, top=2mm]
 		\centering
 		\begin{tabular}{c c}
@@ -191,21 +196,20 @@ columns=3,
 	\captionof{figure}{For small regularization $\epsilon$, the SK algorithm converges slowly, whereas the overrelaxed SK algorithm converges with a better rate}
 	\end{tcolorbox}
 \end{minipage}
-\begin{minipage}{0.49\textwidth}
-	\vspace{0.6mm}
-	Although the SK algorithm is much more efficient than linear solvers in a high-dimensional setting, it becomes extremely slow when the regularization $\epsilon$ is small.
-	To counteract this limitation, we use the principle of \emph{overrelaxation}.
-	
-	We define the overrelaxed projections of parameter $\theta \in \IR$:
+\begin{minipage}{0.4\textwidth}
+	\textbf{Overrelaxed projections}: elevate the scaling factors to some power $\theta \in \IR$.
 	\begin{align*}\label{or_scaling}
 	P_{\Ccal_1}^\theta(\gamma) &= \diag(a)^\theta \gamma\\
 	P_{\Ccal_2}^\theta(\gamma) &= \gamma \diag(b)^\theta \nonumber .
 	\end{align*}
-	In these equations, the exponentiation is applied element-wise.
+	(element-wise exponentiation)
+	
+	
+	Iterative overrelaxed projections \textbf{converge locally} for any $\theta \in (0,2)$.
+	In the global, non-euclidean setting, we use an additional criterion based on a Lyapunov function.
 \end{minipage}
-As in the Sinkhorn--Knopp algorithm, we iterate these operators alternately.
-If we consider the linearization of the operators around the solution, iterative overrelaxed projections can be shown to converge for any $\theta \in (0,2)$.
-In the global, non-euclidean setting, we use an additional criterion based on a Lyapunov function.
+
+Overrelaxation modifies the eigenvalues of the linearized operator in a predictable way: if SK converges at rate $1-\eta$, then the optimal asymptotic overrelaxation parameter is $\theta_0 = \frac{2}{1+\sqrt{\eta}}$, for which the convergence rate is $\frac{1-\sqrt{\eta}}{1+\sqrt{\eta}}$.
 }
 
 
@@ -217,7 +221,7 @@ In the global, non-euclidean setting, we use an additional criterion based on a 
 %----------------------------------------------------------------------------------------
 
 \headerbox{Lyapunov Function}{name=lyapunov,column=2}{
-	To ensure convergence of iterative overrelaxed Bregman projections, we assert the decrease of a Lyapunov function.
+	To ensure convergence of iterative overrelaxed Bregman projections, we assert the decrease of a \textbf{Lyapunov function}.
 	\begin{tcolorbox}[size=small]
     	Choose $F(\gamma)$ continuous, coercive function whose unique minimizer is $\gamma^*$.\\
     	Choose $\theta_1(\gamma)$, $\theta_2(\gamma)$ continuous functions, such that
@@ -228,16 +232,18 @@ In the global, non-euclidean setting, we use an additional criterion based on a 
     	Alternately iterate $P_{\Ccal_1}^{\theta_1}$ and $P_{\Ccal_2}^{\theta_2}$, starting from $\gamma^0 = e^{-c/\epsilon}$.
     	This process converges to $\gamma^*$.
     \end{tcolorbox}
-    Our choice of Lyapunov function is: $F(\gamma) := \KL(\gamma^*,\gamma)$
+    Our choice of Lyapunov function is: $F(\gamma) := \KL(\gamma^*,\gamma)$.
     Note that this function decreases for regular Bregman projections.
-    The difference between two evaluations can be computed directly:
     
     \begin{minipage}{0.65\textwidth}
-    	\begin{equation*} \label{eq:kl_diff_scal}
+    	\vspace{0.6em}
+    	Differences of $F$ can be calculated:
+    	\begin{gather*} \label{eq:kl_diff_scal}
     	F(\gamma) - F(P^\theta_{\Ccal_k}(\gamma)) = 
-    	\scal{\mu^k}{\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)}.
-    	\end{equation*}
-    	We want this difference to be positive. A sufficient condition is that every coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ be positive. Functions $\theta_1, \theta_2$ are crafted for this purpose.
+    	\scal{\mu^k}{\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)}.\\
+    	\varphi_\theta(x) = x(1-x^{-\theta}) - \theta \log x
+    	\end{gather*}
+    	We want this difference to be positive. A sufficient condition is that every coordinate of $\varphi_\theta \left((A_k \gamma) \oslash \mu^k \right)$ be positive.
     	\begin{gather*}
     	\Theta^*(u) := \max \left\{\theta \mid \varphi_\theta(u) \ge 0 \right\}
     	\\
@@ -253,7 +259,7 @@ In the global, non-euclidean setting, we use an additional criterion based on a 
 				Function $\varphi_\theta(x)$ is positive above the red line, negative below.}
 		\end{tcolorbox}
 	\end{minipage}
-This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ that is used asymptotically. A linear study around the solution shows that overrelaxation modifies the eigenvalues in a predictable way: in particular, if the linear convergence rate of the Sinkhorn--Knopp algorithm is $1-\eta$, then the optimal asymptotic overrelaxation parameter is $\theta_0 = \frac{2}{1+\sqrt{\eta}}$.
+This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ that is used asymptotically. 
 }
 
 
@@ -263,25 +269,30 @@ This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ th
 %----------------------------------------------------------------------------------------
 
 \headerbox{Experiments}{name=expe,below=overrelaxation,column=1,span=2}{
-	\begin{minipage}{0.32\textwidth}
+	\begin{minipage}{\textwidth}
 		We compare our algorithm to SK algorithm on two different settings of size $100 \times 100$.
-		\begin{itemize}
-			\item[(a)] Cost $c$ is the squared euclidean norm on $[0,1]$. Marginals are randomly generated, piecewise constant.
-			\item[(b)] Cost $c$ is a $100\times 100$ random matrix with entries uniform in $[0,1]$. Marginals are uniform.
-		\end{itemize}
 		In both experimental settings, our algorithm wins by a factor above $20$ for small $\epsilon$.
 	\end{minipage}
-	\begin{minipage}{0.68\textwidth}
+	\begin{minipage}{0.6\textwidth}
 		\begin{tcolorbox}[size=small]
 			\begin{minipage}{0.5\textwidth}
 				\centering
-				\includegraphics[width=\textwidth]{images/speedratio_image}
+				\includegraphics[width=0.9\textwidth]{images/speedratio_image}\\
+				(a) Squared euclidean norm on $[0,1]$. Marginals randomly generated, piecewise constant.
 			\end{minipage}%
 			\begin{minipage}{0.5\textwidth}
 				\centering
-				\includegraphics[width=\textwidth]{images/speedratio_ML}
+				\includegraphics[width=0.9\textwidth]{images/speedratio_ML}\\
+				(b) Random cost, uniform marginals.
 			\end{minipage}
 		\captionof{figure}{Relative speed of our algorithm compared to Sinkhorn--Knopp, for various values of $\epsilon$}
+		\end{tcolorbox}
+	\end{minipage}
+	\begin{minipage}{0.4\textwidth}
+		\begin{tcolorbox}[size=small]
+			\centering
+			\includegraphics[width=0.89\textwidth]{typical_convergence} \\
+			\captionof{figure}{Typical behavior of the algorithm: value of the Lyapunov function and of the overrelaxation parameters during the iterations.}
 		\end{tcolorbox}
 	\end{minipage}
 }
@@ -314,13 +325,12 @@ This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ th
 %----------------------------------------------------------------------------------------
 
 \headerbox{Sinkhorn-Knopp Algorithm}{name=Sinkhorn,column=0,below=intro,bottomaligned=expe}{
-	We aim at numerically solving the entropic regularization of optimal transport:
-	\begin{equation} \label{eq:problem}
+	Entropic regularization of optimal transport:
+	\begin{equation*} \label{eq:problem}
 	\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
 	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One).
-	\end{equation}
-	In this equation, $\Ccal_1$ and $\Ccal_2$ are the marginal constraint sets corresponding to two discrete measures $\mu^1$ and $\mu^2$,
-	and where $\KL$ is the Kullback--Leibler divergence.
+	\end{equation*}
+	Marginal contraint sets $\Ccal_1$ and $\Ccal_2$ correspond to two discrete measures $\mu^1$ and $\mu^2$, and $\KL$ is the Kullback--Leibler divergence.
 	\begin{gather*}
 	\Ccal_1 = \left\{ \gamma \mid A_1 \gamma = \mu^1 \right\},
 	\quad\quad\quad
@@ -328,12 +338,12 @@ This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ th
 	\KL(\gamma,\xi) = \sum_{i,j} \gamma_{i,j} \left( \log \left( \frac{\gamma_{i,j}}{\xi_{i,j}} \right) -1  \right) + \sum_{i,j} \xi_{i,j}.
 	\end{gather*}
 	\begin{minipage}{0.55\textwidth}
-		As problem (\ref{eq:problem}) is strictly convex, it has exactly one solution, that can be written equivalently as the \emph{Bregman projection} of $\gamma^0 = e^{-c/\epsilon}$ onto a convex set:
+		As problem (\ref{eq:problem}) is strictly convex, it has exactly one solution, that can be written equivalently as the \textbf{Bregman projection} of $\gamma^0 = e^{-c/\epsilon}$ onto a convex set:
 		\begin{gather*}
 		P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi),\\
 		\text{(\ref{eq:problem})} \quad \Longleftrightarrow \quad \gamma^* = P_{\Ccal_1 \cap \Ccal_2}(\gamma^0).
 		\end{gather*}
-		Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is simply performed by scaling the rows or columns of the matrix so that the corresponding marginal sum is correct.
+		Whereas projecting onto $\Ccal_1 \cap \Ccal_2$ is challenging, projecting onto $\Ccal_1$ or $\Ccal_2$ individually is simply performed by \textbf{scaling the rows or columns} of the matrix.
 		Operator $\oslash$ denotes element-wise division:
 		\begin{align*}\label{scaling}
 		P_{\Ccal_1}(\gamma) &= \diag(a) \gamma &\text{with}\quad
@@ -350,11 +360,12 @@ This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ th
 		\end{tcolorbox}
 	\end{minipage}
 	
-	As shown in [Bregman, 1964], the solution can be computed by alternating Bregman projections. The main idea of the Sinkhorn--Knopp algorithm can therefore be written as:
-	\begin{equation}
+	\vspace{0.6em}
+	\textbf{Sinkhorn--Knopp algorithm:}
+	\begin{equation*}
 	\lim P_{\Ccal_2}\circ P_{\Ccal_1} \circ \ldots \circ P_{\Ccal_2} \circ P_{\Ccal_1} (\gamma^0) = \gamma^*
-	\end{equation}
-	This algorithm converges linearly: if we denote by $\gamma^\ell = (P_{\Ccal_2} \circ P_{\Ccal_1})^{(\ell)}(\gamma^0)$ the $\ell$-th iterate, then
+	\end{equation*}
+	This algorithm \textbf{converges linearly}: if we denote by $\gamma^\ell = (P_{\Ccal_2} \circ P_{\Ccal_1})^{(\ell)}(\gamma^0)$ the $\ell$-th iterate, then
 	\[ \norm{\gamma^\ell - \gamma^*} = \mathcal{O}\left((1-\eta)^\ell \right) , \quad \eta > 0 \]
 }
 
