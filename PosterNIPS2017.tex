@@ -171,7 +171,7 @@ columns=3,
 				$\epsilon = 0.5$ &
 				$\epsilon = 0.02$
 			\end{tabular}
-			\captionof{figure}{Regularized optimal transport maps for decreasing regularization parameter $\epsilon$.} \label{fig:1d_ot}
+			\captionof{figure}{Regularized optimal transport maps become more and more precise for decreasing regularization parameter $\epsilon$.} \label{fig:1d_ot}
 		\end{tcolorbox}
 	\end{minipage}
 }
@@ -291,8 +291,8 @@ This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ th
 	\begin{minipage}{0.4\textwidth}
 		\begin{tcolorbox}[size=small]
 			\centering
-			\includegraphics[width=0.89\textwidth]{typical_convergence_2} \\
-			\captionof{figure}{Typical behavior of the algorithm: value of the Lyapunov function and of the overrelaxation parameters during the iterations.}
+			\includegraphics[width=0.83\textwidth]{typical_convergence_2} \\
+			\captionof{figure}{Typical run of the algorithm: value of the Lyapunov function and of the overrelaxation parameters during the iterations.}
 		\end{tcolorbox}
 	\end{minipage}
 }
@@ -326,10 +326,10 @@ This adaptive choice allows to choose the overrelaxation parameter $\theta_0$ th
 
 \headerbox{Sinkhorn-Knopp Algorithm}{name=Sinkhorn,column=0,below=intro,bottomaligned=expe}{
 	Entropic regularization of optimal transport:
-	\begin{equation*} \label{eq:problem}
+	\begin{equation} \label{eq:problem}
 	\gamma^* = \argmin_{\gamma \in \Ccal_1 \cap \Ccal_2}
 	\scal{c}{\gamma} + \epsilon \KL(\gamma,\One).
-	\end{equation*}
+	\end{equation}
 	Marginal contraint sets $\Ccal_1$ and $\Ccal_2$ correspond to two discrete measures $\mu^1$ and $\mu^2$, and $\KL$ is the Kullback--Leibler divergence.
 	\begin{gather*}
 	\Ccal_1 = \left\{ \gamma \mid A_1 \gamma = \mu^1 \right\},
