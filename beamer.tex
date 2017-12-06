@@ -47,7 +47,8 @@
 \begin{frame}
 {Context} 
 \begin{itemize}
-\item Fast computation of regularized Optimal Transport with the Sinkhorn--Knopp algorithm (SK) {\color{blue}[Cuturi, 2013]}
+\item Approximation of the OT map between two discrete measures.
+\item Fast computation of Regularized Optimal Transport with the Sinkhorn--Knopp algorithm (SK) {\color{blue}[Cuturi, 2013]}
 \item For small regularization $\epsilon$, more precise but slower
 \end{itemize}
 \begin{tabular}{c c c c}
@@ -97,7 +98,7 @@ Kullback--Leibler divergence:
 
 \begin{frame}{Bregman projections}
 	
-Bregman projection onto $\Ccal$:
+Bregman projection onto convex $\Ccal$:
 \[
 P_{\Ccal}(\xi) := \argmin_{\gamma \in \Ccal} \KL(\gamma,\xi).
 \]
@@ -141,8 +142,8 @@ where $\oslash$ is the entry-wise division.
 \end{columns}
 \end{frame}
 
-\begin{frame}{Limitation of the SK algorithm}
-Linear convergence:
+\begin{frame}{Convergence of the SK algorithm}
+Global linear convergence:
 \[ \norm{\gamma^\ell - \gamma^*} = \mathcal{O}\left((1-\eta)^\ell \right) , \quad \eta > 0 \]
 
 \begin{columns}
@@ -177,7 +178,8 @@ slow convergence
 		\begin{column}{0.4\textwidth}
 			\centering
 			\input{schema_c.tex}\\
-			Typically take $\theta \in [1,2)$.
+			Typically take $\theta \in [1,2)$ \pause \\
+			\ldots But sometimes even this diverges !
 		\end{column}
 	\end{columns}
 \end{frame}
@@ -230,8 +232,8 @@ This process converges to $\gamma^*$.
 		\item Makes sense
 		% Verifies properties
 		% + In the Bregman context, it is not absurd to consider this function. Decreases when performing simple Bregman projections.
+		\item Decreases even for \emph{large} $\theta \in [1,2)$ in practice % Allows to choose rather large overrelaxation parameters
 		\item Easy calculation of differences % between the evaluation on a point and on its projection
-		\item Decreases for \emph{most} $\theta \in [1,2)$ in practice % Allows to choose rather large overrelaxation parameters
 	\end{itemize}
 	
 \end{frame}
@@ -280,13 +282,12 @@ is a real function, applied coordinate-wise.
 	\pause
 	\begin{itemize}
 		\item Easy calculations (1-D monotone problem for $\Theta^*$)
-		\item Excellent choice in practice
 		\item Possibility to choose the final parameter $\theta_0$
 	\end{itemize}
-	\pause
-	\begin{block}{Optimal parameter}
-		If SK converges at rate $1-\eta$, then $\theta_0 = \frac{2}{1+\sqrt{\eta}}$ is asymptotically optimal.
-	\end{block}
+\end{frame}
+
+\begin{frame}{Optimal parameter}
+		If SK converges at rate $1-\eta$, then $$\theta_0 = \frac{2}{1+\sqrt{\eta}}$$ is asymptotically optimal, and the overrelaxed algorithm converges at rate $$\frac{1-\sqrt{\eta}}{1+\sqrt{\eta}} \sim 1-2\sqrt{\eta}$$.
 \end{frame}
 
 \section{Numerical results}
